@@ -1,0 +1,15 @@
+{
+  "type": "module",
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "NodeNext",
+    "moduleResolution": "node",
+    "baseUrl": "./src/",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
+  },
+  "exclude": ["node_modules"]
+}

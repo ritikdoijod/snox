@@ -1,0 +1,17 @@
+{
+  "name": "server",
+  "type": "module",
+  "scripts": {
+    "dev": "rollup -c && node --env-file=.env.dev --watch dist/server.js",
+    "build": "rollup -c"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.1",
+    "argon2": "^0.43.0",
+    "hono": "^4.7.7",
+    "mongoose": "^8.14.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-alias": "^5.1.1"
+  }
+}
