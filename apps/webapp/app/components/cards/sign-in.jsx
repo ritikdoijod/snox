@@ -1,4 +1,4 @@
-import { Link, useNavigation, useFetcher } from "react-router";
+import { Link, useNavigation, Form } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -37,7 +37,6 @@ const schema = z.object({
 });
 
 export function SignInCard() {
-  const fetcher = useFetcher();
   const navigation = useNavigation();
 
   const form = useForm({
@@ -54,13 +53,6 @@ export function SignInCard() {
   } = form;
 
 
-  async function onSubmit(data) {
-    await fetcher.submit(data, {
-      method: "post",
-      action: "/auth/login",
-      encType: "application/json",
-    });
-  }
 
   return (
     <Card className="w-full md:w-sm border-none">
@@ -83,7 +75,7 @@ export function SignInCard() {
           <Separator className="flex-1" />
         </div>
         <FormProvider {...form}>
-          <fetcher.Form onSubmit={form.handleSubmit(onSubmit)}>
+          <Form action="/auth/login" method="post">
             <fieldset disabled={navigation.state === "submitting"}>
               <div className="grid gap-8">
                 <FormField
@@ -135,7 +127,7 @@ export function SignInCard() {
                 )}
               </div>
             </fieldset>
-          </fetcher.Form>
+          </Form>
         </FormProvider>
       </CardContent>
       <CardFooter className="justify-center text-sm text-muted-foreground">

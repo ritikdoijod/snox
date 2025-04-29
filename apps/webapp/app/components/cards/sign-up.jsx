@@ -74,7 +74,7 @@ export function SignUpCard() {
           <Separator className="flex-1" />
         </div>
         <FormProvider {...form}>
-          <Form method="post">
+          <Form action="/auth/signup" method="post">
             <fieldset disabled={navigation.state === "submitting"}>
               <div className="grid gap-8">
                 <FormField

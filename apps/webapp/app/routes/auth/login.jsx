@@ -11,7 +11,8 @@ export async function loader({ request }) {
 }
 
 export async function action({ request }) {
-  const { email, password } = await request.json();
+  const formData = await request.formData();
+  const { email, password } = Object.fromEntries(formData);
 
   const { token, user } = await api.post("/auth/login", {
     email,

@@ -1,9 +1,12 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
-import auth from "./auth/auth.route.js"
 import { config } from "@/configs/app"
 import { connectToDB } from "@/configs/db"
 import { format } from '@/middlewares/format'
+
+// routes
+import auth from "@/auth/auth.route"
+import users from "@/users/users.route"
 
 const app = new Hono()
 
@@ -20,7 +23,8 @@ app.onError((error, c) => {
 
 app.use(format({ apiVersion: "0.0.1" }));
 
-app.route('/auth', auth)
+app.route('/auth', auth);
+app.route("/users", users);
 
 serve({
   fetch: app.fetch,

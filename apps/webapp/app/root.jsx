@@ -8,6 +8,10 @@ import {
 } from "react-router";
 
 import stylesheet from "./app.css?url";
+
+import { getSession } from "@/sessions";
+import { api } from "@/configs/fc";
+import { AuthProvider } from "@/lib/contexts/auth";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export const links = () => [
@@ -24,6 +28,17 @@ export const links = () => [
   { rel: "stylesheet", href: stylesheet },
 ];
 
+
+export async function loader({ request }) {
+  const session = await getSession(request.headers.get("Cookie"));
+  const uid = session.get("uid");
+  if (!uid) return {};
+
+  const { user } = await api.get(`/users/${uid}`, { session });
+
+  return { user };
+}
+
 export function Layout({ children }) {
   return (
     <html lang="en">
@@ -34,7 +49,7 @@ export function Layout({ children }) {
         <Links />
       </head>
       <body>
-        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
           {children}
         </ThemeProvider>
         <ScrollRestoration />
@@ -44,8 +59,13 @@ export function Layout({ children }) {
   );
 }
 
-export default function App() {
-  return <Outlet />;
+export default function App({ loaderData: { user } }) {
+
+  return (
+    <AuthProvider user={user}>
+      <Outlet />
+    </AuthProvider>
+  );
 }
 
 export function ErrorBoundary({ error }) {
