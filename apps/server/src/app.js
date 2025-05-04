@@ -1,4 +1,6 @@
 import { Hono } from "hono";
+
+// middlewares
 import { format } from "@/middlewares/format";
 import { authn } from "@/middlewares/auth";
 import { parseQueryString } from "@/middlewares/qs";

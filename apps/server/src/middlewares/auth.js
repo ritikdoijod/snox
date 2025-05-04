@@ -1,12 +1,18 @@
 import {
-  UnauthorizedException,
-  InternalServerException,
-  NotFoundException,
-} from "@/utils/app-error";
+  JwtTokenExpired,
+  JwtTokenInvalid,
+  JwtTokenIssuedAt,
+  JwtTokenNotBefore,
+  JwtTokenSignatureMismatched,
+} from "hono/utils/jwt/types";
+
+import { NotFoundException, UnauthorizedException } from "@/utils/app-error";
+import { asyncHandler } from "@/utils/async-handler";
 import { verifyToken } from "@/utils/jwt";
+
 import { User } from "@/models/user";
 
-const authn = async (c, next) => {
+export const authn = asyncHandler(async (c, next) => {
   try {
     const authorization = c.req.header("authorization");
     if (!authorization) throw new UnauthorizedException("Unauthorized");
@@ -24,8 +30,15 @@ const authn = async (c, next) => {
 
     throw new UnauthorizedException("Unauthorized");
   } catch (error) {
-    throw new InternalServerException("Internal Server Error");
-  }
-};
+    if (
+      error instanceof JwtTokenExpired ||
+      error instanceof JwtTokenInvalid ||
+      error instanceof JwtTokenNotBefore ||
+      error instanceof JwtTokenIssuedAt ||
+      error instanceof JwtTokenSignatureMismatched
+    )
+      throw new UnauthorizedException("Unauthorized");
 
-export { authn };
+    throw error;
+  }
+});

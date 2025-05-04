@@ -6,6 +6,7 @@ import { NotFoundException, ForbiddenException } from "@/utils/app-error";
 import { STATUS } from "@/utils/constants";
 import { asyncHandler } from "@/utils/async-handler";
 import { Permissions } from "@/enums/permission";
+import { canEditWorkspace } from "@/policies/workspace";
 
 export async function getWorkspaces(c) {
   try {
@@ -33,7 +34,7 @@ export async function getWorkspace(c) {
       user: c.user.id,
       workspace: workspaceId,
       permissions: {
-        $eq: Permissions.VIEW_ONLY
+        $eq: Permissions.VIEW_ONLY,
       },
     });
 
@@ -45,7 +46,7 @@ export async function getWorkspace(c) {
   }
 }
 
-export async function createWorkspace(c) {
+export const createWorkspace = asyncHandler(async function (c) {
   const session = await mongoose.startSession();
 
   try {
@@ -84,7 +85,7 @@ export async function createWorkspace(c) {
   } finally {
     await session.endSession();
   }
-}
+});
 
 export const updateWorkspace = asyncHandler(async function (c, next) {
   const session = await mongoose.startSession();
@@ -92,19 +93,11 @@ export const updateWorkspace = asyncHandler(async function (c, next) {
   try {
     session.startTransaction();
     const { workspaceId } = c.req.param();
-    const workspace = await Workspace.findById(workspaceId);
 
+    const workspace = await Workspace.findById(workspaceId);
     if (!workspace) throw new NotFoundException("Workspace not found");
 
-    const member = await Member.findOne({
-      user: c.user.id,
-      workspace: workspaceId,
-      permissions: {
-        $eq: Permissions.EDIT_WORKSPACE
-      },
-    });
-
-    if (!member) throw new ForbiddenException("Access denied");
+    await canEditWorkspace(c.user.id, workspaceId);
 
     const { name, description } = await c.req.json();
 
