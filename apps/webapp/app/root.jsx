@@ -13,6 +13,7 @@ import { getSession } from "@/sessions";
 import { api } from "@/configs/fc";
 import { AuthProvider } from "@/lib/contexts/auth";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner"
 
 export const links = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -49,18 +50,18 @@ export function Layout({ children }) {
         <Links />
       </head>
       <body>
-        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
           {children}
         </ThemeProvider>
         <ScrollRestoration />
         <Scripts />
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   );
 }
 
 export default function App({ loaderData: { user } }) {
-
   return (
     <AuthProvider user={user}>
       <Outlet />

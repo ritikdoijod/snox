@@ -1,28 +1,14 @@
-import { redirect } from "react-router";
-import { api } from "@/configs/fc";
-import { getSession } from "@/sessions";
+import { useEffect } from "react";
+import { toast } from "sonner";
 import { SignUpCard } from "@/components/cards/sign-up";
 
-export async function loader({ request }) {
-  const session = await getSession(request.headers.get("Cookie"));
-  const uid = session.get("uid");
-  if (uid) return redirect("/");
-  return null;
-}
+export { loader } from "./loaders";
+export { signup as action } from "./actions";
 
-export async function action({ request }) {
-  const formData = await request.formData();
-  const { name, email, password } = Object.fromEntries(formData);
+export default function SignUp({ actionData: { error } = {} }) {
+  useEffect(() => {
+    if (error) toast.error(error.message);
+  }, [error]);
 
-  await api.post("/auth/register", {
-    name,
-    email,
-    password,
-  });
-
-  return redirect("/auth/login");
-}
-
-export default function SignUp() {
-  return <SignUpCard />
+  return <SignUpCard />;
 }

@@ -15,11 +15,7 @@ const workspaceSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-    },
-    projects: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Project",
-    }]
+    }
   },
   {
     timestamps: true,

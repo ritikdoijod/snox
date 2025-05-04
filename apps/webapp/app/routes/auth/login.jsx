@@ -1,35 +1,16 @@
-import { redirect } from "react-router";
-import { api } from "@/configs/fc";
-import { commitSession, getSession } from "@/sessions";
+import { toast } from "sonner";
+
 import { SignInCard } from "@/components/cards/sign-in";
+import { useEffect } from "react";
 
-export async function loader({ request }) {
-  const session = await getSession(request.headers.get("Cookie"));
-  const uid = session.get("uid");
-  if (uid) return redirect("/");
-  return null;
-}
+export { loader } from "./loaders";
+export { login as action } from "./actions";
 
-export async function action({ request }) {
-  const formData = await request.formData();
-  const { email, password } = Object.fromEntries(formData);
 
-  const { token, user } = await api.post("/auth/login", {
-    email,
-    password,
-  });
+export default function SignIn({ actionData: { error } = {} }) {
+  useEffect(() => {
+    if (error) toast.error(error.message);
+  }, [error]);
 
-  const session = await getSession(request.headers.get("Cookie"));
-  session.set("uid", user._id);
-  session.set("token", token);
-
-  return redirect(`/`, {
-    headers: {
-      "Set-Cookie": await commitSession(session),
-    },
-  });
-}
-
-export default function SignIn() {
   return <SignInCard />;
 }

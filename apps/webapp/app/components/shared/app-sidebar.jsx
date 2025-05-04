@@ -17,13 +17,12 @@ function useAppSidebar() {
   return useContext(AppSidebarContext)
 };
 
-const AppSidebar = ({ activeWorkspace, workspaces, navMain, ...props }) => {
+const AppSidebar = ({ activeWorkspace, workspaces, ...props }) => {
   return (
-    <AppSidebarContext.Provider value={{ activeWorkspace: activeWorkspace, workspaces, navMain }}>
+    <AppSidebarContext.Provider value={{ activeWorkspace: activeWorkspace, workspaces }}>
       <Sidebar collapsible="icon" {...props}>
         <SidebarHeader className="space-y-4">
           <img src="/logo.svg" className="mt-4 w-[80px] mx-auto" />
-
           <WorkspaceSwitcher />
         </SidebarHeader>
         <SidebarContent className="mt-4">

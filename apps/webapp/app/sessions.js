@@ -6,7 +6,7 @@ const { getSession, commitSession, destroySession } =
       name: "session",
       httpOnly: true,
       secure: true,
-      maxAge: 60 * 60 * 24 * 1, // 1 day
+      maxAge: 60 * 60,
       secrets: ["s3cr3t"], // TODO: set env for secret
     },
   });

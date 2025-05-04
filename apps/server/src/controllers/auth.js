@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import { User } from "@/users/users.model";
-import { Workspace } from "@/workspaces/workspaces.model";
+import { User } from "@/models/user";
+import { Workspace } from "@/models/workspace";
 import { UnauthorizedException, BadRequestException } from "@/utils/app-error";
 import { signToken } from "@/utils/jwt";
 
@@ -12,7 +12,6 @@ const login = async (c) => {
 
   if (!user) throw new UnauthorizedException("Invalid Credentials");
 
-
   if (await user.verifyPassword(password)) {
     const token = await signToken(user._id);
 
@@ -22,13 +21,8 @@ const login = async (c) => {
   throw new UnauthorizedException("Invalid Credentials");
 };
 
-
 const registerUser = async (c) => {
-  const session = await mongoose.startSession();
-
   try {
-    session.startTransaction();
-
     const { name, email, password } = await c.req.json();
 
     // check if user already exist with email
@@ -36,25 +30,11 @@ const registerUser = async (c) => {
 
     if (existingUser) throw new BadRequestException("Email already exist");
 
-    const newUser = new User({
+    const newUser = await User.create({
       name,
       email,
       password,
     });
-
-    const workspace = new Workspace({
-      name: "My Workspace",
-      description: "Default workspace created for user",
-      author: newUser?._id,
-    });
-
-    workspace.save({ session });
-
-    newUser.currentWorkspace = workspace?._id;
-    newUser.workspaces = [workspace?._id];
-
-    await newUser.save({ session });
-    await session.commitTransaction();
 
     return c.json.success({
       data: {
@@ -62,10 +42,7 @@ const registerUser = async (c) => {
       },
     });
   } catch (error) {
-    await session.abortTransaction();
     throw error;
-  } finally {
-    session.endSession();
   }
 };
 

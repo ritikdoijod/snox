@@ -1,5 +1,12 @@
-import { User } from "./users.model";
+import { asyncHandler } from "@/utils/async-handler";
+import { User } from "@/models/user";
 import { NotFoundException } from "@/utils/app-error";
+
+const getUsers = asyncHandler(async function (c) {
+  const users = await User.find();
+
+  return c.json.success({ data: { users } });
+})
 
 const getUser = async (c) => {
   const { userId } = c.req.param();
@@ -10,4 +17,4 @@ const getUser = async (c) => {
   return c.json.success({ data: { user } });
 };
 
-export { getUser }
+export { getUser, getUsers }

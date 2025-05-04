@@ -2,12 +2,12 @@
   "type": "module",
   "compilerOptions": {
     "target": "esnext",
-    "module": "NodeNext",
-    "moduleResolution": "node",
-    "baseUrl": "./src/",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "baseUrl": "src",
     "paths": {
       "@/*": [
-        "./src/*"
+        "*"
       ]
     }
   },

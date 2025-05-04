@@ -1,8 +1,11 @@
 import { Hono } from "hono";
-import { getUser } from "./users.handler";
+import {
+  getEvents,
+
+} from "@/controllers/event";
 
 const router = new Hono();
 
-router.get('/:userId', getUser)
+router.get("/", getEvents);
 
 export default router;

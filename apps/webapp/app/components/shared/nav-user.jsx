@@ -1,6 +1,5 @@
-import { Link, Form } from "react-router";
+import { Link } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 
 import {
   DropdownMenu,
@@ -24,6 +23,8 @@ const NavUser = () => {
   const { isMobile } = useSidebar();
   const { user } = auth();
 
+  if (!user) return null;
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -31,7 +32,7 @@ const NavUser = () => {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground border"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground border group-data-[collapsible=icon]:border-none group-data-[collapsible=icon]:rounded-full cursor-pointer"
             >
               <Avatar>
                 <AvatarImage src={user.avatar} alt={user.name} />

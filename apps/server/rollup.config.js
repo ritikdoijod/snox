@@ -12,12 +12,13 @@ const jsconfig = JSON.parse(
 const aliases = Object.entries(jsconfig.compilerOptions?.paths).flatMap(
   ([alias, targets]) => {
     const pattern = alias.replace("/*", "/(.*)$");
+
     return targets.map((target) => {
-      target = target.replace("/*", "");
+      target = target.replace("*", "");
 
       return {
         find: new RegExp(`^${pattern}`),
-        replacement: path.join(path.resolve(__dirname, target), "$1"),
+        replacement: path.join(path.resolve(jsconfig.compilerOptions.baseUrl, target), "$1"),
       };
     });
   },

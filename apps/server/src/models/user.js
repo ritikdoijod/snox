@@ -35,12 +35,6 @@ userSchema.pre("save", async function(next) {
   next();
 });
 
-userSchema.methods.toJSON = function() {
-  const obj = this.toObject();
-  delete obj.password;
-  return obj;
-};
-
 userSchema.methods.verifyPassword = async function(value) {
   return await verify(this.password, value);
 };
