@@ -13,7 +13,7 @@ export const login = asyncHandler(async function (c) {
   if (await user.verifyPassword(password)) {
     const token = await signToken(user.id);
 
-    return c.json.success({ data: { token } });
+    return c.json.success({ data: { token, user } });
   }
 
   throw new UnauthorizedException("Invalid Credentials");

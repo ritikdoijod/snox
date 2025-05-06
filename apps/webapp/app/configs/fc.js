@@ -25,7 +25,6 @@ api.hooks.req.use(async (opts) => {
 
 api.hooks.res.use(async (res) => {
   if (res.status === "success") return res.data;
-
   throw new AppError(
     res.error.message,
     res.error?.details?.reduce((acc, current) => {

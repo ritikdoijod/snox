@@ -72,7 +72,7 @@ export const createProject = asyncHandler(async function (c, next) {
     const workspace = await Workspace.findById(workspaceId);
     if (!workspace) throw new NotFoundException("Workspace not found");
 
-    await canCreateProject(c.user, workspace);
+    await canCreateProject(c.user.id, workspaceId);
 
     const project = new Project({
       name,

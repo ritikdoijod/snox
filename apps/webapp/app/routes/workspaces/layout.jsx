@@ -1,10 +1,7 @@
 import { Outlet } from "react-router";
 import { AppSidebar } from "@/components/shared/app-sidebar";
 
-import {
-  SidebarProvider,
-  SidebarInset,
-} from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 
 import { auth } from "@/lib/auth";
 import { getProjects, getWorkspace, getWorkspaces } from "./loaders";
@@ -13,11 +10,12 @@ export const loader = auth(async function ({
   params: { workspaceId },
   session,
 }) {
-  const workspace = await getWorkspace(workspaceId, session);
+  // const workspace = await getWorkspace(workspaceId, session);
   const workspaces = await getWorkspaces(session);
-  const projects = await getProjects(workspaceId, session);
+  // const projects = await getProjects(workspaceId, session);
 
-  return { workspace, workspaces, projects };
+  // return { workspace, workspaces, projects };
+  return { workspaces };
 });
 
 export default function WorkspaceLayout({

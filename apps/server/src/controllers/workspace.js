@@ -1,50 +1,39 @@
 import mongoose from "mongoose";
-import { Workspace } from "@/models/workspace";
-import { Member } from "@/models/member";
-import { AppEvent } from "@/models/event";
-import { NotFoundException, ForbiddenException } from "@/utils/app-error";
-import { STATUS } from "@/utils/constants";
-import { asyncHandler } from "@/utils/async-handler";
+
 import { Permissions } from "@/enums/permission";
-import { canEditWorkspace } from "@/policies/workspace";
+import { AppEvent } from "@/models/event";
+import { Member } from "@/models/member";
+import { Workspace } from "@/models/workspace";
+import {
+  canDeleteWorkspace,
+  canEditWorkspace,
+  canViewWorkspace,
+} from "@/policies/workspace";
 
-export async function getWorkspaces(c) {
-  try {
-    const memberships = await Member.find({
-      user: c.user.id,
-    }).populate("workspace");
+import { NotFoundException } from "@/utils/app-error";
+import { asyncHandler } from "@/utils/async-handler";
+import { STATUS } from "@/utils/constants";
 
-    const workspaces = memberships.map((membership) => membership.workspace);
+export const getWorkspaces = asyncHandler(async function (c) {
+  const memberships = await Member.find({
+    user: c.user.id,
+  }).populate("workspace");
 
-    return c.json.success({ data: { workspaces } });
-  } catch (error) {
-    throw error;
-  }
-}
+  const workspaces = memberships.map((membership) => membership.workspace);
 
-export async function getWorkspace(c) {
-  try {
-    const workspaceId = c.req.param("workspaceId");
+  return c.json.success({ data: { workspaces } });
+});
 
-    const workspace = await Workspace.findById(workspaceId);
+export const getWorkspace = asyncHandler(async function (c) {
+  const workspaceId = c.req.param("workspaceId");
 
-    if (!workspace) throw new NotFoundException("Workspace not found");
+  const workspace = await Workspace.findById(workspaceId);
+  if (!workspace) throw new NotFoundException("Workspace not found");
 
-    const member = await Member.findOne({
-      user: c.user.id,
-      workspace: workspaceId,
-      permissions: {
-        $eq: Permissions.VIEW_ONLY,
-      },
-    });
+  await canViewWorkspace(c.user.id, workspaceId);
 
-    if (!member) throw new ForbiddenException("Access denied");
-
-    return c.json.success({ data: { workspace } });
-  } catch (error) {
-    throw error;
-  }
-}
+  return c.json.success({ data: { workspace } });
+});
 
 export const createWorkspace = asyncHandler(async function (c) {
   const session = await mongoose.startSession();
@@ -87,7 +76,7 @@ export const createWorkspace = asyncHandler(async function (c) {
   }
 });
 
-export const updateWorkspace = asyncHandler(async function (c, next) {
+export const updateWorkspace = asyncHandler(async function (c) {
   const session = await mongoose.startSession();
 
   try {
@@ -138,23 +127,11 @@ export const deleteWorkspace = asyncHandler(async function (c) {
   try {
     session.startTransaction();
     const { workspaceId } = c.req.param();
-    const workspace = await Workspace.findById(workspaceId);
 
+    const workspace = await Workspace.findById(workspaceId);
     if (!workspace) throw new NotFoundException("Workspace not found");
 
-    const member = await Member.findOne({
-      user: c.user.id,
-      workspace: workspaceId,
-      permissions: {
-        $elemMatch: {
-          action: "delete",
-          resourceType: "Workspace",
-          resourceId: workspaceId,
-        },
-      },
-    });
-
-    if (!member) throw new ForbiddenException("Access denied");
+    await canDeleteWorkspace(c.user.id, workspaceId);
 
     await Workspace.findByIdAndDelete(workspaceId).session(session);
 

@@ -8,14 +8,24 @@ import {
   getWorkspace,
   getWorkspaces,
   updateWorkspace,
-} from "@/controllers/workspace.js";
+} from "@/controllers/workspace";
+
 import { mongoObjectIdSchema } from "@/schemas/mongo";
 import { workspaceSchema } from "@/schemas/workspace";
 
 const router = new Hono();
 
 router.get("/", getWorkspaces);
-router.get("/:workspaceId", getWorkspace);
+router.get(
+  "/:workspaceId",
+  zValidator(
+    "param",
+    z.object({
+      workspaceId: mongoObjectIdSchema("Invalid workspace id"),
+    })
+  ),
+  getWorkspace
+);
 router.post("/", zValidator("json", workspaceSchema), createWorkspace);
 router.patch(
   "/:workspaceId",
@@ -28,6 +38,15 @@ router.patch(
   zValidator("json", workspaceSchema.partial()),
   updateWorkspace
 );
-router.delete("/:workspaceId", deleteWorkspace);
+router.delete(
+  "/:workspaceId",
+  zValidator(
+    "param",
+    z.object({
+      workspaceId: mongoObjectIdSchema("Invalid workspace id"),
+    })
+  ),
+  deleteWorkspace
+);
 
 export default router;

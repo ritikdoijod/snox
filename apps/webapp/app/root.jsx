@@ -13,7 +13,7 @@ import { getSession } from "@/sessions";
 import { api } from "@/configs/fc";
 import { AuthProvider } from "@/lib/contexts/auth";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/components/ui/sonner";
 
 export const links = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -29,14 +29,11 @@ export const links = () => [
   { rel: "stylesheet", href: stylesheet },
 ];
 
-
 export async function loader({ request }) {
   const session = await getSession(request.headers.get("Cookie"));
   const uid = session.get("uid");
   if (!uid) return {};
-
   const { user } = await api.get(`/users/${uid}`, { session });
-
   return { user };
 }
 

@@ -1,26 +1,39 @@
 import { Permissions } from "@/enums/permission";
 import { Member } from "@/models/member";
+import { authz } from "@/utils/auth";
 
-export async function canViewMember(user, member) {
-  const requestingMember = await Member.findOne({
-    user: user.id,
-    workspace: member.workspace,
+export const canViewMember = authz(async function (user, workspace) {
+  const member = await Member.findOne({
+    user,
+    workspace,
     permissions: {
       $eq: Permissions.VIEW_ONLY,
     },
   });
 
-  return !!requestingMember;
-}
+  return !!member;
+});
 
-export async function canAddMember(user, workspace) {
-  const requestingMember = await Member.findOne({
-    user: user.id,
-    workspace: workspace.id,
+export const canAddMember = authz(async function (user, workspace) {
+  const member = await Member.findOne({
+    user,
+    workspace,
     permissions: {
       $eq: Permissions.ADD_MEMBER,
     },
   });
 
-  return !!requestingMember;
-}
+  return !!member;
+});
+
+export const canRemoveMember = authz(async function (user, workspace) {
+  const member = await Member.findOne({
+    user,
+    workspace,
+    permissions: {
+      $eq: Permissions.REMOVE_MEMBER,
+    },
+  });
+
+  return !!member;
+});
