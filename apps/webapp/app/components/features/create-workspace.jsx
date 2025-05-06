@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useNavigate, useFetcher } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +15,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
@@ -37,7 +38,7 @@ const schema = z.object({
   description: z.string().trim().max(255).optional(),
 });
 
-export function CreateProjectDialog({ children }) {
+export function CreateWorkspaceDialog({ children }) {
   const [step, setStep] = useState(1);
   const fetcher = useFetcher();
 
@@ -91,8 +92,10 @@ function StepOne({ onSubmit, state }) {
   return (
     <DialogContent className="sm:max-w-[425px]">
       <DialogHeader>
-        <DialogTitle>Create projecte</DialogTitle>
-        <DialogDescription>Projects help you organise tasks.</DialogDescription>
+        <DialogTitle>Create new workspace</DialogTitle>
+        <DialogDescription>
+          Set up your new workspace to organize your tasks.
+        </DialogDescription>
       </DialogHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -103,7 +106,7 @@ function StepOne({ onSubmit, state }) {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Project name</FormLabel>
+                    <FormLabel>Workspace name</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -118,7 +121,7 @@ function StepOne({ onSubmit, state }) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Project description
+                      Workspace description
                       <span className="text-muted-foreground text-xs font-light italic">
                         (Optional)
                       </span>
@@ -140,7 +143,7 @@ function StepOne({ onSubmit, state }) {
                 {state === "submitting" ? (
                   <Button disabled className="cursor-pointer">
                     <Loader2 className="animate-spin" />
-                    Creating project...
+                    Creating workspace...
                   </Button>
                 ) : (
                   <Button
@@ -148,7 +151,7 @@ function StepOne({ onSubmit, state }) {
                     disabled={!isDirty || !isValid}
                     className="cursor-pointer"
                   >
-                    Create project
+                    Create workspace
                   </Button>
                 )}
               </DialogFooter>
@@ -171,11 +174,11 @@ function StepTwo({ workspaceId }) {
           <Check className="size-6" />
         </div>
         <DialogTitle className="text-center text-lg font-semibold">
-          Project created
+          Workspace created
         </DialogTitle>
         <DialogDescription className="text-center text-sm text-muted-foreground">
-          Your project has been created successfully. You can now start creating
-          new tasks your new project.
+          Your workspace has been created successfully. You can now start using
+          your new workspace.
         </DialogDescription>
       </DialogHeader>
 
@@ -186,7 +189,7 @@ function StepTwo({ workspaceId }) {
           }}
           className="w-fit"
         >
-          Go to project
+          Go to workspace
           <ArrowRightIcon className="size-4" />
         </Button>
       </DialogClose>

@@ -1,6 +1,7 @@
 import { Link, useFetcher, useLoaderData } from "react-router";
+import { Folder, MoreHorizontal, Trash, Plus } from "lucide-react";
 
-import { CreateProjectDialog } from "@/components/features/create-project";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +16,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Folder, MoreHorizontal, Trash } from "lucide-react";
+import { CreateProjectDialog } from "@/components/features/create-project";
+import { DialogTrigger } from "@/components/ui/dialog";
 
 const NavProjects = () => {
   const { projects } = useLoaderData();
@@ -25,7 +27,17 @@ const NavProjects = () => {
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel className="flex justify-between">
         Projects
-        <CreateProjectDialog />
+        <CreateProjectDialog>
+          <DialogTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full size-5"
+            >
+              <Plus className="size-3" />
+            </Button>
+          </DialogTrigger>
+        </CreateProjectDialog>
       </SidebarGroupLabel>
       <SidebarMenu>
         {projects?.map((project) => (

@@ -39,6 +39,9 @@ const create = (config) => {
     patch: (path, body, options) =>
       fc(path, { ...options, method: "PATCH", body }),
     delete: (path, options) => fc(path, { ...options, method: "DELETE" }),
+    session: (session) => {
+      config.session = session;
+    },
     hooks: {
       req: { use: (fn) => reqHooks.push(fn) },
       res: { use: (fn) => resHooks.push(fn) },

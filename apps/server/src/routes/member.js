@@ -21,7 +21,7 @@ router.get(
   zValidator(
     "param",
     z.object({
-      workspaceId: mongoObjectIdSchema("Invalid workspace id"),
+      memberId: mongoObjectIdSchema("Invalid member id"),
     })
   ),
   getMember
@@ -32,7 +32,7 @@ router.patch(
   zValidator(
     "param",
     z.object({
-      workspaceId: mongoObjectIdSchema("Invalid workspace id"),
+      memberId: mongoObjectIdSchema("Invalid member id"),
     })
   ),
   updateMember
@@ -42,7 +42,7 @@ router.delete(
   zValidator(
     "param",
     z.object({
-      workspaceId: mongoObjectIdSchema("Invalid workspace id"),
+      memberId: mongoObjectIdSchema("Invalid member id"),
     })
   ),
   deleteMember
@@ -54,7 +54,7 @@ router.post(
   zValidator(
     "param",
     z.object({
-      workspaceId: mongoObjectIdSchema("Invalid workspace id"),
+      memberId: mongoObjectIdSchema("Invalid member id"),
     })
   ),
   addPermissions
@@ -64,7 +64,7 @@ router.delete(
   zValidator(
     "param",
     z.object({
-      workspaceId: mongoObjectIdSchema("Invalid workspace id"),
+      memberId: mongoObjectIdSchema("Invalid member id"),
     })
   ),
   removePermissions

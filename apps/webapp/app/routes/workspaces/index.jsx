@@ -1,15 +1,12 @@
-import { api } from "@/configs/fc";
-import { auth } from "@/lib/auth";
+import { workspacesAction } from "./actions";
+import { workspacesLoader } from "./loaders";
 
 import { ModeToggle } from "@/components/mode-toggle";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 
-export const loader = auth(async function ({ session }) {
-  const { workspaces } = await api.get("/workspaces", { session });
-
-  return { workspaces };
-});
+export const loader = workspacesLoader;
+export const action = workspacesAction;
 
 export default function Workspaces({ loaderData: { workspaces } }) {
   return (

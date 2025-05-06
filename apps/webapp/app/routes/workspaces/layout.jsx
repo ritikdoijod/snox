@@ -1,26 +1,36 @@
+import QueryString from "qs";
 import { Outlet } from "react-router";
-import { AppSidebar } from "@/components/shared/app-sidebar";
 
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-
+import { api } from "@/configs/fc";
 import { auth } from "@/lib/auth";
-import { getProjects, getWorkspace, getWorkspaces } from "./loaders";
+
+import { AppSidebar } from "@/components/shared/app-sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+
 
 export const loader = auth(async function ({
   params: { workspaceId },
   session,
 }) {
-  // const workspace = await getWorkspace(workspaceId, session);
-  const workspaces = await getWorkspaces(session);
-  // const projects = await getProjects(workspaceId, session);
+  api.session(session);
 
-  // return { workspace, workspaces, projects };
-  return { workspaces };
+  const { workspace } = await api.get(`/workspaces/${workspaceId}`);
+  const { workspaces } = await api.get("/workspaces");
+  const { projects } = await api.get(
+    `/projects?${QueryString.stringify({
+      filters: {
+        workspace: workspaceId,
+      },
+    })}`
+  );
+
+  return { workspace, workspaces, projects };
 });
 
 export default function WorkspaceLayout({
-  loaderData: { workspace, workspaces },
+  loaderData: { workspace, workspaces, projects, error },
 }) {
+
   return (
     <SidebarProvider>
       <AppSidebar activeWorkspace={workspace} workspaces={workspaces} />
