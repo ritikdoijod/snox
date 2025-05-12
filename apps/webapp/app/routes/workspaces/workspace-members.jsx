@@ -5,15 +5,12 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardDescription,
-  CardContent,
 } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { AddMember } from "@/components/shared/add-members";
 import { Search } from "lucide-react";
 import { Link } from "react-router";

@@ -1,7 +1,7 @@
 import { api } from "@/configs/fc";
 import { auth } from "@/lib/auth";
 
-export const workspacesAction = auth(async function ({
+export const projectsAction = auth(async function ({
   request,
   params,
   session,
@@ -11,29 +11,30 @@ export const workspacesAction = auth(async function ({
 
   switch (request.method) {
     case "POST": {
-      const { name, description } = await request.json();
-      const workspace = await api.post("/workspaces", {
+      const { name, description, workspace } = await request.json();
+      const { project } = await api.post("/projects", {
         name,
         description,
+        workspace,
       });
-      actionData = { workspace };
+      actionData = { project };
       break;
     }
 
     case "PATCH": {
-      const workspaceId = params.workspaceId;
+      const projectId = params.projectId;
       const { name, description } = await request.json();
-      const workspace = await api.patch(`/workspaces/${workspaceId}`, {
+      const {project} = await api.patch(`/projects/${projectId}`, {
         name,
         description,
       });
-      actionData = { workspace };
+      actionData = { project };
       break;
     }
 
     case "DELETE": {
-      const workspaceId = params.workspaceId;
-      await api.delete(`/workspaces/${workspaceId}`);
+      const projectId = params.projectId;
+      await api.delete(`/projects/${projectId}`);
       actionData = { success: true };
       break;
     }

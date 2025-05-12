@@ -15,11 +15,44 @@ import { asyncHandler } from "@/utils/async-handler";
 import { STATUS } from "@/utils/constants";
 
 export const getWorkspaces = asyncHandler(async function (c) {
-  const memberships = await Member.find({
-    user: c.user.id,
-  }).populate("workspace");
+  const pipeline = [
+    // State 1
+    {
+      $lookup: {
+        from: "members",
+        let: { workspaceId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$workspace", "$$workspaceId"] },
+                  { $eq: ["$user", new mongoose.Types.ObjectId(c.user.id)] },
+                ],
+              },
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "user",
+              foreignField: "_id",
+              as: "user",
+            },
+          },
+          { $unwind: "$user" },
+        ],
+        as: "members",
+      },
+    },
+    {
+      $match: {
+        members: { $ne: [] },
+      },
+    },
+  ];
 
-  const workspaces = memberships.map((membership) => membership.workspace);
+  const workspaces = await Workspace.aggregate(pipeline);
 
   return c.json.success({ data: { workspaces } });
 });

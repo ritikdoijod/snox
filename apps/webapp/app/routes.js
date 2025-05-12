@@ -8,14 +8,8 @@ export default [
       route("signup", "./routes/auth/signup.jsx"),
     ]),
   ]),
-  ...prefix("dashboard", [
-    layout("./routes/dashboard/layout.jsx", [
-      route("test", "./routes/dashboard/dtest.jsx"),
-    ]),
-  ]),
   ...prefix("workspaces", [
     index("./routes/workspaces/index.jsx"),
-    route("new", "./routes/workspaces/new.jsx"),
     layout("./routes/workspaces/layout.jsx", [
       route(":workspaceId", "./routes/workspaces/workspace.jsx"),
       route(":workspaceId/edit", "./routes/workspaces/workspace-edit.jsx"),
@@ -32,7 +26,12 @@ export default [
         ":workspaceId/members/:memberId",
         "./routes/workspaces/workspace-member.jsx"
       ),
+      route(
+        ":workspaceId/projects/:projectId",
+        "./routes/workspaces/workspace-project.jsx"
+      ),
     ]),
   ]),
   ...prefix("members", [index("./routes/members/index.jsx")]),
+  ...prefix("projects", [index("./routes/projects/index.js")]),
 ];

@@ -45,7 +45,7 @@ export const signup = asyncHandler(async function ({ request }) {
   session.set("uid", user.id);
   session.set("token", token);
 
-  return redirect("/workspaces/new", {
+  return redirect("/workspaces", {
     headers: {
       "Set-Cookie": await commitSession(session),
     },

@@ -8,6 +8,7 @@ import { Workspace } from "@/models/workspace";
 
 import { canCreateProject } from "@/policies/project";
 import { Member } from "@/models/member";
+import { NotFoundException } from "@/utils/app-error";
 
 export const getProjects = asyncHandler(async function (c, next) {
   const {

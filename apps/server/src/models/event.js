@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const appEventSchema = new mongoose.Schema(
   {
     subject: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Types.ObjectId,
       refPath: "subjectType",
       required: true,
     },
@@ -16,7 +16,7 @@ const appEventSchema = new mongoose.Schema(
       required: true,
     },
     createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Types.ObjectId,
       ref: "User",
       required: true,
     },

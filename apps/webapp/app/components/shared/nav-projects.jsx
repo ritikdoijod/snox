@@ -44,7 +44,7 @@ const NavProjects = () => {
           <SidebarMenuItem key={project.name}>
             <SidebarMenuButton asChild>
               <Link
-                to={`/workspaces/${project.workspace}/projects/${project._id}`}
+                to={`/workspaces/${project.workspace}/projects/${project.id}`}
               >
                 {project.name}
               </Link>
@@ -59,7 +59,7 @@ const NavProjects = () => {
               <DropdownMenuContent>
                 <DropdownMenuItem asChild>
                   <Link
-                    to={`/workspaces/${project.workspace}/projects/${project._id}`}
+                    to={`/workspaces/${project.workspace}/projects/${project.id}`}
                   >
                     <Folder />
                     View Project
@@ -69,7 +69,7 @@ const NavProjects = () => {
                   className="text-destructive hover:text-destructive"
                   onClick={() => {
                     fetcher.submit(null, {
-                      action: `/workspaces/${project.workspace}/projects/${project._id}`,
+                      action: `/workspaces/${project.workspace}/projects/${project.id}`,
                       method: "delete",
                     });
                   }}

@@ -3,6 +3,7 @@ import { config } from "./app";
 import { logger } from "./logger";
 
 mongoose.set("strict", false);
+
 mongoose.set("toJSON", {
   virtuals: true,
   transform: (doc, ret) => {

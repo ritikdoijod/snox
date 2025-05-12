@@ -9,9 +9,9 @@ import { parseQueryString } from "@/middlewares/qs";
 import authRoutes from "@/routes/auth";
 import userRoutes from "@/routes/user";
 import workspaceRoutes from "@/routes/workspace";
-import memberRoutes from "@/routes/member";
-import projectRoutes from "@/routes/project";
-import eventRoutes from "@/routes/event";
+// import memberRoutes from "@/routes/member";
+// import projectRoutes from "@/routes/project";
+// import eventRoutes from "@/routes/event";
 
 const app = new Hono();
 
@@ -34,8 +34,8 @@ app.route("/auth", authRoutes);
 app.use(authn);
 app.route("/users", userRoutes);
 app.route("/workspaces", workspaceRoutes);
-app.route("/members", memberRoutes);
-app.route("/projects", projectRoutes);
-app.route("/events", eventRoutes);
+// app.route("/members", memberRoutes);
+// app.route("/projects", projectRoutes);
+// app.route("/events", eventRoutes);
 
 export { app };

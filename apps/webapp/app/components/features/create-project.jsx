@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useFetcher } from "react-router";
+import { useNavigate, useFetcher, useParams } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { z } from "zod";
-import { ArrowRightIcon, Plus, Loader2, Check } from "lucide-react";
+import { ArrowRightIcon, Loader2, Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,29 +28,28 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 const schema = z.object({
-  name: z
-    .string()
-    .nonempty("Workspace name is required")
-    .trim()
-    .min(1)
-    .max(255),
+  name: z.string().nonempty("Project name is required").trim().min(1).max(255),
   description: z.string().trim().max(255).optional(),
 });
 
 export function CreateProjectDialog({ children }) {
+  const { workspaceId } = useParams();
   const [step, setStep] = useState(1);
   const fetcher = useFetcher();
 
   function onSubmit(data) {
-    fetcher.submit(data, {
+    fetcher.submit({
+      ...data,
+      workspace: workspaceId,
+    }, {
       method: "post",
-      action: "/workspaces",
+      action: "/projects",
       encType: "application/json",
     });
   }
 
   useEffect(() => {
-    if (fetcher?.data?.workspace) setStep(2);
+    if (fetcher?.data?.project) setStep(2);
 
     if (fetcher?.data?.error) toast(fetcher?.data?.error?.message);
   }, [fetcher?.data]);
@@ -58,7 +57,7 @@ export function CreateProjectDialog({ children }) {
   // Step mapping
   const steps = {
     1: <StepOne onSubmit={onSubmit} state={fetcher.state} />,
-    2: <StepTwo workspaceId={fetcher?.data?.workspace?.id} />,
+    2: <StepTwo project={fetcher?.data?.project} />,
   };
 
   return (
@@ -91,7 +90,7 @@ function StepOne({ onSubmit, state }) {
   return (
     <DialogContent className="sm:max-w-[425px]">
       <DialogHeader>
-        <DialogTitle>Create projecte</DialogTitle>
+        <DialogTitle>Create project</DialogTitle>
         <DialogDescription>Projects help you organise tasks.</DialogDescription>
       </DialogHeader>
       <Form {...form}>
@@ -161,7 +160,7 @@ function StepOne({ onSubmit, state }) {
 }
 
 // Step 2 Component
-function StepTwo({ workspaceId }) {
+function StepTwo({ project }) {
   const navigate = useNavigate();
 
   return (
@@ -182,7 +181,7 @@ function StepTwo({ workspaceId }) {
       <DialogClose asChild>
         <Button
           onClick={() => {
-            navigate(`/workspaces/${workspaceId}`);
+            navigate(`/workspaces/${project.workspace}/projects/${project.id}`);
           }}
           className="w-fit"
         >

@@ -12,12 +12,12 @@ const projectSchema = new mongoose.Schema(
       required: false,
     },
     workspace: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Types.ObjectId,
       ref: "Workspace",
       required: true,
     },
     author: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Types.ObjectId,
       ref: "User",
       required: true,
     }
