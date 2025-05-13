@@ -15,9 +15,10 @@ import { asyncHandler } from "@/utils/async-handler";
 import { STATUS } from "@/utils/constants";
 
 export const getWorkspaces = asyncHandler(async function (c) {
-  const pipeline = [
-    // State 1
-    {
+  const { include = [] } = c?.query;
+
+  const reletionships = {
+    members: {
       $lookup: {
         from: "members",
         let: { workspaceId: "$_id" },
@@ -25,10 +26,7 @@ export const getWorkspaces = asyncHandler(async function (c) {
           {
             $match: {
               $expr: {
-                $and: [
-                  { $eq: ["$workspace", "$$workspaceId"] },
-                  { $eq: ["$user", new mongoose.Types.ObjectId(c.user.id)] },
-                ],
+                $eq: ["$workspace", "$$workspaceId"],
               },
             },
           },
@@ -45,16 +43,47 @@ export const getWorkspaces = asyncHandler(async function (c) {
         as: "members",
       },
     },
+  };
+
+  const pipeline = [
+    // State 1
+    {
+      $lookup: {
+        from: "members",
+        let: { workspaceId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$workspace", "$$workspaceId"] },
+                  { $eq: ["$user", c.user._id] },
+                ],
+              },
+            },
+          },
+        ],
+        as: "memberships",
+      },
+    },
     {
       $match: {
-        members: { $ne: [] },
+        memberships: { $ne: [] },
+      },
+    },
+    ...include?.map((item) => reletionships[item]),
+    {
+      $project: {
+        memberships: 0,
       },
     },
   ];
 
   const workspaces = await Workspace.aggregate(pipeline);
 
-  return c.json.success({ data: { workspaces } });
+  return c.json.success({
+    data: { workspaces },
+  });
 });
 
 export const getWorkspace = asyncHandler(async function (c) {

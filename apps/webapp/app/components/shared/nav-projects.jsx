@@ -1,5 +1,5 @@
-import { Link, useFetcher, useLoaderData } from "react-router";
-import { Folder, MoreHorizontal, Trash, Plus } from "lucide-react";
+import { Link, useFetcher, useLoaderData, useParams } from "react-router";
+import { Folder, MoreHorizontal, Trash, Plus, ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,7 @@ import { CreateProjectDialog } from "@/components/features/create-project";
 import { DialogTrigger } from "@/components/ui/dialog";
 
 const NavProjects = () => {
+  const { workspaceId } = useParams();
   const { projects } = useLoaderData();
   const fetcher = useFetcher();
 
@@ -81,6 +82,14 @@ const NavProjects = () => {
             </DropdownMenu>
           </SidebarMenuItem>
         ))}
+        <SidebarMenuItem>
+          <SidebarMenuButton asChild className="text-sidebar-foreground/70 text-xs">
+            <Link to="#">
+              <MoreHorizontal className="text-sidebar-foreground/70" />
+              <span>More</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
       </SidebarMenu>
     </SidebarGroup>
   );

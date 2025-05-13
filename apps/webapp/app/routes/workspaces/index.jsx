@@ -40,7 +40,7 @@ export default function Workspaces({ loaderData: { workspaces } }) {
                   </Button>
                 </div>
               </div>
-              <div className="mt-8 grid grid-cols-4 gap-4">
+              <div className="mt-8 grid grid-cols-4 gap-8">
                 {workspaces.map((workspace) => (
                   <Link to={`/workspaces/${workspace.id}`} key={workspace.id}>
                     <WorkspaceCard {...workspace} />

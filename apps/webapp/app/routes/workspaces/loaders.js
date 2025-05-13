@@ -1,9 +1,12 @@
 import { api } from "@/configs/fc";
 import { auth } from "@/lib/auth";
+import QueryString from "qs";
 
 export const workspacesLoader = auth(async function ({ session }) {
   api.session(session);
-  const { workspaces } = await api.get("/workspaces");
+  const { workspaces } = await api.get(
+    `/workspaces?${QueryString.stringify({ include: ["members"] })}`
+  );
 
   return { workspaces };
 });

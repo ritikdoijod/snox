@@ -1,16 +1,21 @@
 import { ERROR_CODES } from "@/utils/app-error";
 import { STATUS } from "@/utils/constants";
+import { transform } from "@/utils/transform";
 
 const format = ({ apiVersion }) => {
   return async (c, next) => {
-    c.json.success = ({ statusCode = STATUS.HTTP.OK, data, meta }) => c.json({
-      status: "success",
-      data,
-      meta: {
-        apiVersion,
-        ...meta
-      },
-    }, statusCode);
+    c.json.success = ({ statusCode = STATUS.HTTP.OK, data, meta }) =>
+      c.json(
+        {
+          status: "success",
+          data: transform(data),
+          meta: {
+            apiVersion,
+            ...meta,
+          },
+        },
+        statusCode
+      );
 
     c.json.error = ({
       status = STATUS.HTTP.INTERNAL_SERVER_ERROR,
@@ -18,17 +23,20 @@ const format = ({ apiVersion }) => {
       message,
       details,
     }) =>
-      c.json({
-        status: "error",
-        error: {
-          code: errorCode,
-          message,
-          details,
-        },
-        meta: {
-          apiVersion,
-        },
-      }, status);
+      c.json(
+        transform({
+          status: "error",
+          error: {
+            code: errorCode,
+            message,
+            details,
+          },
+          meta: {
+            apiVersion,
+          },
+        }),
+        status
+      );
 
     await next();
   };
