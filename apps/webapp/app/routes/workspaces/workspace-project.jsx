@@ -1,29 +1,98 @@
-import { Search } from "lucide-react";
+import { Fragment } from "react";
+import { Plus, Search } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { projectLoader } from "./loaders";
-import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 export const loader = projectLoader;
+
+const tasks = [
+  {
+    id: "1",
+    title: "Add tasks feature.",
+    description: "Create tasks form. Add tasks feture on server. Connect form with backend.",
+    priority: "HIGH",
+    status: "NOT_STARTED",
+    assignee: {
+      id: "user1",
+      name: "User 1",
+      profilePic: "",
+      email: "user@mail.com",
+    },
+  }
+];
 
 export default function ({ loaderData: { project } }) {
   return (
     <div className="flex h-full">
       <div className="flex-1 p-8">
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col items-start justify-between">
           <div>
             <h2 className="text-xl font-bold">{project.name}</h2>
             {/* <p className="text-muted-foreground">See your team members here.</p> */}
           </div>
-          <div className="mt-1 relative">
-            <Input className="peer pe-9" placeholder="Search task..." />
-            <Button
-              variant="ghost"
-              className="text-muted-foreground absolute inset-y-0 end-0 flex items-center justify-center pe-3 peer-disabled:opacity-50 hover:bg-transparent dark:hover:bg-transparent cursor-pointer"
-            >
-              <Search size={16} aria-hidden="true" />
-            </Button>
+          {tasks.length > 0 && (
+            <div className="flex gap-4 items-center">
+              <div className="mt-1 relative">
+                <Input className="peer pe-9" placeholder="Search task..." />
+                <Button
+                  variant="ghost"
+                  className="text-muted-foreground absolute inset-y-0 end-0 flex items-center justify-center pe-3 peer-disabled:opacity-50 hover:bg-transparent dark:hover:bg-transparent cursor-pointer"
+                >
+                  <Search size={16} aria-hidden="true" />
+                </Button>
+              </div>
+              <Button className="cursor-pointer">
+                <Plus />
+                Add new task
+              </Button>
+            </div>
+          )}
+          <div className="mt-12 w-full">
+            {tasks.length > 0 ? (
+              <Fragment>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-bold">Tasks</h2>
+                  <div className="mt-1 relative">
+                    <Input
+                      className="peer pe-9"
+                      placeholder="Search member..."
+                    />
+                    <Button
+                      variant="ghost"
+                      className="text-muted-foreground absolute inset-y-0 end-0 flex items-center justify-center pe-3 peer-disabled:opacity-50 hover:bg-transparent dark:hover:bg-transparent cursor-pointer"
+                    >
+                      <Search size={16} aria-hidden="true" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="mt-8 grid grid-cols-4 gap-8">
+                  <div className="flex gap-8">
+                    <Button className="border-dashed" variant="outline">All</Button>
+                  </div>
+                </div>
+              </Fragment>
+            ) : (
+              <div className="grid gap-8 p-8 place-content-center border border-dashed rounded-lg">
+                <div className="flex flex-col items-center gap-8">
+                  <p className="text-center">
+                    Start by creating your first task
+                  </p>
+                  <Button>
+                    <Plus />
+                    Create task
+                  </Button>
+                </div>
+                <div className="flex gap-4 items-center w-lg">
+                  <Separator className="flex-1" />
+                  <span className="text-sm text-nowrap"> Or </span>
+                  <Separator className="flex-1" />
+                </div>
+                <p className="text-center">Let others add you in a task</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -31,18 +100,7 @@ export default function ({ loaderData: { project } }) {
         <div className="p-8">
           <h2 className="text-lg font-medium">Summary</h2>
         </div>
-        <div>
-          <Badge>Total</Badge>
-          <Badge>Pending</Badge>
-          <Badge>Complete</Badge>
-          <Badge>Overdue</Badge>
-          <Badge>In Progress</Badge>
-          <Badge>On Hold</Badge>
-          <Badge>Cancelled</Badge>
-          <Badge>Not Started</Badge>
-          <Badge>Waiting</Badge>
-          <Badge>In Review</Badge>
-        </div>
+        <div></div>
       </div>
     </div>
   );
