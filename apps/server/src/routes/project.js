@@ -19,7 +19,7 @@ router.get(
   zValidator(
     "param",
     z.object({
-      workspaceId: mongoObjectIdSchema("Invalid workspace id"),
+      projectId: mongoObjectIdSchema("Invalid project id"),
     })
   ),
   getProject
@@ -30,7 +30,7 @@ router.patch(
   zValidator(
     "param",
     z.object({
-      workspaceId: mongoObjectIdSchema("Invalid workspace id"),
+      projectId: mongoObjectIdSchema("Invalid project id"),
     })
   ),
   updateProject
@@ -40,7 +40,7 @@ router.delete(
   zValidator(
     "param",
     z.object({
-      workspaceId: mongoObjectIdSchema("Invalid workspace id"),
+      projectId: mongoObjectIdSchema("Invalid project id"),
     })
   ),
   deleteProject

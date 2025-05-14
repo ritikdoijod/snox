@@ -2,6 +2,18 @@ import { Permissions } from "@/enums/permission";
 import { Member } from "@/models/member";
 import { authz } from "@/utils/auth";
 
+export const canViewProject = authz(async function (user, workspace) {
+  const member = await Member.findOne({
+    user: user,
+    workspace: workspace,
+    permissions: {
+      $eq: Permissions.VIEW_ONLY,
+    },
+  });
+
+  return !!member;
+});
+
 export const canCreateProject = authz(async function (user, workspace) {
   const member = await Member.findOne({
     user: user,

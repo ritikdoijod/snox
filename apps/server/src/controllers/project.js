@@ -6,7 +6,7 @@ import { STATUS } from "@/utils/constants";
 import { Project } from "@/models/project";
 import { Workspace } from "@/models/workspace";
 
-import { canCreateProject } from "@/policies/project";
+import { canCreateProject, canViewProject } from "@/policies/project";
 import { Member } from "@/models/member";
 import { NotFoundException } from "@/utils/app-error";
 
@@ -61,7 +61,19 @@ export const getProjects = asyncHandler(async function (c, next) {
   });
 });
 
-export const getProject = asyncHandler(async function (c, next) {});
+export const getProject = asyncHandler(async function (c, next) {
+  const projectId = c.req.param("projectId");
+
+  const project = await Project.findById(projectId);
+
+  if (!project) throw new NotFoundException("Project not found");
+
+  await canViewProject(c.user.id, project.workspace);
+
+  return c.json.success({
+    data: { project },
+  });
+});
 
 export const createProject = asyncHandler(async function (c, next) {
   const session = await mongoose.startSession();

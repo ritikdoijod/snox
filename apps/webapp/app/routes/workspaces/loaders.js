@@ -21,3 +21,13 @@ export const getMember = auth(async function ({
 
   return { member };
 });
+
+export const projectLoader = auth(async function ({
+  session,
+  params: { projectId },
+}) {
+  api.session(session);
+  const { project } = await api.get(`/projects/${projectId}`);
+
+  return { project };
+});
