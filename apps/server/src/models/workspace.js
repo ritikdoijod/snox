@@ -11,7 +11,7 @@ const workspaceSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    author: {
+    createdBy: {
       type: mongoose.Types.ObjectId,
       ref: "User",
       required: true,

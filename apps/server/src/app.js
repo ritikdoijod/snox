@@ -5,12 +5,15 @@ import { format } from "@/middlewares/format";
 import { authn } from "@/middlewares/auth";
 import { parseQueryString } from "@/middlewares/qs";
 
+import { logger } from "@/configs/logger";
+
 // routes
 import authRoutes from "@/routes/auth";
 import userRoutes from "@/routes/user";
 import workspaceRoutes from "@/routes/workspace";
 import memberRoutes from "@/routes/member";
 import projectRoutes from "@/routes/project";
+import taskRoutes from "@/routes/task";
 import eventRoutes from "@/routes/event";
 
 const app = new Hono();
@@ -23,7 +26,7 @@ app.use(async (c, next) => {
 });
 
 app.onError((error, c) => {
-  console.log(error);
+  logger.error(error);
   return c.json.error(error);
 });
 
@@ -36,6 +39,7 @@ app.route("/users", userRoutes);
 app.route("/workspaces", workspaceRoutes);
 app.route("/members", memberRoutes);
 app.route("/projects", projectRoutes);
+app.route("/tasks", taskRoutes);
 app.route("/events", eventRoutes);
 
 export { app };

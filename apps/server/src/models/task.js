@@ -1,7 +1,7 @@
 import { PRIORITY, STATUS } from "@/utils/constants";
 import mongoose from "mongoose";
 
-const projectSchema = new mongoose.Schema(
+const taskSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -17,28 +17,32 @@ const projectSchema = new mongoose.Schema(
       ref: "Project",
       required: true,
     },
-    author: {
+
+    status: {
+      type: String,
+      required: true,
+      enum: Object.values(STATUS.TASK),
+    },
+    priority: {
+      type: String,
+      required: true,
+      default: PRIORITY.LOW,
+      enum: Object.values(PRIORITY),
+    },
+    createdBy: {
       type: mongoose.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    status: {
-        type: String,
-        required: true,
-        enum: Object.values(STATUS.TASK)
+    asignee: {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+      required: false,
     },
-    priority: {
-        type: String,
-        required: true,
-        default: PRIORITY.LOW,
-        enum: Object.values(PRIORITY)
-    }
   },
   {
     timestamps: true,
   }
 );
 
-const Project = mongoose.model("Project", projectSchema);
-
-export { Project };
+export const Task = mongoose.model("Task", taskSchema);

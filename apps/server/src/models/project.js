@@ -16,7 +16,7 @@ const projectSchema = new mongoose.Schema(
       ref: "Workspace",
       required: true,
     },
-    author: {
+    createdBy: {
       type: mongoose.Types.ObjectId,
       ref: "User",
       required: true,

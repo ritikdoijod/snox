@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-
 import { asyncHandler } from "@/utils/async-handler";
 import { STATUS } from "@/utils/constants";
 
@@ -7,48 +6,89 @@ import { Project } from "@/models/project";
 import { Workspace } from "@/models/workspace";
 
 import { canCreateProject, canViewProject } from "@/policies/project";
-import { Member } from "@/models/member";
 import { NotFoundException } from "@/utils/app-error";
 
-export const getProjects = asyncHandler(async function (c, next) {
-  const {
-    include,
-    filters: { workspace, ...filters },
-    sort,
-    fields,
-    size,
-    page,
-  } = c?.query;
+export const getProjects = asyncHandler(async function (c) {
+  const { include = [], filters, sort, fields, size, page } = c?.query;
 
-  const memberships = await Member.find({ user: c.user.id, workspace });
-
-  const workspaces = memberships.map((membership) => membership.workspace);
-
-  const query = {
-    $and: [
+  const relationships = {
+    tasks: {
+      $lookup: {
+        from: "tasks",
+        let: { projectId: "$_id" },
+        pipeline: [{ $match: { $expr: { $eq: ["$project", "$$projectId"] } } }],
+        as: "tasks",
+      },
+    },
+    user: [
       {
-        workspace: {
-          $in: workspaces,
+        $lookup: {
+          from: "users",
+          localField: "createdBy",
+          foreignField: "_id",
+          as: "createdBy",
         },
       },
-      { ...filters },
+      {
+        $unwind: {
+          path: "$createdBy",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
     ],
   };
 
-  const options = {
-    populate: include,
-    sort,
-    limit: size,
-    skip: (page - 1) * size,
-  };
+  // aggregation pipeline
+  const pipeline = [
+    // stage 1: match wokrspaces where user is a member
+    {
+      $lookup: {
+        from: "members",
+        let: { workspaceId: "$workspace" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$workspace", "$$workspaceId"] },
+                  { $eq: ["$user", new mongoose.Types.ObjectId(c.user.id)] },
+                ],
+              },
+            },
+          },
+        ],
+        as: "memberships",
+      },
+    },
 
-  const projection = {
-    ...fields,
-    permissions: false,
-  };
+    // stage 2: filter projects where user is a member of any workspace
+    {
+      $match: {
+        memberships: { $ne: [] },
+      },
+    },
 
-  const projects = await Project.find(query, projection, options);
-  const totalRecords = await Member.countDocuments(query);
+    // stage 3: add relationships
+    ...include?.flatMap(
+      (item) =>
+        Array.isArray(relationships[item])
+          ? relationships[item] // If it's an array, spread it
+          : [relationships[item]] // If it's a single stage, wrap in array
+    ),
+
+    // // stage 4: clean up memberships in result
+    {
+      $project: {
+        memberships: 0,
+      },
+    },
+  ];
+
+  const projects = await Project.aggregate(pipeline);
+  const totalRecords = await Project.countDocuments([
+    ...pipeline,
+    { $count: "count" },
+  ]).then((result) => result[0]?.count || 0);
 
   return c.json.success({
     data: {
@@ -61,7 +101,7 @@ export const getProjects = asyncHandler(async function (c, next) {
   });
 });
 
-export const getProject = asyncHandler(async function (c, next) {
+export const getProject = asyncHandler(async function (c) {
   const projectId = c.req.param("projectId");
 
   const project = await Project.findById(projectId);
@@ -75,39 +115,28 @@ export const getProject = asyncHandler(async function (c, next) {
   });
 });
 
-export const createProject = asyncHandler(async function (c, next) {
-  const session = await mongoose.startSession();
+export const createProject = asyncHandler(async function (c) {
+  const { name, description, workspace: workspaceId } = await c.req.json();
 
-  try {
-    session.startTransaction();
-    const { name, description, workspace: workspaceId } = await c.req.json();
+  const workspace = await Workspace.findById(workspaceId);
+  if (!workspace) throw new NotFoundException("Workspace not found");
 
-    const workspace = await Workspace.findById(workspaceId);
-    if (!workspace) throw new NotFoundException("Workspace not found");
+  await canCreateProject(c.user.id, workspaceId);
 
-    await canCreateProject(c.user.id, workspaceId);
+  const project = new Project({
+    name,
+    description,
+    workspace: workspaceId,
+    createdBy: c.user.id,
+  });
 
-    const project = new Project({
-      name,
-      description,
-      workspace: workspaceId,
-      author: c.user.id,
-    });
+  await project.save();
 
-    await project.save({ session });
-    await session.commitTransaction();
-
-    return c.json.success({
-      statusCode: STATUS.HTTP.CREATED,
-      data: { project },
-    });
-  } catch (error) {
-    await session.abortTransaction();
-    throw error;
-  } finally {
-    await session.endSession();
-  }
+  return c.json.success({
+    statusCode: STATUS.HTTP.CREATED,
+    data: { project },
+  });
 });
 
-export const updateProject = asyncHandler(async function (c, next) {});
-export const deleteProject = asyncHandler(async function (c, next) {});
+export const updateProject = asyncHandler(async function (c) {});
+export const deleteProject = asyncHandler(async function (c) {});

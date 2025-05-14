@@ -107,7 +107,7 @@ export const createWorkspace = asyncHandler(async function (c) {
     const workspace = new Workspace({
       name,
       description,
-      author: c.user.id,
+      createdBy: c.user.id,
     });
 
     const member = new Member({
