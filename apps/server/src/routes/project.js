@@ -1,4 +1,3 @@
-import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
 import { mongoObjectIdSchema } from "@/schemas/mongo";
@@ -10,40 +9,38 @@ import {
   updateProject,
   deleteProject,
 } from "@/controllers/project";
-import { getProjectsQuerySchema } from "@/schemas/project";
+import { getProjectsQuerySchema, projectSchema } from "@/schemas/project";
+import { validate } from "@/middlewares/validate";
 
 const router = new Hono();
 
-router.get("/", zValidator("query", getProjectsQuerySchema), getProjects);
+router.get("/", validate({ query: getProjectsQuerySchema }), getProjects);
 router.get(
   "/:projectId",
-  zValidator(
-    "param",
-    z.object({
+  validate({
+    param: z.object({
       projectId: mongoObjectIdSchema("Invalid project id"),
-    })
-  ),
+    }),
+  }),
   getProject
 );
-router.post("/", createProject);
+router.post("/", validate({ body: projectSchema }), createProject);
 router.patch(
   "/:projectId",
-  zValidator(
-    "param",
-    z.object({
+  validate({
+    param: z.object({
       projectId: mongoObjectIdSchema("Invalid project id"),
-    })
-  ),
+    }),
+  }),
   updateProject
 );
 router.delete(
   "/:projectId",
-  zValidator(
-    "param",
-    z.object({
+  validate({
+    param: z.object({
       projectId: mongoObjectIdSchema("Invalid project id"),
-    })
-  ),
+    }),
+  }),
   deleteProject
 );
 

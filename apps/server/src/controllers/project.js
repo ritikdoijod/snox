@@ -5,7 +5,12 @@ import { STATUS } from "@/utils/constants";
 import { Project } from "@/models/project";
 import { Workspace } from "@/models/workspace";
 
-import { canCreateProject, canViewProject } from "@/policies/project";
+import {
+  canCreateProject,
+  canDeleteProject,
+  canEditProject,
+  canViewProject,
+} from "@/policies/project";
 import { NotFoundException } from "@/utils/app-error";
 
 export const getProjects = asyncHandler(async function (c) {
@@ -51,7 +56,7 @@ export const getProjects = asyncHandler(async function (c) {
           preserveNullAndEmptyArrays: true,
         },
       },
-    ]
+    ],
   };
 
   // aggregation pipeline
@@ -119,9 +124,7 @@ export const getProjects = asyncHandler(async function (c) {
 
 export const getProject = asyncHandler(async function (c) {
   const projectId = c.req.param("projectId");
-
   const project = await Project.findById(projectId);
-
   if (!project) throw new NotFoundException("Project not found");
 
   await canViewProject(c.user.id, project.workspace);
@@ -154,5 +157,33 @@ export const createProject = asyncHandler(async function (c) {
   });
 });
 
-export const updateProject = asyncHandler(async function (c) {});
-export const deleteProject = asyncHandler(async function (c) {});
+export const updateProject = asyncHandler(async function (c) {
+  const projectId = c.req.param("projectId");
+  const project = await Project.findById(projectId);
+  if (!project) throw new NotFoundException("Project not found");
+
+  const { name, description } = await c.req.json();
+
+  await canEditProject(c.user.id, project.workspace);
+
+  const updatedProject = await Project.findByIdAndUpdate(project.id, {
+    name,
+    description,
+  });
+
+  return c.json.success({
+    data: { project: updatedProject },
+  });
+});
+
+export const deleteProject = asyncHandler(async function (c) {
+  const projectId = c.req.param("projectId");
+  const project = await Project.findById(projectId);
+  if (!project) throw new NotFoundException("Project not found");
+
+  await canDeleteProject(c.user.id, project.workspace);
+
+  await Project.findByIdAndUpdate(project.id);
+
+  return c.json.success({ data: {} });
+});
