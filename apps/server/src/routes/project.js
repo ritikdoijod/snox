@@ -10,10 +10,11 @@ import {
   updateProject,
   deleteProject,
 } from "@/controllers/project";
+import { getProjectsQuerySchema } from "@/schemas/project";
 
 const router = new Hono();
 
-router.get("/", getProjects);
+router.get("/", zValidator("query", getProjectsQuerySchema), getProjects);
 router.get(
   "/:projectId",
   zValidator(

@@ -36,6 +36,22 @@ export const getProjects = asyncHandler(async function (c) {
         },
       },
     ],
+    workspace: [
+      {
+        $lookup: {
+          from: "workspaces",
+          localField: "workspace",
+          foreignField: "_id",
+          as: "workspace",
+        },
+      },
+      {
+        $unwind: {
+          path: "$workspace",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ]
   };
 
   // aggregation pipeline
