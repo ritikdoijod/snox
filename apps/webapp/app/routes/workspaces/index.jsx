@@ -1,7 +1,8 @@
 import { Link } from "react-router";
 
+import { auth } from "@/lib/auth";
+import QueryString from "qs";
 import { workspacesAction } from "./actions";
-import { workspacesLoader } from "./loaders";
 
 import { ModeToggle } from "@/components/mode-toggle";
 import { WorkspaceCard } from "@/components/cards/workspace";
@@ -14,7 +15,13 @@ import { DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
 
-export const loader = workspacesLoader;
+export const loader = auth(async function ({ fc }) {
+  const { workspaces } = await fc.get(
+    `/workspaces?${QueryString.stringify({ include: ["members"] })}`
+  );
+
+  return { workspaces };
+});;
 export const action = workspacesAction;
 
 export default function Workspaces({ loaderData: { workspaces } }) {

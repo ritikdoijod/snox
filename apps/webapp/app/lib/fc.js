@@ -1,6 +1,6 @@
 import { AppError } from "./errors";
 
-const create = (config) => {
+export const create = (config) => {
   const reqHooks = [];
   const resHooks = [];
 
@@ -48,5 +48,3 @@ const create = (config) => {
     },
   };
 };
-
-export { create };

@@ -1,7 +1,5 @@
-import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
-import { mongoObjectIdSchema } from "@/schemas/mongo";
 import {
   getTasks,
   getTask,
@@ -9,39 +7,40 @@ import {
   updateTask,
   deleteTask,
 } from "@/controllers/task";
+import { validate } from "@/middlewares/validate";
+import { taskSchema } from "@/schemas/task";
+import { mongoObjectIdSchema } from "@/schemas/mongo";
 
 const router = new Hono();
 
 router.get("/", getTasks);
 router.get(
   "/:taskId",
-  zValidator(
-    "param",
-    z.object({
-      taskId: mongoObjectIdSchema("Invalid task id"),
-    })
-  ),
+  validate({
+    param: z.object({
+      taskId: mongoObjectIdSchema("Invalid project id"),
+    }),
+  }),
   getTask
 );
-router.post("/", createTask);
+router.post("/", validate({ body: taskSchema }), createTask);
 router.patch(
   "/:taskId",
-  zValidator(
-    "param",
-    z.object({
-      taskId: mongoObjectIdSchema("Invalid task id"),
-    })
-  ),
+  validate({
+    param: z.object({
+      taskId: mongoObjectIdSchema("Invalid project id"),
+    }),
+    body: taskSchema.partial(),
+  }),
   updateTask
 );
 router.delete(
   "/:taskId",
-  zValidator(
-    "param",
-    z.object({
+  validate({
+    param: z.object({
       taskId: mongoObjectIdSchema("Invalid project id"),
-    })
-  ),
+    }),
+  }),
   deleteTask
 );
 

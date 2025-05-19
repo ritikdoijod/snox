@@ -1,7 +1,7 @@
 import { AppError } from "@/lib/errors";
 import { create } from "@/lib/fc";
 
-const api = create({
+export const fc = create({
   // TODO: set env for backend URL
   baseURL: "http://localhost:8000",
   headers: {
@@ -9,7 +9,7 @@ const api = create({
   },
 });
 
-api.hooks.req.use(async (opts) => {
+fc.hooks.req.use(async (opts) => {
   if (!opts.url.includes("auth")) {
     const token = opts?.session?.get("token");
 
@@ -23,7 +23,7 @@ api.hooks.req.use(async (opts) => {
   return opts;
 });
 
-api.hooks.res.use(async (res) => {
+fc.hooks.res.use(async (res) => {
   if (res.status === "success") return res.data;
   throw new AppError(
     res.error.message,
@@ -33,5 +33,3 @@ api.hooks.res.use(async (res) => {
     }, {})
   );
 });
-
-export { api };

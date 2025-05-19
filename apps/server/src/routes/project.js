@@ -31,6 +31,7 @@ router.patch(
     param: z.object({
       projectId: mongoObjectIdSchema("Invalid project id"),
     }),
+    body: projectSchema.partial(),
   }),
   updateProject
 );

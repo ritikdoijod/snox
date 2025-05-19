@@ -18,14 +18,22 @@ export function WorkspaceCard({ name, description, members }) {
         <div className="flex -space-x-3">
           {members?.map((member) => (
             <Avatar key={member.id} className="size-10 ring ring-card">
-              <AvatarImage src={member.user.profilePic} alt={member.user.name} />
-              <AvatarFallback>{member.user.name.split(" ").map(chunk => chunk[0]).join("")}</AvatarFallback>
+              <AvatarImage
+                src={member.user.profilePic}
+                alt={member.user.name}
+              />
+              <AvatarFallback>
+                {member.user.name
+                  .split(" ")
+                  .map((chunk) => chunk[0])
+                  .join("")}
+              </AvatarFallback>
             </Avatar>
           ))}
           <Avatar className="size-10 ring-2 ring-card text-muted-foreground">
-              <AvatarImage src="counter" alt="counter" />
-              <AvatarFallback>+3</AvatarFallback>
-            </Avatar>
+            <AvatarImage src="counter" alt="counter" />
+            <AvatarFallback>+3</AvatarFallback>
+          </Avatar>
         </div>
       </CardContent>
     </Card>

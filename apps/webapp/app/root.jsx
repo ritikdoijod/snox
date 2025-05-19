@@ -10,7 +10,7 @@ import {
 import stylesheet from "./app.css?url";
 
 import { getSession } from "@/sessions";
-import { api } from "@/configs/fc";
+import { fc } from "@/configs/fc";
 import { AuthProvider } from "@/lib/contexts/auth";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
@@ -33,7 +33,7 @@ export async function loader({ request }) {
   const session = await getSession(request.headers.get("Cookie"));
   const uid = session.get("uid");
   if (!uid) return {};
-  const { user } = await api.get(`/users/${uid}`, { session });
+  const { user } = await fc.get(`/users/${uid}`, { session });
   return { user };
 }
 

@@ -1,22 +1,15 @@
 import QueryString from "qs";
 import { Outlet } from "react-router";
 
-import { api } from "@/configs/fc";
 import { auth } from "@/lib/auth";
 
 import { AppSidebar } from "@/components/shared/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
-
-export const loader = auth(async function ({
-  params: { workspaceId },
-  session,
-}) {
-  api.session(session);
-
-  const { workspace } = await api.get(`/workspaces/${workspaceId}`);
-  const { workspaces } = await api.get("/workspaces");
-  const { projects } = await api.get(
+export const loader = auth(async function ({ params: { workspaceId }, fc }) {
+  const { workspace } = await fc.get(`/workspaces/${workspaceId}`);
+  const { workspaces } = await fc.get("/workspaces");
+  const { projects } = await fc.get(
     `/projects?${QueryString.stringify({
       filters: {
         workspace: workspaceId,
@@ -28,9 +21,8 @@ export const loader = auth(async function ({
 });
 
 export default function WorkspaceLayout({
-  loaderData: { workspace, workspaces, projects, error },
+  loaderData: { workspace, workspaces },
 }) {
-
   return (
     <SidebarProvider>
       <AppSidebar activeWorkspace={workspace} workspaces={workspaces} />

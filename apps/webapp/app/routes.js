@@ -30,6 +30,11 @@ export default [
         ":workspaceId/projects/:projectId",
         "./routes/workspaces/workspace-project.jsx"
       ),
+      ...prefix(":workspaceId/projects/:projectId/tasks", [
+        index("./routes/workspaces/tasks/index.jsx"),
+        route("new", "./routes/workspaces/tasks/new.jsx"),
+        route(":taskId", "./routes/workspaces/tasks/task.jsx"),
+      ]),
     ]),
   ]),
   ...prefix("members", [index("./routes/members/index.jsx")]),

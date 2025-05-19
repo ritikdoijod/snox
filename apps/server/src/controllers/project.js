@@ -169,6 +169,8 @@ export const updateProject = asyncHandler(async function (c) {
   const updatedProject = await Project.findByIdAndUpdate(project.id, {
     name,
     description,
+  }, {
+    returnDocument: "after"
   });
 
   return c.json.success({
@@ -183,7 +185,7 @@ export const deleteProject = asyncHandler(async function (c) {
 
   await canDeleteProject(c.user.id, project.workspace);
 
-  await Project.findByIdAndUpdate(project.id);
+  await Project.findByIdAndDelete(project.id);
 
   return c.json.success({ data: {} });
 });

@@ -20,7 +20,6 @@ import { CreateProjectDialog } from "@/components/features/create-project";
 import { DialogTrigger } from "@/components/ui/dialog";
 
 const NavProjects = () => {
-  const { workspaceId } = useParams();
   const { projects } = useLoaderData();
   const fetcher = useFetcher();
 
@@ -42,7 +41,7 @@ const NavProjects = () => {
       </SidebarGroupLabel>
       <SidebarMenu>
         {projects?.map((project) => (
-          <SidebarMenuItem key={project.name}>
+          <SidebarMenuItem key={project.id}>
             <SidebarMenuButton asChild>
               <Link
                 to={`/workspaces/${project.workspace}/projects/${project.id}`}
