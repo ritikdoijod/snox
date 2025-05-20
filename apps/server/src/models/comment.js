@@ -8,29 +8,14 @@ const commentSchema = new mongoose.Schema(
       trim: true,
     },
     task: {
-      type: String,
-      required: false,
+      type: mongoose.Types.ObjectId,
+      ref: "Task",
+      required: true,
     },
     createdBy: {
       type: mongoose.Types.ObjectId,
       ref: "User",
       required: true,
-    },
-    status: {
-        type: String,
-        required: true,
-        enum: Object.values(STATUS.TASK)
-    },
-    priority: {
-        type: String,
-        required: true,
-        default: PRIORITY.LOW,
-        enum: Object.values(PRIORITY)
-    },
-    asignee: {
-      type: mongoose.Types.ObjectId,
-      ref: "User",
-      required: false,
     },
   },
   {
@@ -38,4 +23,4 @@ const commentSchema = new mongoose.Schema(
   }
 );
 
-export const Task = mongoose.model("Task", taskSchema);
+export const Comment = mongoose.model("Comment", commentSchema);

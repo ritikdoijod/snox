@@ -13,6 +13,8 @@ import {
 import { NotFoundException } from "@/utils/app-error";
 import { asyncHandler } from "@/utils/async-handler";
 import { STATUS } from "@/utils/constants";
+import { Project } from "@/models/project";
+import { Task } from "@/models/task";
 
 export const getWorkspaces = asyncHandler(async function (c) {
   const { include = [] } = c?.query;
@@ -198,8 +200,20 @@ export const deleteWorkspace = asyncHandler(async function (c) {
     await Workspace.findByIdAndDelete(workspaceId).session(session);
 
     await Member.deleteMany({
-      workspace: workspaceId,
-    });
+      workspace: workspace.id,
+    }).session(session);
+
+    const projects = await Project.deleteMany({
+      workspace: workspace.id,
+    }).session(session);
+
+    const tasks = await Task.deleteMany({
+      project: projects.map((project) => project.id),
+    }).session(session);
+
+    await Comment.deleteMany({
+      task: { $in: tasks.map((task) => task.id) },
+    }).session(session);
 
     const event = new AppEvent({
       subject: workspaceId,

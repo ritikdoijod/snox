@@ -12,7 +12,7 @@ import { ExternalLink } from "lucide-react";
 
 export function TaskCard({ task: { title, description, status, assignee } }) {
   return (
-    <Card className="relative group cursor-pointer">
+    <Card className="relative group cursor-pointer h-full">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription className="line-clamp-2">

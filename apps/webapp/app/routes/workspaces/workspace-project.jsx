@@ -102,7 +102,12 @@ export default function ({
                     className="mt-8 grid lg:grid-cols-3 lg:gap-8"
                   >
                     {tasks.map((task) => (
-                      <TaskCard key={task.id} task={task} />
+                      <Link
+                        to={`/workspaces/${workspaceId}/projects/${projectId}/tasks/${task.id}`}
+                        key={task.id}
+                      >
+                        <TaskCard task={task} />
+                      </Link>
                     ))}
                   </TabsContent>
                 ))}

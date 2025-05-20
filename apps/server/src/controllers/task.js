@@ -10,6 +10,7 @@ import {
 import { NotFoundException } from "@/utils/app-error";
 import { asyncHandler } from "@/utils/async-handler";
 import { STATUS } from "@/utils/constants";
+import { Comment } from "@/models/comment";
 
 export const getTasks = asyncHandler(async function (c) {
   const { include = [], filters, sort, fields, size, page } = c?.query;
@@ -136,13 +137,13 @@ export const createTask = asyncHandler(async function (c) {
 
 export const updateTask = asyncHandler(async function (c) {
   const { taskId } = c.req.param();
-  const task = await Task.findById(taskId).populate("project");
+  const task = await Task.findById(taskId);
   if (!task) throw new NotFoundException("Task not found");
 
   const { title, description, project, status, priority, assignee } =
     await c.req.json();
 
-  await canEditTask(c.user.id, task.project.workspace);
+  await canEditTask(c.user.id, task.id);
 
   const updatedTask = await Task.findByIdAndUpdate(
     taskId,
@@ -163,13 +164,26 @@ export const updateTask = asyncHandler(async function (c) {
 });
 
 export const deleteTask = asyncHandler(async function (c) {
-  const { taskId } = c.req.param();
-  const task = await Task.findById(taskId).populate("project");
-  if (!task) throw new NotFoundException("Task not found");
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
 
-  await canDeleteTask(c.user.id, task.project.workspace);
+    const { taskId } = c.req.param();
+    const task = await Task.findById(taskId).populate("project");
+    if (!task) throw new NotFoundException("Task not found");
 
-  await Task.findByIdAndDelete(taskId);
+    await canDeleteTask(c.user.id, task.project.workspace);
 
-  return c.json.success({ data: {} });
+    await Task.findByIdAndDelete(taskId).session(session);
+    await Comment.deleteMany({ task: taskId }).session(session);
+
+    await session.commitTransaction();
+
+    return c.json.success({ data: {} });
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    await session.endSession();
+  }
 });
