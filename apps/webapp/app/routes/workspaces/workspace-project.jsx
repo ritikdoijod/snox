@@ -99,7 +99,7 @@ export default function ({
                   <TabsContent
                     key={index}
                     value={tab.value}
-                    className="mt-8 grid lg:grid-cols-3 lg:gap-8"
+                    className="mt-8 grid lg:grid-cols-2 lg:gap-8"
                   >
                     {tasks.map((task) => (
                       <Link
@@ -134,12 +134,7 @@ export default function ({
           </div>
         </div>
       </div>
-      <div className="w-md bg-accent/10 hidden lg:block">
-        <div className="p-8">
-          <h2 className="text-lg font-medium">Summary</h2>
-        </div>
-        <div></div>
-      </div>
+      
     </div>
   );
 }

@@ -47,7 +47,7 @@ export function Layout({ children }) {
         <Links />
       </head>
       <body>
-        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
           {children}
         </ThemeProvider>
         <ScrollRestoration />

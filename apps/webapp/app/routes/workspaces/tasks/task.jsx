@@ -12,8 +12,22 @@ import {
   TimelineTitle,
 } from "@/components/ui/timeline";
 import { auth } from "@/lib/auth";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Link } from "react-router";
+import { Badge } from "@/components/ui/badge";
 
 export const loader = auth(async function ({ params: { taskId }, fc }) {
   const { task } = await fc.get(`/tasks/${taskId}`);
@@ -24,7 +38,7 @@ export const loader = auth(async function ({ params: { taskId }, fc }) {
 const comments = [
   {
     id: "1",
-    data: "This is test comment",
+    data: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Corrupti placeat eveniet natus culpa ea expedita, voluptatum harum quos mollitia in inventore, hic id quasi tempore provident error quae at temporibus.",
     createdAt: new Date().toString(),
     createdBy: {
       id: "u1",
@@ -54,77 +68,107 @@ const comments = [
   },
 ];
 
-export default function Task({ params: { taskId }, loaderData: { task } }) {
+export default function Task({
+  params: { workspaceId, projectId, taskId },
+  loaderData: { task },
+}) {
   return (
-    <div className="p-8 space-y-4 w-3xl mx-auto">
-      <div className="">
-        <h2 className="font-semibold text-2xl">{task.title}</h2>
-        <p className="mt-2 text-foreground/90">{task.description}</p>
-      </div>
-      <Separator />
-      <div className="">
-        <h3>Comments</h3>
-        <div>
-          <Timeline defaultValue={comments.length - 1} className="mt-8">
-            <TimelineItem className="group-data-[orientation=vertical]/timeline:ms-12">
-              <TimelineHeader>
-                <TimelineSeparator />
-              </TimelineHeader>
-              <TimelineContent className="-ms-14 z-10">
-                <Card className="border-none rounded-md mb-8">
-                  <CardContent className="px-4 flex gap-4 items-center">
-                    <Avatar className="size-10 ring ring-card text-xs rounded-md">
-                      <AvatarImage
-                        src="https://github.com/shadcn.png"
-                        alt="Test User"
-                      />
-                      <AvatarFallback>
-                        {"Test User"
-                          .split(" ")
-                          .map((chunk) => chunk[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                    <input placeholder="Leave a comment..." className="" />
-                  </CardContent>
-                </Card>
-              </TimelineContent>
-            </TimelineItem>
-
-            {comments.map((comment) => (
-              <TimelineItem
-                key={comment.id}
-                step={comment.id}
-                className="has-[+[data-completed]]:[&_[data-slot=timeline-separator]]:bg-muted group-data-[orientation=vertical]/timeline:ms-12 group-data-[orientation=vertical]/timeline:not-last:pb-20"
-              >
-                <TimelineHeader>
-                  <TimelineSeparator className="bg-muted group-data-completed/timeline-item:bg-primary" />
-                  <TimelineTitle className="">
+    <div className="flex flex-1">
+      <div className="px-8 space-y-4 flex-1">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to={`/workspaces/${workspaceId}/projects/${projectId}`}>
+                  {projectId}
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem className="text-primary font-medium">
+              {task.title}
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <Card>
+          <CardHeader>
+            <CardTitle>{task.title}</CardTitle>
+            <CardDescription>{task.description}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Badge
+              size="sm"
+              className="text-xs px-3 py-1 rounded-full bg-destructive/5 text-destructive/80"
+            >
+              <span className="size-1.5 bg-destructive/80 mr-1 rounded-full"></span>
+              Overdue
+            </Badge>
+          </CardContent>
+        </Card>
+        <div className="px-2 mt-10">
+          <div className="flex gap-2 items-center">
+            <h2 className="text-sm font-medium">
+              Comments
+            </h2>
+            <Badge className="size-5 px-1 text-xs rounded-full">6</Badge>
+          </div>
+          <div className="mt-8">
+            <Timeline>
+              {comments.map((comment) => (
+                <TimelineItem
+                  key={comment.id}
+                  step={comment.id}
+                  className=" group-data-[orientation=vertical]/timeline:ms-12 group-data-[orientation=vertical]/timeline:not-last:pb-12"
+                >
+                  <TimelineHeader>
+                    <TimelineSeparator />
+                    <TimelineIndicator className="grid place-content-center bg-primary group-data-completed/timeline-item:bg-primary/10">
+                      <Avatar className="size-7 ring ring-card text-[0.65rem]">
+                        <AvatarImage
+                          src={comment.createdBy.profilePic}
+                          alt={comment.createdBy.name}
+                        />
+                        <AvatarFallback>
+                          {comment.createdBy.name
+                            .split(" ")
+                            .map((chunk) => chunk[0])
+                            .join("")}
+                        </AvatarFallback>
+                      </Avatar>
+                    </TimelineIndicator>
+                  </TimelineHeader>
+                  <TimelineContent className="text-xs -mt-1">
                     {comment.data}
                     <TimelineDate>
                       {format(new Date(comment.createdAt), "h:mm a")}
                     </TimelineDate>
-                  </TimelineTitle>
-                  <TimelineIndicator className="grid place-content-center bg-primary group-data-completed/timeline-item:bg-primary/10">
-                    <Avatar className="size-10 ring ring-card text-xs">
-                      <AvatarImage
-                        src={comment.createdBy.profilePic}
-                        alt={comment.createdBy.name}
-                      />
-                      <AvatarFallback>
-                        {comment.createdBy.name
-                          .split(" ")
-                          .map((chunk) => chunk[0])
-                          .join("")}
-                      </AvatarFallback>
-                    </Avatar>
-                  </TimelineIndicator>
-                </TimelineHeader>
-              </TimelineItem>
-            ))}
-          </Timeline>
+                  </TimelineContent>
+                </TimelineItem>
+              ))}
+            </Timeline>
+          </div>
+          <Card className="border-none rounded-md mt-8">
+            <CardContent className="px-4 flex gap-4 items-center">
+              <Avatar className="size-10 ring ring-card text-xs rounded-md">
+                <AvatarImage
+                  src="https://github.com/shadcn.png"
+                  alt="Test User"
+                />
+                <AvatarFallback>
+                  {"Test User"
+                    .split(" ")
+                    .map((chunk) => chunk[0])
+                    .join("")}
+                </AvatarFallback>
+              </Avatar>
+              <input placeholder="Leave a comment..." className="" />
+            </CardContent>
+          </Card>
         </div>
       </div>
+      <Card className="w-2xs">
+        <CardHeader>Activity</CardHeader>
+      </Card>
     </div>
   );
 }

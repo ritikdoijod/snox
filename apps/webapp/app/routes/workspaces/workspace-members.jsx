@@ -11,7 +11,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { AddMember } from "@/components/shared/add-members";
+import { AddMember } from "@/components/layout/add-members";
 import { Search } from "lucide-react";
 import { Link } from "react-router";
 

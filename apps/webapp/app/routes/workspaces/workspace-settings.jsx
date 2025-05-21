@@ -3,32 +3,29 @@ import QueryString from "qs";
 import { DeleteWorkspaceCard } from "@/components/cards/delete-workspace";
 import { EditWorkspaceCard } from "@/components/cards/edit-workspace";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { WorkspaceTimeline } from "@/components/shared/workspace-timeline";
+import { WorkspaceTimeline } from "@/components/layout/workspace-timeline";
 
-import { api } from "@/configs/fc";
 import { auth } from "@/lib/auth";
-import { useEffect } from "react";
-import { toast } from "sonner";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 
-export const loader = auth(async function ({
-  params: { workspaceId },
-  session,
-}) {
-  const { workspace } = await api.get(`/workspaces/${workspaceId}`, {
-    session,
-  });
+export const loader = auth(async function ({ params: { workspaceId }, fc }) {
+  const { workspace } = await fc.get(`/workspaces/${workspaceId}`);
 
-  const { events } = await api.get(
+  const { events } = await fc.get(
     `/events?${QueryString.stringify({
       filters: {
         workspace: workspaceId,
       },
       include: "createdBy",
       sort: "-createdAt",
-    })}`,
-    {
-      session,
-    }
+    })}`
   );
 
   return { workspace, events };
@@ -38,7 +35,22 @@ export default function WorkspaceSettings({
   loaderData: { workspace, events },
 }) {
   return (
-    <div className="h-screen flex justify-between">
+    <div className="flex-1 h-full flex justify-between">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to={`/workspaces/${workspaceId}/projects/${projectId}`}>
+                {projectId}
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem className="text-primary font-medium">
+            {task.title}
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <ScrollArea className="h-full flex-1">
         <div className="py-8 px-16 space-y-8">
           <div className="space-y-2">
@@ -51,12 +63,12 @@ export default function WorkspaceSettings({
           <DeleteWorkspaceCard workspace={workspace} />
         </div>
       </ScrollArea>
-      <div className="w-xl bg-accent/10">
-        <div className="p-8">
-          <h2 className="text-lg font-medium">Activity</h2>
-          <WorkspaceTimeline events={events} />
-        </div>
-      </div>
+      <Card className="w-2xs">
+        <CardHeader>
+          <CardTitle>Activity</CardTitle>
+        </CardHeader>
+        {/* <WorkspaceTimeline events={events} /> */}
+      </Card>
     </div>
   );
 }

@@ -1,0 +1,60 @@
+import { MoreHorizontal, Plus } from "lucide-react";
+import { Link, useLoaderData } from "react-router";
+
+import { Button } from "@/components/ui/button";
+
+import { CreateProjectDialog } from "@/components/features/create-project";
+import { DialogTrigger } from "@/components/ui/dialog";
+
+const NavProjects = () => {
+  const { projects } = useLoaderData();
+
+  return (
+    <div className="space-y-2">
+      <div className="px-2 text-xs font-medium text-muted-foreground flex items-center justify-between">
+        Projects
+        <CreateProjectDialog>
+          <DialogTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full size-5"
+            >
+              <Plus className="size-3" />
+            </Button>
+          </DialogTrigger>
+        </CreateProjectDialog>
+      </div>
+      <div className="flex flex-col items-start">
+        {projects?.map((project) => (
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="text-xs w-full justify-start px-2"
+            key={project.id}
+          >
+            <Link
+              to={`/workspaces/${project.workspace}/projects/${project.id}`}
+            >
+              {project.name}
+            </Link>
+          </Button>
+        ))}
+        <Button
+          asChild
+          size="sm"
+          variant="ghost"
+          className="text-xs w-full justify-start px-2"
+        >
+          <Link to="#">
+            <MoreHorizontal className="text-sidebar-foreground/70" />
+            <span>More</span>
+          </Link>
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export { NavProjects };
