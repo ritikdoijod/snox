@@ -2,7 +2,6 @@ import { Link } from "react-router";
 
 import { auth } from "@/lib/auth";
 import QueryString from "qs";
-import { workspacesAction } from "./actions";
 
 import { ModeToggle } from "@/components/mode-toggle";
 import { WorkspaceCard } from "@/components/cards/workspace";
@@ -23,7 +22,50 @@ export const loader = auth(async function ({ fc }) {
   return { workspaces };
 });
 
-export const action = workspacesAction;
+export const action =  auth(async function ({
+  request,
+  params,
+  fc,
+}) {
+  let actionData = {};
+
+  switch (request.method) {
+    case "POST": {
+      const { name, description } = await request.json();
+      const workspace = await fc.post("/workspaces", {
+        name,
+        description,
+      });
+      actionData = { workspace };
+      break;
+    }
+
+    case "PATCH": {
+      const workspaceId = params.workspaceId;
+      const { name, description } = await request.json();
+      const workspace = await fc.patch(`/workspaces/${workspaceId}`, {
+        name,
+        description,
+      });
+      actionData = { workspace };
+      break;
+    }
+
+    case "DELETE": {
+      const workspaceId = params.workspaceId;
+      await fc.delete(`/workspaces/${workspaceId}`);
+      actionData = { success: true };
+      break;
+    }
+
+    default: {
+      actionData = { error: { message: "Method not allowed" } };
+      break;
+    }
+  }
+
+  return actionData;
+});
 
 export default function Workspaces({ loaderData: { workspaces } }) {
   return (

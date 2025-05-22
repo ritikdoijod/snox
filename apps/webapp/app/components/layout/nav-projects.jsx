@@ -1,5 +1,5 @@
 import { MoreHorizontal, Plus } from "lucide-react";
-import { Link, useLoaderData } from "react-router";
+import { Link, useLoaderData, useParams } from "react-router";
 
 import { Button } from "@/components/ui/button";
 
@@ -8,6 +8,7 @@ import { DialogTrigger } from "@/components/ui/dialog";
 
 const NavProjects = () => {
   const { projects } = useLoaderData();
+  const { workspaceId } = useParams();
 
   return (
     <div className="space-y-2">
@@ -47,7 +48,7 @@ const NavProjects = () => {
           variant="ghost"
           className="text-xs w-full justify-start px-2"
         >
-          <Link to="#">
+          <Link to={`/workspaces/${workspaceId}/projects`}>
             <MoreHorizontal className="text-sidebar-foreground/70" />
             <span>More</span>
           </Link>
