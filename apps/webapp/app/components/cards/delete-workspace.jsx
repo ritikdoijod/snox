@@ -50,14 +50,14 @@ export function DeleteWorkspaceCard({ workspace }) {
   } = form;
 
   return (
-    <Card className="w-full border-none bg-destructive/[1%]">
+    <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-xl text-destructive flex items-center gap-2 mb-4">
-          <ShieldAlert />
+        <CardTitle className="text-destructive flex items-center gap-2 mb-4">
+          <ShieldAlert className="size-5" />
           Danger zone
         </CardTitle>
-        <CardTitle className="text-xl">Delete workspace</CardTitle>
-        <CardDescription className="mt-2">
+        <CardTitle>Delete workspace</CardTitle>
+        <CardDescription>
           Deleting a workspace will permanently remove all its tasks, with no
           option to recover them. Please be certain before proceeding.
         </CardDescription>

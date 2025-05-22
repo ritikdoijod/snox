@@ -1,5 +1,4 @@
 import { format } from "date-fns";
-import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Timeline,
@@ -122,13 +121,13 @@ export default function Task({
                 >
                   <TimelineHeader>
                     <TimelineSeparator />
-                    <TimelineIndicator className="grid place-content-center bg-primary group-data-completed/timeline-item:bg-primary/10">
-                      <Avatar className="size-7 ring ring-card text-[0.65rem]">
+                    <TimelineIndicator className="grid place-content-center size-fit border-none">
+                      <Avatar className="size-7 text-[0.65rem]">
                         <AvatarImage
                           src={comment.createdBy.profilePic}
                           alt={comment.createdBy.name}
                         />
-                        <AvatarFallback>
+                        <AvatarFallback className="bg-gray-200">
                           {comment.createdBy.name
                             .split(" ")
                             .map((chunk) => chunk[0])

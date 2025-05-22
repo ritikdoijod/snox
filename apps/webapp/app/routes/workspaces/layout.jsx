@@ -5,7 +5,6 @@ import { auth } from "@/lib/auth";
 
 import { AppSidebar } from "@/components/layout/app-sidebar";
 
-
 export const loader = auth(async function ({ params: { workspaceId }, fc }) {
   const { workspace } = await fc.get(`/workspaces/${workspaceId}`);
   const { workspaces } = await fc.get("/workspaces");
@@ -26,7 +25,7 @@ export default function WorkspaceLayout({
   return (
     <div className="w-7xl p-8 flex h-full mx-auto">
       <AppSidebar />
-      <Outlet />
+      <Outlet context={{ workspace, workspaces }} />
     </div>
   );
 }

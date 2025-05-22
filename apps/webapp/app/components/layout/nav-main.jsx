@@ -31,7 +31,7 @@ const NavMain = () => {
 
   return (
     <div className="space-y-2">
-      <div className="px-2 text-xs font-medium text-muted-foreground flex items-center justify-between">
+      <div className="px-2 text-xs font-medium text-muted-foreground">
         Main menu
       </div>
       <div className="px-2 flex flex-col items-start">

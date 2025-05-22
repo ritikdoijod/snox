@@ -21,7 +21,8 @@ export const loader = auth(async function ({ fc }) {
   );
 
   return { workspaces };
-});;
+});
+
 export const action = workspacesAction;
 
 export default function Workspaces({ loaderData: { workspaces } }) {

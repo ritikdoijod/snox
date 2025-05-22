@@ -9,9 +9,7 @@ import { auth } from "@/lib/auth";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
-  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -35,34 +33,22 @@ export default function WorkspaceSettings({
   loaderData: { workspace, events },
 }) {
   return (
-    <div className="flex-1 h-full flex justify-between">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to={`/workspaces/${workspaceId}/projects/${projectId}`}>
-                {projectId}
-              </Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem className="text-primary font-medium">
-            {task.title}
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <ScrollArea className="h-full flex-1">
-        <div className="py-8 px-16 space-y-8">
-          <div className="space-y-2">
-            <h2 className="text-xl font-bold">Workspace settings</h2>
-            <p className="text-muted-foreground">
-              Customize your workspace, update info, and control settings here.
-            </p>
+    <div className="flex flex-1">
+      <div className="px-8 space-y-3 flex-1">
+        <Breadcrumb className="py-3">
+          <BreadcrumbList>
+            <BreadcrumbItem className="text-primary font-medium">
+              Settings
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <ScrollArea className="flex-1">
+          <div className="space-y-6">
+            <EditWorkspaceCard workspace={workspace} />
+            <DeleteWorkspaceCard workspace={workspace} />
           </div>
-          <EditWorkspaceCard workspace={workspace} />
-          <DeleteWorkspaceCard workspace={workspace} />
-        </div>
-      </ScrollArea>
+        </ScrollArea>
+      </div>
       <Card className="w-2xs">
         <CardHeader>
           <CardTitle>Activity</CardTitle>

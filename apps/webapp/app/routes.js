@@ -18,10 +18,7 @@ export default [
         ":workspaceId/settings",
         "./routes/workspaces/workspace-settings.jsx"
       ),
-      route(
-        ":workspaceId/members",
-        "./routes/workspaces/workspace-members.jsx"
-      ),
+      route(":workspaceId/members", "./routes/workspaces/members/index.jsx"),
       route(
         ":workspaceId/members/:memberId",
         "./routes/workspaces/workspace-member.jsx"
@@ -37,6 +34,5 @@ export default [
       ]),
     ]),
   ]),
-  ...prefix("members", [index("./routes/members/index.jsx")]),
   ...prefix("projects", [index("./routes/projects/index.js")]),
 ];

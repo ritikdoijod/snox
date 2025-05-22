@@ -51,8 +51,8 @@ export function EditWorkspaceCard({ workspace }) {
   return (
     <Card className="w-full border-none">
       <CardHeader>
-        <CardTitle className="text-xl">Edit workspace</CardTitle>
-        <CardDescription className="mt-2">
+        <CardTitle>Edit workspace</CardTitle>
+        <CardDescription>
           Here you can update the details of your workspace.
         </CardDescription>
       </CardHeader>
