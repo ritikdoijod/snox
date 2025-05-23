@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Timeline,
@@ -39,6 +39,7 @@ const comments = [
     id: "1",
     data: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Corrupti placeat eveniet natus culpa ea expedita, voluptatum harum quos mollitia in inventore, hic id quasi tempore provident error quae at temporibus.",
     createdAt: new Date().toString(),
+    updatedAt: new Date().toString(),
     createdBy: {
       id: "u1",
       name: "Test User",
@@ -48,6 +49,7 @@ const comments = [
   {
     id: "2",
     data: "this is test comment",
+    updatedAt: new Date().toString(),
     createdAt: new Date().toString(),
     createdBy: {
       id: "u1",
@@ -58,6 +60,7 @@ const comments = [
   {
     id: "3",
     data: "this is test comment",
+    updatedAt: new Date().toString(),
     createdAt: new Date().toString(),
     createdBy: {
       id: "u1",
@@ -106,9 +109,7 @@ export default function Task({
         </Card>
         <div className="px-2 mt-10">
           <div className="flex gap-2 items-center">
-            <h2 className="text-sm font-medium">
-              Comments
-            </h2>
+            <h2 className="text-sm font-medium">Comments</h2>
             <Badge className="size-5 px-1 text-xs rounded-full">6</Badge>
           </div>
           <div className="mt-8">
@@ -117,7 +118,7 @@ export default function Task({
                 <TimelineItem
                   key={comment.id}
                   step={comment.id}
-                  className=" group-data-[orientation=vertical]/timeline:ms-12 group-data-[orientation=vertical]/timeline:not-last:pb-12"
+                  className="group-data-[orientation=vertical]/timeline:ms-12 group-data-[orientation=vertical]/timeline:not-last:pb-12"
                 >
                   <TimelineHeader>
                     <TimelineSeparator />
@@ -135,12 +136,17 @@ export default function Task({
                         </AvatarFallback>
                       </Avatar>
                     </TimelineIndicator>
-                  </TimelineHeader>
-                  <TimelineContent className="text-xs -mt-1">
-                    {comment.data}
-                    <TimelineDate>
-                      {format(new Date(comment.createdAt), "h:mm a")}
+                    <TimelineTitle className="text-xs">
+                      {comment.createdBy.name}
+                    </TimelineTitle>
+                    <TimelineDate className="text-muted-foreground italic font-normal">
+                      {formatDistanceToNow(comment.updatedAt, {
+                        addSuffix: true,
+                      })}
                     </TimelineDate>
+                  </TimelineHeader>
+                  <TimelineContent className="text-xs text-foreground mt-1.5">
+                    {comment.data}
                   </TimelineContent>
                 </TimelineItem>
               ))}
@@ -160,7 +166,7 @@ export default function Task({
                     .join("")}
                 </AvatarFallback>
               </Avatar>
-              <input placeholder="Leave a comment..." className="" />
+              <input placeholder="Leave a comment..." className="focus-visible:outline-none" />
             </CardContent>
           </Card>
         </div>

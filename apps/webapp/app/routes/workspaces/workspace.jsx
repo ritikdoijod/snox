@@ -13,15 +13,6 @@ import {
 } from "@/components/ui/card";
 
 export const loader = auth(async function ({ params: { workspaceId }, fc }) {
-  const { projects } = await fc.get(
-    `/projects?${QueryString.stringify({
-      filters: {
-        workspace: workspaceId,
-      },
-      sort: "-createdAt",
-    })}`
-  );
-
   const { members } = await fc.get(
     `/members?${QueryString.stringify({
       filters: {
@@ -31,11 +22,11 @@ export const loader = auth(async function ({ params: { workspaceId }, fc }) {
     })}`
   );
 
-  return { projects, members };
+  return { members };
 });
 
-export default function Workspace({ loaderData: { projects, members } }) {
-  const { workspace } = useOutletContext();
+export default function Workspace({ loaderData: { members } }) {
+  const { workspace, projects } = useOutletContext();
 
   return (
     <div className="flex flex-1">
@@ -54,7 +45,9 @@ export default function Workspace({ loaderData: { projects, members } }) {
               {projects.map((project) => (
                 <Card className="py-4">
                   <CardHeader className="px-4">
-                    <CardTitle className="text-xs font-medium">{project.name}</CardTitle>
+                    <CardTitle className="text-xs font-medium">
+                      {project.name}
+                    </CardTitle>
                     <CardDescription className="text-xs">
                       {project.description}
                     </CardDescription>
@@ -81,7 +74,9 @@ export default function Workspace({ loaderData: { projects, members } }) {
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col space-y-0.5">
-                          <CardTitle className="text-xs font-medium">{user.name}</CardTitle>
+                          <CardTitle className="text-xs font-medium">
+                            {user.name}
+                          </CardTitle>
                           <CardDescription className="text-xs">
                             {user.email}
                           </CardDescription>

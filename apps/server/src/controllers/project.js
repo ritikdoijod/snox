@@ -98,7 +98,10 @@ export const getProjects = asyncHandler(async function (c) {
           : [relationships[item]] // If it's a single stage, wrap in array
     ),
 
-    // // stage 4: clean up memberships in result
+    // stage 4: filters
+    ...filters,
+
+    // stage 5: clean up memberships in result
     {
       $project: {
         memberships: 0,

@@ -10,9 +10,13 @@ export const loader = auth(async function ({ params: { workspaceId }, fc }) {
   const { workspaces } = await fc.get("/workspaces");
   const { projects } = await fc.get(
     `/projects?${QueryString.stringify({
-      filters: {
-        workspace: workspaceId,
-      },
+      filters: [
+        {
+          $match: {
+            workspace: workspaceId,
+          },
+        },
+      ],
     })}`
   );
 
@@ -20,12 +24,12 @@ export const loader = auth(async function ({ params: { workspaceId }, fc }) {
 });
 
 export default function WorkspaceLayout({
-  loaderData: { workspace, workspaces },
+  loaderData: { workspace, workspaces, projects },
 }) {
   return (
     <div className="w-7xl p-8 flex h-full mx-auto">
       <AppSidebar />
-      <Outlet context={{ workspace, workspaces }} />
+      <Outlet context={{ workspace, workspaces, projects }} />
     </div>
   );
 }

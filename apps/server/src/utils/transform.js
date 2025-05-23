@@ -1,10 +1,7 @@
 export function transform(object) {
   if (!object) return;
 
-  const exlude = [
-    "__v",
-    "password",
-  ]
+  const exlude = ["__v", "password"];
   object = JSON.parse(JSON.stringify(object));
 
   if (Array.isArray(object)) return object.map((item) => transform(item));
