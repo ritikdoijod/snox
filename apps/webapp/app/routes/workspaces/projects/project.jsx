@@ -104,28 +104,30 @@ export default function ({
               <BreadcrumbItem className="text-primary">Tasks</BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-          <div className="flex gap-4 items-center">
-            <div className="mt-1 relative">
-              <Input
-                className="peer pe-9 bg-background w-40 h-9"
-                placeholder="Search task..."
-              />
-              <Button
-                variant="ghost"
-                className="text-muted-foreground absolute inset-y-0 end-0 flex items-center justify-center pe-3 peer-disabled:opacity-50 hover:bg-transparent dark:hover:bg-transparent cursor-pointer h-9"
-              >
-                <Search size={16} aria-hidden="true" />
+          {!!tasks.length && (
+            <div className="flex gap-4 items-center">
+              <div className="mt-1 relative">
+                <Input
+                  className="peer pe-9 bg-background w-40 h-9"
+                  placeholder="Search task..."
+                />
+                <Button
+                  variant="ghost"
+                  className="text-muted-foreground absolute inset-y-0 end-0 flex items-center justify-center pe-3 peer-disabled:opacity-50 hover:bg-transparent dark:hover:bg-transparent cursor-pointer h-9"
+                >
+                  <Search size={16} aria-hidden="true" />
+                </Button>
+              </div>
+
+              <Button className="cursor-pointer size-8" asChild>
+                <Link
+                  to={`/workspaces/${workspaceId}/projects/${projectId}/tasks/new`}
+                >
+                  <Plus />
+                </Link>
               </Button>
             </div>
-
-            <Button className="cursor-pointer size-8" asChild>
-              <Link
-                to={`/workspaces/${workspaceId}/projects/${projectId}/tasks/new`}
-              >
-                <Plus />
-              </Link>
-            </Button>
-          </div>
+          )}
         </div>
 
         <div>
@@ -160,9 +162,11 @@ export default function ({
             <Card className="grid gap-8 place-content-center">
               <CardContent className="flex flex-col items-center gap-8">
                 <p className="text-center">Start by creating your first task</p>
-                <Button>
-                  <Plus />
-                  Create task
+                <Button className="cursor-pointer" asChild>
+                  <Link to={`/workspaces/${workspaceId}/projects/${projectId}/tasks/new`}>
+                    <Plus />
+                    Create task
+                  </Link>
                 </Button>
               </CardContent>
               <div className="flex gap-4 items-center w-lg">
