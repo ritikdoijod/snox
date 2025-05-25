@@ -10,6 +10,41 @@ import { Permissions } from "@/enums/permission";
 export const getComments = asyncHandler(async function (c) {
   const { include = [], filters, sort, fields, size, page } = c?.query;
 
+  const relationships = {
+    createdBy: [
+      {
+        $lookup: {
+          from: "users",
+          localField: "createdBy",
+          foreignField: "_id",
+          as: "createdBy",
+        },
+      },
+      {
+        $unwind: {
+          path: "$createdBy",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ],
+    task: [
+      {
+        $lookup: {
+          from: "tasks",
+          localField: "task",
+          foreignField: "_id",
+          as: "task",
+        },
+      },
+      {
+        $unwind: {
+          path: "$task",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ],
+  };
+
   // aggregation pipeline
   const pipeline = [
     // Stage 1: Lookup the task to get the project
@@ -68,16 +103,24 @@ export const getComments = asyncHandler(async function (c) {
       },
     },
 
-    // // stage 7: clean up
+     // Stage 7: add relationships
+     ...include?.flatMap(
+      (item) =>
+        Array.isArray(relationships[item])
+          ? relationships[item] // If it's an array, spread it
+          : [relationships[item]] // If it's a single stage, wrap in array
+    ),
+
+
+    // // stage 8: clean up
     {
       $project: {
         memberships: 0,
         project: 0,
-        task: 0
+        task: 0,
       },
     },
   ];
-
 
   const comments = await Comment.aggregate(pipeline);
   const totalRecords = await Comment.countDocuments([

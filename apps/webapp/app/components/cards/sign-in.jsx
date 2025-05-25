@@ -55,7 +55,7 @@ export function SignInCard() {
 
 
   return (
-    <Card className="w-full md:w-sm border-none">
+    <Card className="w-sm">
       <CardHeader className="text-center">
         <CardTitle className="text-xl">Welcome back</CardTitle>
         <CardDescription className="mt-2">Login with your Google account</CardDescription>

@@ -1,7 +1,11 @@
-import { useNavigation, Form } from "react-router";
+import { useEffect } from "react";
+import { useFetcher, useLoaderData } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  Form as FormProvider,
+  Form,
   FormControl,
   FormField,
   FormItem,
@@ -20,7 +24,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2 } from "lucide-react";
+import AvatarInput from "@/components/features/avatar-input";
 
 const schema = z.object({
   name: z
@@ -30,23 +34,64 @@ const schema = z.object({
     .min(1)
     .max(255),
   description: z.string().trim().max(255).optional(),
+  avatar: z.any(),
 });
 
-export function EditWorkspaceCard({ workspace }) {
-  const navigation = useNavigation();
+export function EditWorkspaceCard() {
+  const fetcher = useFetcher();
+  const { workspace } = useLoaderData();
 
   const form = useForm({
     defaultValues: {
       name: workspace.name,
       description: workspace.description,
+      ...(workspace.avatar
+        ? { avatar: `http://localhost:3000/x/${workspace.avatar}` }
+        : null),
     },
     resolver: zodResolver(schema),
     mode: "onTouched",
   });
 
-  const {
-    formState: { isDirty, isValid },
-  } = form;
+  const { formState } = form;
+
+  const { isDirty, isValid } = formState;
+
+  async function onSubmit() {
+    let data = {};
+    Object.keys(formState.dirtyFields).map((x) => {
+      data[x] = form.getValues(x);
+    });
+
+    let avatar = data.avatar;
+
+    if (avatar) {
+      const response = await fetch(data.avatar);
+      if (!response.ok) throw new Error("Failed to upload image");
+      const blob = await response.blob();
+
+      avatar = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    fetcher.submit(
+      { ...data, avatar, workspaceId: workspace.id },
+      {
+        method: "patch",
+        action: "/workspaces",
+        encType: "application/json",
+      }
+    );
+  }
+
+  useEffect(() => {
+    if (!fetcher?.data) return;
+
+    if (fetcher.data.error) toast(fetcher.data.error?.message);
+  }, [fetcher.data]);
 
   return (
     <Card className="w-full border-none">
@@ -57,10 +102,25 @@ export function EditWorkspaceCard({ workspace }) {
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-8">
-        <FormProvider {...form}>
-          <Form action={`/workspaces/${workspace.id}/edit`} method="post">
-            <fieldset disabled={navigation.state === "submitting"}>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <fieldset disabled={fetcher.state === "submitting"}>
               <div className="grid gap-6">
+                <div className="flex justify-center items-center">
+                  <FormField
+                    control={form.control}
+                    name="avatar"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <AvatarInput {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
                 <FormField
                   control={form.control}
                   name="name"
@@ -102,24 +162,26 @@ export function EditWorkspaceCard({ workspace }) {
                   )}
                 />
 
-                {navigation.state === "submitting" ? (
-                  <Button disabled>
-                    <Loader2 className="animate-spin" />
-                    Updating workspace...
-                  </Button>
-                ) : (
-                  <Button
-                    type="submit"
-                    className="cursor-pointer"
-                    // disabled={!isDirty || !isValid}
-                  >
-                    Update Workspace
-                  </Button>
-                )}
+                <div className="flex justify-end">
+                  {fetcher.state === "submitting" ? (
+                    <Button disabled>
+                      <Loader2 className="animate-spin" />
+                      Updating workspace...
+                    </Button>
+                  ) : (
+                    <Button
+                      type="submit"
+                      className="cursor-pointer"
+                      disabled={!isDirty || !isValid}
+                    >
+                      Update Workspace
+                    </Button>
+                  )}
+                </div>
               </div>
             </fieldset>
-          </Form>
-        </FormProvider>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   );

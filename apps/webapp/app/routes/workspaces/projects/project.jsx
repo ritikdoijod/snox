@@ -38,46 +38,46 @@ export const loader = auth(async function ({ params: { projectId }, fc }) {
 const tasksTabs = [
   {
     label: (
-      <Badge
+      <Button
         variant="outline"
-        className="text-xs rounded-full data-[state=active]:bg-emerald-500/5 data-[state=active]:shadow-none data-[state=active]:border-cyan-500 cursor-pointer"
+        className="px-3.5 rounded-full data-[state=active]:border border-border"
       >
         <span
           className="size-1.5 rounded-full bg-cyan-500"
           aria-hidden="true"
         ></span>
         All
-      </Badge>
+      </Button>
     ),
     value: "all",
   },
   {
     label: (
-      <Badge
+      <Button
         variant="outline"
-        className="text-xs rounded-full bg-amber-500/5 data-[state=active]:bg-amber-500/5 data-[state=active]:shadow-none data-[state=active]:border-amber-500 cursor-pointer"
+        className="px-3.5 rounded-full data-[state=active]:border border-border"
       >
         <span
           className="size-1.5 rounded-full bg-amber-500"
           aria-hidden="true"
         ></span>
         Pending
-      </Badge>
+      </Button>
     ),
     value: "pending",
   },
   {
     label: (
-      <Badge
+      <Button
         variant="outline"
-        className="w-fit text-xs rounded-full data-[state=active]:bg-red-500/5 data-[state=active]:shadow-none data-[state=active]:border-red-500  cursor-pointer"
+        className="px-3.5 rounded-full data-[state=active]:border border-border"
       >
         <span
           className="size-1.5 rounded-full bg-red-500"
           aria-hidden="true"
         ></span>
-        Pending
-      </Badge>
+        Overdue
+      </Button>
     ),
     value: "overdue",
   },
@@ -163,7 +163,9 @@ export default function ({
               <CardContent className="flex flex-col items-center gap-8">
                 <p className="text-center">Start by creating your first task</p>
                 <Button className="cursor-pointer" asChild>
-                  <Link to={`/workspaces/${workspaceId}/projects/${projectId}/tasks/new`}>
+                  <Link
+                    to={`/workspaces/${workspaceId}/projects/${projectId}/tasks/new`}
+                  >
                     <Plus />
                     Create task
                   </Link>

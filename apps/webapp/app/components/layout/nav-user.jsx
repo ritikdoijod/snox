@@ -11,9 +11,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Bell, ChevronsUpDown, LogOut, User } from "lucide-react";
-import { auth } from "@/lib/contexts/auth";
+import { useAuth } from "@/lib/contexts/auth";
 const NavUser = () => {
-  const { user } = auth();
+  const { user } = useAuth();
   if (!user) return null;
 
   return (
@@ -48,7 +48,9 @@ const NavUser = () => {
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-semibold">{user.name}</span>
-              <span className="truncate text-muted-foreground">{user.email}</span>
+              <span className="truncate text-muted-foreground">
+                {user.email}
+              </span>
             </div>
           </div>
         </DropdownMenuLabel>

@@ -1,18 +1,14 @@
-import { Link } from "react-router";
+import { Link, redirect } from "react-router";
 
 import { auth } from "@/lib/auth";
 import QueryString from "qs";
 
-import { ModeToggle } from "@/components/mode-toggle";
 import { WorkspaceCard } from "@/components/cards/workspace";
-import { CreateWorkspaceDialog } from "@/components/features/create-workspace";
 import { Button } from "@/components/ui/button";
 import { Fragment } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Plus, Search } from "lucide-react";
-import { DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-
 
 export const loader = auth(async function ({ fc }) {
   const { workspaces } = await fc.get(
@@ -22,39 +18,36 @@ export const loader = auth(async function ({ fc }) {
   return { workspaces };
 });
 
-export const action =  auth(async function ({
-  request,
-  params,
-  fc,
-}) {
+export const action = auth(async function ({ request, params, fc }) {
   let actionData = {};
 
   switch (request.method) {
     case "POST": {
-      const { name, description } = await request.json();
-      const workspace = await fc.post("/workspaces", {
+      const { name, description, avatar } = await request.json();
+      const { workspace } = await fc.post("/workspaces", {
         name,
         description,
+        avatar,
       });
       actionData = { workspace };
       break;
     }
 
     case "PATCH": {
-      const workspaceId = params.workspaceId;
-      const { name, description } = await request.json();
-      const workspace = await fc.patch(`/workspaces/${workspaceId}`, {
+      const { name, description, avatar, workspaceId } = await request.json();
+      const { workspace } = await fc.patch(`/workspaces/${workspaceId}`, {
         name,
         description,
+        avatar,
       });
       actionData = { workspace };
       break;
     }
 
     case "DELETE": {
-      const workspaceId = params.workspaceId;
+      const { workspaceId } = await request.json();
       await fc.delete(`/workspaces/${workspaceId}`);
-      actionData = { success: true };
+      actionData = redirect("/workspaces");
       break;
     }
 
@@ -69,62 +62,53 @@ export const action =  auth(async function ({
 
 export default function Workspaces({ loaderData: { workspaces } }) {
   return (
-    <main className="h-screen">
-      <div className="h-full flex flex-col mx-auto max-w-screen-2xl p-4">
-        <nav className="flex items-center justify-between">
-          <img src="/logo.svg" className="w-[80px]" />
-          <ModeToggle />
-        </nav>
-        <div className="mt-12">
-          {workspaces.length > 0 ? (
-            <Fragment>
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold">Workspaces</h2>
-                <div className="mt-1 relative">
-                  <Input className="peer pe-9" placeholder="Search member..." />
-                  <Button
-                    variant="ghost"
-                    className="text-muted-foreground absolute inset-y-0 end-0 flex items-center justify-center pe-3 peer-disabled:opacity-50 hover:bg-transparent dark:hover:bg-transparent cursor-pointer"
-                  >
-                    <Search size={16} aria-hidden="true" />
-                  </Button>
-                </div>
-              </div>
-              <div className="mt-8 grid grid-cols-4 gap-8">
-                {workspaces.map((workspace) => (
-                  <Link to={`/workspaces/${workspace.id}`} key={workspace.id}>
-                    <WorkspaceCard {...workspace} />
-                  </Link>
-                ))}
-              </div>
-            </Fragment>
-          ) : (
-            <div className="grid gap-8 p-8 place-content-center border border-dashed rounded-lg">
-              <div className="flex flex-col items-center gap-8">
-                <p className="text-center">
-                  Start by creating your first workspace
-                </p>
-                <CreateWorkspaceDialog>
-                  <DialogTrigger asChild>
-                    <Button>
-                      <Plus />
-                      Create workspace
-                    </Button>
-                  </DialogTrigger>
-                </CreateWorkspaceDialog>
-              </div>
-              <div className="flex gap-4 items-center w-lg">
-                <Separator className="flex-1" />
-                <span className="text-sm text-nowrap"> Or </span>
-                <Separator className="flex-1" />
-              </div>
-              <p className="text-center">
-                Let others include you in a workspace.
-              </p>
+    <div className="px-8 py-12">
+      {workspaces.length > 0 ? (
+        <Fragment>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold">Workspaces</h2>
+            <div className="mt-1 relative">
+              <Input
+                className="peer pe-9 bg-background w-48 h-9"
+                placeholder="Search workspace..."
+              />
+              <Button
+                variant="ghost"
+                className="text-muted-foreground absolute inset-y-0 end-0 flex items-center justify-center pe-3 peer-disabled:opacity-50 hover:bg-transparent dark:hover:bg-transparent cursor-pointer h-9"
+              >
+                <Search size={16} aria-hidden="true" />
+              </Button>
             </div>
-          )}
+          </div>
+          <div className="mt-8 grid grid-cols-3 gap-8">
+            {workspaces.map((workspace) => (
+              <Link to={`/workspaces/${workspace.id}`} key={workspace.id}>
+                <WorkspaceCard {...workspace} />
+              </Link>
+            ))}
+          </div>
+        </Fragment>
+      ) : (
+        <div className="grid gap-8 p-8 place-content-center border border-dashed rounded-lg">
+          <div className="flex flex-col items-center gap-8">
+            <p className="text-center">
+              Start by creating your first workspace
+            </p>
+            <Button asChild>
+              <Link to="/workspaces/new">
+                <Plus />
+                Create workspace
+              </Link>
+            </Button>
+          </div>
+          <div className="flex gap-4 items-center w-lg">
+            <Separator className="flex-1" />
+            <span className="text-sm text-nowrap"> Or </span>
+            <Separator className="flex-1" />
+          </div>
+          <p className="text-center">Let others include you in a workspace.</p>
         </div>
-      </div>
-    </main>
+      )}
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useNavigation, Form } from "react-router";
+import { useNavigation, useFetcher } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -24,6 +24,20 @@ import { Loader2, ShieldAlert } from "lucide-react";
 
 export function DeleteWorkspaceCard({ workspace }) {
   const navigation = useNavigation();
+  const fetcher = useFetcher();
+
+  function onSubmit() {
+    fetcher.submit(
+      {
+        workspaceId: workspace.id,
+      },
+      {
+        action: "/workspaces",
+        method: "delete",
+        encType: "application/json",
+      }
+    );
+  }
 
   const schema = z.object({
     name: z
@@ -65,7 +79,7 @@ export function DeleteWorkspaceCard({ workspace }) {
 
       <CardContent className="grid gap-8">
         <FormProvider {...form}>
-          <Form action={`/workspaces/${workspace.id}/delete`} method="post">
+          <form onSubmit={form.handleSubmit(onSubmit)}>
             <fieldset disabled={navigation.state === "submitting"}>
               <div className="grid gap-6">
                 <FormField
@@ -79,30 +93,35 @@ export function DeleteWorkspaceCard({ workspace }) {
                       </FormControl>
                       <FormDescription>
                         Please enter workspace name{" "}
-                        <span className="text-foreground">{workspace.name}</span>{" "}to confirm deletion.
+                        <span className="text-foreground">
+                          {workspace.name}
+                        </span>{" "}
+                        to confirm deletion.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                {navigation.state === "submitting" ? (
-                  <Button disabled>
-                    <Loader2 className="animate-spin" />
-                    Deleting workspace...
-                  </Button>
-                ) : (
-                  <Button
-                    type="submit"
-                    className="bg-destructive/80 hover:bg-destructive/80 cursor-pointer"
-                    disabled={!isDirty || !isValid}
-                  >
-                    Delete Workspace
-                  </Button>
-                )}
+                <div className="flex justify-end">
+                  {navigation.state === "submitting" ? (
+                    <Button disabled>
+                      <Loader2 className="animate-spin" />
+                      Deleting workspace...
+                    </Button>
+                  ) : (
+                    <Button
+                      type="submit"
+                      className="bg-destructive/80 hover:bg-destructive/80 cursor-pointer"
+                      disabled={!isDirty || !isValid}
+                    >
+                      Delete
+                    </Button>
+                  )}
+                </div>
               </div>
             </fieldset>
-          </Form>
+          </form>
         </FormProvider>
       </CardContent>
     </Card>

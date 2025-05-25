@@ -127,6 +127,7 @@ export const getProjects = asyncHandler(async function (c) {
 });
 
 export const getProject = asyncHandler(async function (c) {
+  
   const projectId = c.req.param("projectId");
   const project = await Project.findById(projectId);
   if (!project) throw new NotFoundException("Project not found");

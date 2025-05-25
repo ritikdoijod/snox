@@ -9,6 +9,7 @@ const logger = pino({
       mkdir: true,
     },
   },
+  timestamp: pino.stdTimeFunctions.isoTime,
 });
 
 export { logger };

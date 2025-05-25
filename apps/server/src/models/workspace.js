@@ -11,6 +11,10 @@ const workspaceSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    avatar: {
+      type: String,
+      required: false,
+    },
     createdBy: {
       type: mongoose.Types.ObjectId,
       ref: "User",

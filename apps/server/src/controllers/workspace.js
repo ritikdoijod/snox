@@ -4,17 +4,19 @@ import { Permissions } from "@/enums/permission";
 import { AppEvent } from "@/models/event";
 import { Member } from "@/models/member";
 import { Workspace } from "@/models/workspace";
+import { Project } from "@/models/project";
+import { Task } from "@/models/task";
+import { Comment } from "@/models/comment";
 import {
   canDeleteWorkspace,
   canEditWorkspace,
   canViewWorkspace,
 } from "@/policies/workspace";
 
-import { NotFoundException } from "@/utils/app-error";
+import { BadRequestException, NotFoundException } from "@/utils/app-error";
 import { asyncHandler } from "@/utils/async-handler";
 import { STATUS } from "@/utils/constants";
-import { Project } from "@/models/project";
-import { Task } from "@/models/task";
+import { uploadFile } from "@/utils/file-upload";
 
 export const getWorkspaces = asyncHandler(async function (c) {
   const { include = [] } = c?.query;
@@ -90,8 +92,9 @@ export const getWorkspaces = asyncHandler(async function (c) {
 
 export const getWorkspace = asyncHandler(async function (c) {
   const workspaceId = c.req.param("workspaceId");
+  const { include = [] } = c?.query;
 
-  const workspace = await Workspace.findById(workspaceId);
+  const workspace = await Workspace.findById(workspaceId).populate(include);
   if (!workspace) throw new NotFoundException("Workspace not found");
 
   await canViewWorkspace(c.user.id, workspaceId);
@@ -104,39 +107,54 @@ export const createWorkspace = asyncHandler(async function (c) {
 
   try {
     session.startTransaction();
-    const { name, description } = await c.req.json();
+    const { name, description, avatar } = await c.req.json();
 
-    const workspace = new Workspace({
+    // check if workspace exist with same name for user
+    const existingWorkspace = await Workspace.findOne({
+      name,
+      createdBy: c.user.id,
+    });
+
+    if (existingWorkspace) {
+      throw new BadRequestException(
+        "Workspace with the same name already exists."
+      );
+    }
+
+    const newWorkspace = new Workspace({
       name,
       description,
+      ...(!!avatar ? { avatar: await uploadFile(avatar) } : null),
       createdBy: c.user.id,
     });
 
     const member = new Member({
       user: c.user.id,
-      workspace: workspace.id,
+      workspace: newWorkspace.id,
       permissions: Object.values(Permissions),
     });
 
     const event = new AppEvent({
-      subject: workspace.id,
+      subject: newWorkspace.id,
       subjectType: "Workspace",
       action: "create",
       createdBy: c.user.id,
       data: await c.req.json(),
     });
 
-    await workspace.save({ session });
+    await newWorkspace.save({ session });
     await member.save({ session });
     await event.save({ session });
     await session.commitTransaction();
-
-    return c.json.success({ statusCode: STATUS.HTTP.CREATED, data: workspace });
+    await session.endSession();
+    return c.json.success({
+      statusCode: STATUS.HTTP.CREATED,
+      data: { workspace: newWorkspace },
+    });
   } catch (error) {
     await session.abortTransaction();
-    throw error;
-  } finally {
     await session.endSession();
+    throw error;
   }
 });
 
@@ -152,13 +170,14 @@ export const updateWorkspace = asyncHandler(async function (c) {
 
     await canEditWorkspace(c.user.id, workspaceId);
 
-    const { name, description } = await c.req.json();
+    const { name, description, avatar } = await c.req.json();
 
     const updatedWorkspace = await Workspace.findByIdAndUpdate(
       workspaceId,
       {
         name,
         description,
+        ...(avatar ? { avatar: await uploadFile(avatar) } : { avatar }),
       },
       {
         returnDocument: "after",
@@ -175,13 +194,13 @@ export const updateWorkspace = asyncHandler(async function (c) {
 
     await event.save({ session });
     await session.commitTransaction();
+    await session.endSession();
 
     return c.json.success({ data: { workspace: updatedWorkspace } });
   } catch (error) {
     await session.abortTransaction();
-    throw error;
-  } finally {
     await session.endSession();
+    throw error;
   }
 });
 
@@ -207,13 +226,19 @@ export const deleteWorkspace = asyncHandler(async function (c) {
       workspace: workspace.id,
     }).session(session);
 
-    const tasks = await Task.deleteMany({
-      project: projects.map((project) => project.id),
-    }).session(session);
+    if (!!projects.length) {
+      const tasks = await Task.deleteMany({
+        project: {
+          $in: projects?.map((project) => project.id),
+        },
+      }).session(session);
 
-    await Comment.deleteMany({
-      task: { $in: tasks.map((task) => task.id) },
-    }).session(session);
+      if (!!tasks.length) {
+        await Comment.deleteMany({
+          task: { $in: tasks?.map((task) => task.id) },
+        }).session(session);
+      }
+    }
 
     const event = new AppEvent({
       subject: workspaceId,

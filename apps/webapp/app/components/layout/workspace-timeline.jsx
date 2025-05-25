@@ -8,9 +8,8 @@ import {
   TimelineSeparator,
   TimelineTitle,
 } from "@/components/ui/timeline";
-import { auth } from "@/lib/contexts/auth";
 import { User } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useOutletContext } from "react-router";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 
@@ -35,7 +34,7 @@ function getMessage(event, user) {
 }
 
 export function WorkspaceTimeline({ events }) {
-  const { user } = auth();
+  const { user } = useOutletContext();
 
   // Group events by date
   const groupedEvents = events.reduce((acc, event) => {

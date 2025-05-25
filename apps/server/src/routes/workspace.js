@@ -1,4 +1,3 @@
-import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
 
@@ -10,42 +9,47 @@ import {
   updateWorkspace,
 } from "@/controllers/workspace";
 
+import { validate } from "@/middlewares/validate";
 import { mongoObjectIdSchema } from "@/schemas/mongo";
-import { workspaceSchema } from "@/schemas/workspace";
+import { getWorkspaceQuerySchema, workspaceSchema } from "@/schemas/workspace";
 
 const router = new Hono();
 
 router.get("/", getWorkspaces);
 router.get(
   "/:workspaceId",
-  zValidator(
-    "param",
-    z.object({
+  validate({
+    param: z.object({
       workspaceId: mongoObjectIdSchema("Invalid workspace id"),
-    })
-  ),
+    }),
+  }),
   getWorkspace
 );
-router.post("/", zValidator("json", workspaceSchema), createWorkspace);
+router.post(
+  "/",
+  validate({
+    body: workspaceSchema,
+  }),
+  createWorkspace
+);
 router.patch(
   "/:workspaceId",
-  zValidator(
-    "param",
-    z.object({
+  validate({
+    param: z.object({
       workspaceId: mongoObjectIdSchema("Invalid workspace id"),
-    })
-  ),
-  zValidator("json", workspaceSchema.partial()),
+    }),
+    query: getWorkspaceQuerySchema,
+    body: workspaceSchema.partial()
+  }),
   updateWorkspace
 );
 router.delete(
   "/:workspaceId",
-  zValidator(
-    "param",
-    z.object({
+  validate({
+    param: z.object({
       workspaceId: mongoObjectIdSchema("Invalid workspace id"),
-    })
-  ),
+    }),
+  }),
   deleteWorkspace
 );
 

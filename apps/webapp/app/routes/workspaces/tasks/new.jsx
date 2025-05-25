@@ -11,6 +11,13 @@ import QueryString from "qs";
 import { auth } from "@/lib/auth";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Breadcrumb,
@@ -119,81 +126,82 @@ export default function CreateTask({ loaderData: { members } }) {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        <div className="mt-8">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <fieldset disabled={fetcher.state === "submitting"}>
-                <div className="grid gap-8">
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Title</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Description
-                          <span className="text-muted-foreground text-xs font-light italic">
-                            (Optional)
-                          </span>
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea {...field} className="min-h-24" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <div className="grid grid-cols-2 gap-8">
+        <Form {...form}>
+          <Card>
+            <CardContent>
+              <form onSubmit={form.handleSubmit(onSubmit)}>
+                <fieldset disabled={fetcher.state === "submitting"}>
+                  <div className="grid gap-8">
                     <FormField
                       control={form.control}
-                      name="priority"
+                      name="title"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Priority</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="text-xs min-w-30">
-                                <SelectValue />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem className="text-xs" value="LOW">
-                                <span className="size-1.5 bg-cyan-500 rounded-full"></span>
-                                Low
-                              </SelectItem>
-                              <SelectItem className="text-xs" value="MEDIUM">
-                                {" "}
-                                <span className="size-1.5 bg-amber-500 rounded-full"></span>
-                                Medium
-                              </SelectItem>
-                              <SelectItem className="text-xs" value="HIGH">
-                                {" "}
-                                <span className="size-1.5 bg-red-500 rounded-full"></span>
-                                High
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <FormLabel>Title</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
 
-                    {/* <FormField
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Description
+                            <span className="text-muted-foreground text-xs font-light italic">
+                              (Optional)
+                            </span>
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea {...field} className="min-h-24" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="grid grid-cols-2 gap-8">
+                      <FormField
+                        control={form.control}
+                        name="priority"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Priority</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="text-xs min-w-30">
+                                  <SelectValue />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem className="text-xs" value="LOW">
+                                  <span className="size-1.5 bg-cyan-500 rounded-full"></span>
+                                  Low
+                                </SelectItem>
+                                <SelectItem className="text-xs" value="MEDIUM">
+                                  {" "}
+                                  <span className="size-1.5 bg-amber-500 rounded-full"></span>
+                                  Medium
+                                </SelectItem>
+                                <SelectItem className="text-xs" value="HIGH">
+                                  {" "}
+                                  <span className="size-1.5 bg-red-500 rounded-full"></span>
+                                  High
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
+
+                      {/* <FormField
                     control={form.control}
                     name="name"
                     render={({ field }) => (
@@ -251,28 +259,32 @@ export default function CreateTask({ loaderData: { members } }) {
                       </FormItem>
                     )}
                   /> */}
-                  </div>
+                    </div>
 
-                  {fetcher.state === "submitting" ? (
-                    <Button disabled className="cursor-pointer">
-                      <Loader2 className="animate-spin" />
-                      Creating task...
-                    </Button>
-                  ) : (
-                    <Button
-                      type="submit"
-                      disabled={!isDirty || !isValid}
-                      className="cursor-pointer"
-                    >
-                      Create task
-                    </Button>
-                  )}
-                </div>
-              </fieldset>
-            </form>
-          </Form>
-        </div>
+                    {fetcher.state === "submitting" ? (
+                      <Button disabled className="cursor-pointer">
+                        <Loader2 className="animate-spin" />
+                        Creating task...
+                      </Button>
+                    ) : (
+                      <Button
+                        type="submit"
+                        disabled={!isDirty || !isValid}
+                        className="cursor-pointer"
+                      >
+                        Create task
+                      </Button>
+                    )}
+                  </div>
+                </fieldset>
+              </form>
+            </CardContent>
+          </Card>
+        </Form>
       </div>
+      <Card className="w-2xs">
+        <CardHeader>Activity</CardHeader>
+      </Card>
     </div>
   );
 }
