@@ -5,6 +5,7 @@ export const projectSchema = z.object({
   name: z.string().min(3).max(255),
   description: z.string().optional(),
   workspace: mongoObjectIdSchema("Invalid workspace id"),
+  avatar: z.string().optional(),
 });
 
 export const getProjectsQuerySchema = z.object({

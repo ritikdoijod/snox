@@ -1,9 +1,12 @@
 import mongoose from "mongoose";
 import { asyncHandler } from "@/utils/async-handler";
 import { STATUS } from "@/utils/constants";
+import { uploadFile } from "@/utils/file-upload";
+import { BadRequestException, NotFoundException } from "@/utils/app-error";
 
 import { Project } from "@/models/project";
 import { Workspace } from "@/models/workspace";
+import { Task } from "@/models/task";
 
 import {
   canCreateProject,
@@ -11,8 +14,6 @@ import {
   canEditProject,
   canViewProject,
 } from "@/policies/project";
-import { NotFoundException } from "@/utils/app-error";
-import { Task } from "@/models/task";
 
 export const getProjects = asyncHandler(async function (c) {
   const { include = [], filters, sort, fields, size, page } = c?.query;
@@ -127,11 +128,10 @@ export const getProjects = asyncHandler(async function (c) {
 });
 
 export const getProject = asyncHandler(async function (c) {
-  
   const projectId = c.req.param("projectId");
-  const project = await Project.findById(projectId);
+  const { include = [] } = c?.query;
+  const project = await Project.findById(projectId).populate(include);
   if (!project) throw new NotFoundException("Project not found");
-
   await canViewProject(c.user.id, project.workspace);
 
   return c.json.success({
@@ -140,25 +140,41 @@ export const getProject = asyncHandler(async function (c) {
 });
 
 export const createProject = asyncHandler(async function (c) {
-  const { name, description, workspace: workspaceId } = await c.req.json();
+  const {
+    name,
+    description,
+    workspace: workspaceId,
+    avatar,
+  } = await c.req.json();
 
   const workspace = await Workspace.findById(workspaceId);
   if (!workspace) throw new NotFoundException("Workspace not found");
 
   await canCreateProject(c.user.id, workspaceId);
 
-  const project = new Project({
+  // check if project exist with same name in the workspace
+  const existingProject = await Project.findOne({
+    name,
+    workspace: workspaceId,
+  });
+
+  if (existingProject) {
+    throw new BadRequestException("Project with the same name already exists.");
+  }
+
+  const newProject = new Project({
     name,
     description,
     workspace: workspaceId,
+    ...(!!avatar ? { avatar: await uploadFile(avatar) } : null),
     createdBy: c.user.id,
   });
 
-  await project.save();
+  await newProject.save();
 
   return c.json.success({
     statusCode: STATUS.HTTP.CREATED,
-    data: { project },
+    data: { project: newProject },
   });
 });
 

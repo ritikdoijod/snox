@@ -1,4 +1,4 @@
-import { useNavigation, useFetcher } from "react-router";
+import { useNavigation, useFetcher, useLoaderData } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,10 +21,15 @@ import {
   FormDescription,
 } from "@/components/ui/form";
 import { Loader2, ShieldAlert } from "lucide-react";
+import { useAuth } from "@/lib/contexts/auth";
 
-export function DeleteWorkspaceCard({ workspace }) {
+export function DeleteWorkspaceCard() {
   const navigation = useNavigation();
   const fetcher = useFetcher();
+  const { user } = useAuth();
+  const { workspace } = useLoaderData();
+
+  if (user.id !== workspace.createdBy) return null;
 
   function onSubmit() {
     fetcher.submit(
@@ -89,7 +94,7 @@ export function DeleteWorkspaceCard({ workspace }) {
                     <FormItem>
                       <FormLabel>Workspace name</FormLabel>
                       <FormControl>
-                        <Input className="h-12 bg-background" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormDescription>
                         Please enter workspace name{" "}

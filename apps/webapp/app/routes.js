@@ -21,14 +21,12 @@ export default [
           ":workspaceId/members/:memberId",
           "./routes/workspaces/workspace-member.jsx"
         ),
-        route(
-          ":workspaceId/projects",
-          "./routes/workspaces/projects/index.jsx"
-        ),
-        route(
-          ":workspaceId/projects/:projectId",
-          "./routes/workspaces/projects/project.jsx"
-        ),
+        ...prefix(":workspaceId/projects", [
+          index("./routes/workspaces/projects/index.jsx"),
+          route("new", "./routes/workspaces/projects/new.jsx"),
+          route(":projectId", "./routes/workspaces/projects/project.jsx"),
+          route(":projectId/settings", "./routes/workspaces/projects/settings.jsx"),
+        ]),
         ...prefix(":workspaceId/projects/:projectId/tasks", [
           index("./routes/workspaces/tasks/index.jsx"),
           route("new", "./routes/workspaces/tasks/new.jsx"),
@@ -36,6 +34,7 @@ export default [
         ]),
       ]),
     ]),
+    
   ]),
   route("comments", "./routes/workspaces/tasks/comments.js"),
 ];

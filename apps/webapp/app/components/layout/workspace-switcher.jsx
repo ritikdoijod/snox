@@ -1,6 +1,7 @@
 import { Link, useLoaderData } from "react-router";
 import { ChevronsUpDown, Plus, Check, ArrowRight } from "lucide-react";
 
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -19,7 +20,12 @@ const WorkspaceSwitcher = () => {
     <div className="space-y-2">
       <div className="px-2 text-xs font-medium text-muted-foreground flex items-center justify-between">
         Workspaces
-        <Button variant="outline" size="icon" className="rounded-full size-5" asChild>
+        <Button
+          variant="outline"
+          size="icon"
+          className="rounded-full size-5"
+          asChild
+        >
           <Link to="/workspaces/new">
             <Plus className="size-3" />
           </Link>
@@ -29,9 +35,14 @@ const WorkspaceSwitcher = () => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button className="flex items-center gap-3 px-3 py-6 w-full">
-              <div className="bg-sidebar text-sidebar-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                {activeWorkspace?.name[0].toUpperCase()}
-              </div>
+              <Avatar className="rounded-md">
+                <AvatarImage
+                  src={`http://localhost:3000/x/${activeWorkspace.avatar}`}
+                />
+                <AvatarFallback className="rounded-md">
+                  {activeWorkspace.name[0].toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
                   {activeWorkspace?.name}
@@ -43,6 +54,7 @@ const WorkspaceSwitcher = () => {
           <DropdownMenuContent
             className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
             align="start"
+            side="right"
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-muted-foreground text-xs">
@@ -55,9 +67,14 @@ const WorkspaceSwitcher = () => {
                 asChild
               >
                 <Link to={`/workspaces/${workspace.id}`}>
-                  <div className="flex aspect-square size-6 items-center justify-center rounded-sm border text-xs">
-                    {workspace.name[0].toUpperCase()}
-                  </div>
+                  <Avatar className="rounded-md">
+                    <AvatarImage
+                      src={`http://localhost:3000/x/${workspace.avatar}`}
+                    />
+                    <AvatarFallback className="rounded-md">
+                      {workspace.name[0].toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
                   {workspace.name}
                   {workspace.id === activeWorkspace.id && (
                     <DropdownMenuShortcut>

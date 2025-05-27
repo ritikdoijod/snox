@@ -21,23 +21,19 @@ const NavUser = () => {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="cursor-pointer has-[>svg]:px-2 py-7 w-full"
+          size="icon"
+          className="cursor-pointer"
         >
-          <Avatar>
+          <Avatar className="rounded-md">
             <AvatarImage src={user.avatar} alt={user.name} />
-            <AvatarFallback>{user.name[0].toUpperCase()}</AvatarFallback>
+            <AvatarFallback className="bg-transparent">{user.name[0].toUpperCase()}</AvatarFallback>
           </Avatar>
-          <div className="grid flex-1 text-left text-xs leading-tight">
-            <span className="truncate font-semibold">{user.name}</span>
-            <span className="truncate text-muted-foreground">{user.email}</span>
-          </div>
-          <ChevronsUpDown className="ml-auto" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+        className="w-[--radix-dropdown-menu-trigger-width] min-w-48 rounded-lg"
         align="end"
-        side="right"
+        side="bottom" 
         sideOffset={4}
       >
         <DropdownMenuLabel className="font-normal">
@@ -46,7 +42,7 @@ const NavUser = () => {
               <AvatarImage src={user.avatar} alt={user.name} />
               <AvatarFallback>{user.name[1].toUpperCase()}</AvatarFallback>
             </Avatar>
-            <div className="grid flex-1 text-left text-sm leading-tight">
+            <div className="grid flex-1 text-left text-xs leading-tight">
               <span className="truncate font-semibold">{user.name}</span>
               <span className="truncate text-muted-foreground">
                 {user.email}

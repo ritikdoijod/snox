@@ -1,14 +1,20 @@
-import { Link } from "react-router";
+import { Link, redirect } from "react-router";
 import QueryString from "qs";
 import { auth } from "@/lib/auth";
 
 import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbList,
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
 } from "@/components/ui/breadcrumb";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const loader = auth(async function ({ params: { workspaceId }, fc }) {
@@ -28,13 +34,16 @@ export const action = auth(async function ({ request, params, fc }) {
 
   switch (request.method) {
     case "POST": {
-      const { name, description, workspace } = await request.json();
+      const { name, description } = await request.json();
+      const { workspaceId } = params;
       const { project } = await fc.post("/projects", {
         name,
         description,
-        workspace,
+        workspace: workspaceId,
       });
-      actionData = { project };
+      actionData = redirect(
+        `/workspaces/${workspaceId}/projects/${project.id}`
+      );
       break;
     }
 
@@ -87,22 +96,16 @@ export default function WorkspaceProjects({
                 key={project.id}
               >
                 <Card>
-                    <CardHeader>
-                        <CardTitle>
-                            {project.name}
-                        </CardTitle>
-                        <CardDescription>
-                            {project.description}
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Avatar>
-                            <AvatarImage src="" alt="" />
-                            <AvatarFallback className="text-xs">
-                                TU
-                            </AvatarFallback>
-                        </Avatar>
-                    </CardContent>
+                  <CardHeader>
+                    <CardTitle>{project.name}</CardTitle>
+                    <CardDescription>{project.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Avatar>
+                      <AvatarImage src="" alt="" />
+                      <AvatarFallback className="text-xs">TU</AvatarFallback>
+                    </Avatar>
+                  </CardContent>
                 </Card>
               </Link>
             ))}

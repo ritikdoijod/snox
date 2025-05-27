@@ -94,7 +94,7 @@ export function EditWorkspaceCard() {
   }, [fetcher.data]);
 
   return (
-    <Card className="w-full border-none">
+    <Card>
       <CardHeader>
         <CardTitle>Edit workspace</CardTitle>
         <CardDescription>
@@ -130,7 +130,6 @@ export function EditWorkspaceCard() {
                       <FormControl>
                         <Input
                           placeholder="Workspace 1"
-                          className="h-12"
                           {...field}
                         />
                       </FormControl>

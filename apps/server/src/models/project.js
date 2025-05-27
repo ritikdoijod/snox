@@ -16,6 +16,10 @@ const projectSchema = new mongoose.Schema(
       ref: "Workspace",
       required: true,
     },
+    avatar: {
+      type: String,
+      required: false,
+    },
     createdBy: {
       type: mongoose.Types.ObjectId,
       ref: "User",

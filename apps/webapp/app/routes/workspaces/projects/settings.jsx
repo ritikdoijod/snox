@@ -3,9 +3,10 @@ import { auth } from "@/lib/auth";
 
 import { DeleteWorkspaceCard } from "@/components/cards/delete-workspace";
 import { EditWorkspaceCard } from "@/components/cards/edit-workspace";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { WorkspaceTimeline } from "@/components/layout/workspace-timeline";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const loader = auth(async function ({ params: { workspaceId }, fc }) {
   const { workspace } = await fc.get(`/workspaces/${workspaceId}`);
@@ -28,9 +29,10 @@ export default function WorkspaceSettings({
 }) {
   return (
     <div className="flex flex-1">
-      <div className="px-6 flex-1">
-        <ScrollArea className="h-[calc(100vh-7rem)]">
-          <div className="space-y-6 mb-[85%]">
+      <div className="px-8 space-y-3 flex-1">
+        
+        <ScrollArea className="flex-1">
+          <div className="space-y-6">
             <EditWorkspaceCard />
             <DeleteWorkspaceCard workspace={workspace} />
           </div>
@@ -38,12 +40,9 @@ export default function WorkspaceSettings({
       </div>
       <Card className="w-2xs">
         <CardHeader>
-          <CardTitle>On this page</CardTitle>
+          <CardTitle>Activity</CardTitle>
         </CardHeader>
-        <CardContent>
-          <p>Edit workspace</p>
-          <p>Delete workspace</p>
-        </CardContent>
+        {/* <WorkspaceTimeline events={events} /> */}
       </Card>
     </div>
   );

@@ -1,7 +1,10 @@
-import { Plus, Search } from "lucide-react";
+import { format } from "date-fns";
+import { Link } from "react-router";
+import { CalendarDays, Clock, Info, Pencil, Plus, Search, Trash } from "lucide-react";
 import { auth } from "@/lib/auth";
+import { useAuth } from "@/lib/contexts/auth";
 
-import { Input } from "@/components/ui/input";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Breadcrumb,
@@ -10,16 +13,20 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { TaskCard } from "@/components/cards/task";
-import { Link } from "react-router";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import QueryString from "qs";
 
 export const loader = auth(async function ({ params: { projectId }, fc }) {
-  const { project } = await fc.get(`/projects/${projectId}`);
+  const { project } = await fc.get(
+    `/projects/${projectId}?${QueryString.stringify({
+      include: ["createdBy"],
+    })}`
+  );
   const { tasks } = await fc.get(`/tasks`);
 
   return {
@@ -87,9 +94,11 @@ export default function ({
   loaderData: { project, tasks },
   params: { workspaceId, projectId },
 }) {
+  const { user } = useAuth();
+
   return (
     <div className="flex flex-1">
-      <div className="px-8 space-y-3 flex-1">
+      <div className="px-6 space-y-3 flex-1">
         <div className="flex items-center justify-between">
           <Breadcrumb className="py-3">
             <BreadcrumbList>
@@ -183,8 +192,84 @@ export default function ({
       </div>
       <Card className="w-2xs">
         <CardHeader>
-          <CardTitle>Test</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <span>
+              <Info className="size-5" />
+            </span>
+            Info
+          </CardTitle>
         </CardHeader>
+        <CardContent className="space-y-6 text-sm">
+          {/* Owner Info */}
+          <div className="flex items-center gap-3">
+            <Avatar className="size-8">
+              <AvatarImage alt={project.createdBy.name} />
+              <AvatarFallback>{project.createdBy.name?.[0]}</AvatarFallback>
+            </Avatar>
+            <div>
+              <div className="text-xs font-medium">
+                {project.createdBy.id === user.id
+                  ? "You"
+                  : project.createdBy.name}
+              </div>
+              <div className="text-[0.65rem] text-muted-foreground">Owner</div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Created */}
+          <div className="flex items-start gap-2">
+            <CalendarDays className="size-4 text-muted-foreground" />
+            <div className="text-xs space-y-1">
+              <div className="text-muted-foreground">Created</div>
+              <div>{format(project.createdAt, "d MMM yyyy, h:mm a")}</div>
+            </div>
+          </div>
+
+          {/* Updated */}
+          <div className="flex items-start gap-2">
+            <Clock className="size-4 text-muted-foreground mt-0.5" />
+            <div className="text-xs space-y-1">
+              <div className="text-muted-foreground">Last Updated</div>
+              <div>{format(project.updatedAt, "d MMM yyyy, h:mm a")}</div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Actions */}
+          <div className="flex justify-between">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs flex items-center gap-2"
+              asChild
+            >
+              <Link
+                to={`/workspaces/${workspaceId}/projects/${projectId}/settings`}
+              >
+                <Pencil className="size-3" />
+                Edit
+              </Link>
+            </Button>
+
+            {project.createdBy.id === user.id && (
+              <Button
+                size="sm"
+                className="bg-destructive/50 hover:bg-destructive/80 cursor-pointer text-xs"
+                asChild
+              >
+                <Link
+                  to={`/workspaces/${workspaceId}/projects/${projectId}/settings`}
+                >
+                  <Trash className="size-3" />
+                  Delete
+                </Link>
+              </Button>
+            )}
+          </div>
+        </CardContent>
       </Card>
     </div>
   );

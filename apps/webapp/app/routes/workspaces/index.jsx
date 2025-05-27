@@ -1,14 +1,21 @@
+import { Fragment } from "react";
 import { Link, redirect } from "react-router";
-
-import { auth } from "@/lib/auth";
+import { Plus, Search } from "lucide-react";
 import QueryString from "qs";
 
-import { WorkspaceCard } from "@/components/cards/workspace";
+import { auth } from "@/lib/auth";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Fragment } from "react";
-import { Separator } from "@/components/ui/separator";
-import { Plus, Search } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+
 
 export const loader = auth(async function ({ fc }) {
   const { workspaces } = await fc.get(
@@ -83,7 +90,48 @@ export default function Workspaces({ loaderData: { workspaces } }) {
           <div className="mt-8 grid grid-cols-3 gap-8">
             {workspaces.map((workspace) => (
               <Link to={`/workspaces/${workspace.id}`} key={workspace.id}>
-                <WorkspaceCard {...workspace} />
+                <Card className="min-h-40">
+                  <CardHeader className="h-16">
+                    <CardTitle className="flex items-center gap-3">
+                      <Avatar className="rounded-md">
+                        <AvatarImage
+                          src={`http://localhost:3000/x/${workspace.avatar}`}
+                        />
+                        <AvatarFallback className="rounded-md">
+                          {workspace.name[0].toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      {workspace.name}
+                    </CardTitle>
+                    <CardDescription>{workspace.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex -space-x-3">
+                      {workspace?.members?.map((member) => (
+                        <Avatar
+                          key={member.id}
+                          className="size-9 ring ring-card"
+                        >
+                          <AvatarImage
+                            src={member.user.profilePic}
+                            alt={member.user.name}
+                          />
+                          <AvatarFallback className="text-xs">
+                            {member.user.name[0].toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                      ))}
+                      {workspace?.members.length > 4 && (
+                        <Avatar className="size-9 ring-2 ring-card text-muted-foreground">
+                          <AvatarImage src="counter" alt="counter" />
+                          <AvatarFallback className="text-xs">
+                            {workspace?.members.length - 4}+
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               </Link>
             ))}
           </div>

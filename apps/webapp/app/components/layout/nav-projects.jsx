@@ -3,9 +3,6 @@ import { Link, useLoaderData, useParams } from "react-router";
 
 import { Button } from "@/components/ui/button";
 
-import { CreateProjectDialog } from "@/components/features/create-project";
-import { DialogTrigger } from "@/components/ui/dialog";
-
 const NavProjects = () => {
   const { projects } = useLoaderData();
   const { workspaceId } = useParams();
@@ -14,17 +11,16 @@ const NavProjects = () => {
     <div className="space-y-2">
       <div className="px-2 text-xs font-medium text-muted-foreground flex items-center justify-between">
         Projects
-        <CreateProjectDialog>
-          <DialogTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full size-5"
-            >
-              <Plus className="size-3" />
-            </Button>
-          </DialogTrigger>
-        </CreateProjectDialog>
+        <Button
+          variant="outline"
+          size="icon"
+          className="rounded-full size-5"
+          asChild
+        >
+          <Link to={`/workspaces/${workspaceId}/projects/new`}>
+            <Plus className="size-3" />
+          </Link>
+        </Button>
       </div>
       <div className="flex flex-col items-start">
         {projects?.map((project) => (

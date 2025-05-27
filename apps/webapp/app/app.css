@@ -167,9 +167,11 @@
   html {
     @apply min-h-screen;
   }
+
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply h-screen bg-muted text-foreground;
   }

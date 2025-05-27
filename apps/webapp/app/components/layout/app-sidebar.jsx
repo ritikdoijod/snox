@@ -19,9 +19,6 @@ export function AppSidebar() {
         <NavMain />
         <NavProjects />
       </CardContent>
-      <CardFooter>
-        <NavUser />
-      </CardFooter>
     </Card>
   );
 }

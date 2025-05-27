@@ -198,7 +198,7 @@ export default function AvatarInput({ value, onChange }) {
         {/* Drop area - uses finalImageUrl */}
         <button
           type="button"
-          className="border-input hover:bg-accent/50 data-[dragging=true]:bg-accent/50 focus-visible:border-ring focus-visible:ring-ring/50 relative flex size-16 items-center justify-center overflow-hidden rounded-full border border-dashed transition-colors outline-none focus-visible:ring-[3px] has-disabled:pointer-events-none has-disabled:opacity-50 has-[img]:border-none"
+          className="border-input hover:bg-accent/50 data-[dragging=true]:bg-accent/50 focus-visible:border-ring focus-visible:ring-ring/50 relative flex size-16 items-center justify-center overflow-hidden rounded-full border border-dashed transition-colors outline-none focus-visible:ring-[3px] has-disabled:pointer-events-none has-disabled:opacity-50"
           onClick={openFileDialog}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
@@ -209,7 +209,7 @@ export default function AvatarInput({ value, onChange }) {
         >
           {!!finalImageUrl ? (
             <img
-              className="size-full object-cover"
+              className="size-full object-cover p-1"
               src={finalImageUrl}
               alt="User avatar"
               width={64}
@@ -309,11 +309,6 @@ export default function AvatarInput({ value, onChange }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <p
-        aria-live="polite"
-        role="region"
-        className="text-muted-foreground mt-2 text-xs"
-      ></p>
     </div>
   );
 }
