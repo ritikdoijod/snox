@@ -39,7 +39,7 @@ const WorkspaceSwitcher = () => {
                 <AvatarImage
                   src={`http://localhost:3000/x/${activeWorkspace.avatar}`}
                 />
-                <AvatarFallback className="rounded-md">
+                <AvatarFallback className="rounded-md text-primary">
                   {activeWorkspace.name[0].toUpperCase()}
                 </AvatarFallback>
               </Avatar>
@@ -69,7 +69,7 @@ const WorkspaceSwitcher = () => {
                 <Link to={`/workspaces/${workspace.id}`}>
                   <Avatar className="rounded-md">
                     <AvatarImage
-                      src={`http://localhost:3000/x/${workspace.avatar}`}
+                      src={workspace.avatar}
                     />
                     <AvatarFallback className="rounded-md">
                       {workspace.name[0].toUpperCase()}

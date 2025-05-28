@@ -7,6 +7,7 @@ import { BadRequestException, NotFoundException } from "@/utils/app-error";
 import { Project } from "@/models/project";
 import { Workspace } from "@/models/workspace";
 import { Task } from "@/models/task";
+import { Comment } from "@/models/comment";
 
 import {
   canCreateProject,
@@ -183,7 +184,7 @@ export const updateProject = asyncHandler(async function (c) {
   const project = await Project.findById(projectId);
   if (!project) throw new NotFoundException("Project not found");
 
-  const { name, description } = await c.req.json();
+  const { name, description, avatar } = await c.req.json();
 
   await canEditProject(c.user.id, project.workspace);
 
@@ -192,6 +193,7 @@ export const updateProject = asyncHandler(async function (c) {
     {
       name,
       description,
+      ...(avatar ? { avatar: await uploadFile(avatar) } : { avatar }),
     },
     {
       returnDocument: "after",
@@ -218,9 +220,13 @@ export const deleteProject = asyncHandler(async function (c) {
     const tasks = await Task.deleteMany({ project: project.id }).session(
       session
     );
-    await Comment.deleteMany({
-      task: { $in: tasks.map((task) => task.id) },
-    }).session(session);
+
+    if (!!tasks.length) {
+      await Comment.deleteMany({
+        task: { $in: tasks?.map((task) => task.id) },
+      }).session(session);
+    }
+
     await session.commitTransaction();
 
     return c.json.success({ data: {} });

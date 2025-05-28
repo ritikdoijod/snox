@@ -48,7 +48,7 @@ export function Layout({ children }) {
       </head>
       <body>
         <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-          <div className="max-w-7xl mx-auto h-full">{children}</div>
+          <div className="max-w-7xl min-w-7xl mx-auto h-full">{children}</div>
         </ThemeProvider>
         <ScrollRestoration />
         <Scripts />

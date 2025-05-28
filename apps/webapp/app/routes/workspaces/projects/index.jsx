@@ -48,20 +48,20 @@ export const action = auth(async function ({ request, params, fc }) {
     }
 
     case "PATCH": {
-      const projectId = params.projectId;
-      const { name, description } = await request.json();
+      const { name, description, avatar, projectId } = await request.json();
       const { project } = await fc.patch(`/projects/${projectId}`, {
         name,
         description,
+        avatar,
       });
       actionData = { project };
       break;
     }
 
     case "DELETE": {
-      const projectId = params.projectId;
+      const { projectId } = await request.json();
       await fc.delete(`/projects/${projectId}`);
-      actionData = { success: true };
+      actionData = redirect(`/workspaces/${workspaceId}/projects`);
       break;
     }
 

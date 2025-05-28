@@ -95,7 +95,7 @@ export default function Workspaces({ loaderData: { workspaces } }) {
                     <CardTitle className="flex items-center gap-3">
                       <Avatar className="rounded-md">
                         <AvatarImage
-                          src={`http://localhost:3000/x/${workspace.avatar}`}
+                          src={workspace.avatar}
                         />
                         <AvatarFallback className="rounded-md">
                           {workspace.name[0].toUpperCase()}

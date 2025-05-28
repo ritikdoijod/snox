@@ -1,11 +1,13 @@
-import { MoreHorizontal, Plus } from "lucide-react";
-import { Link, useLoaderData, useParams } from "react-router";
+import { Folder, MoreHorizontal, Plus } from "lucide-react";
 
+import { Link, useLoaderData, useParams } from "react-router";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const NavProjects = () => {
   const { projects } = useLoaderData();
-  const { workspaceId } = useParams();
+  const { workspaceId, projectId } = useParams();
 
   return (
     <div className="space-y-2">
@@ -28,12 +30,26 @@ const NavProjects = () => {
             asChild
             variant="ghost"
             size="sm"
-            className="text-xs w-full justify-start px-2"
+            className={cn(
+              "text-xs w-full justify-start px-2 text-muted-foreground",
+              {
+                "bg-accent text-accent-foreground font-semibold":
+                  projectId === project.id,
+              }
+            )}
             key={project.id}
           >
             <Link
               to={`/workspaces/${project.workspace}/projects/${project.id}`}
             >
+              <Avatar className="size-5 rounded-sm">
+                <AvatarImage
+                  src={project.avatar}
+                />
+                <AvatarFallback className="rounded-sm bg-transparent">
+                  <Folder />
+                </AvatarFallback>
+              </Avatar>
               {project.name}
             </Link>
           </Button>
@@ -42,7 +58,7 @@ const NavProjects = () => {
           asChild
           size="sm"
           variant="ghost"
-          className="text-xs w-full justify-start px-2"
+          className="text-xs w-full justify-start px-2 text-muted-foreground"
         >
           <Link to={`/workspaces/${workspaceId}/projects`}>
             <MoreHorizontal className="text-sidebar-foreground/70" />

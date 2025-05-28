@@ -1,7 +1,8 @@
 import * as React from "react";
+import { Link } from "react-router";
 
 import { cn } from "@/lib/utils";
-import { Link } from "react-router";
+import { Button } from "./button";
 
 export function TableOfContents({ toc }) {
   const itemIds = React.useMemo(
@@ -23,7 +24,7 @@ export function TableOfContents({ toc }) {
 
   return (
     <div className="space-y-2">
-      <p className="font-medium">On This Page</p>
+      <p className="text-xs font-medium text-muted-foreground">On This Page</p>
       <Tree tree={toc} activeItem={activeHeading} />
     </div>
   );
@@ -70,17 +71,18 @@ function Tree({ tree, level = 1, activeItem }) {
       {tree.items.map((item, index) => {
         return (
           <li key={index} className={cn("mt-0 pt-2")}>
-            <Link
-              to={item.url}
+            <Button
+              variant="link"
               className={cn(
-                "inline-block no-underline transition-colors hover:text-foreground",
-                item.url === `#${activeItem}`
-                  ? "font-medium text-foreground"
-                  : "text-muted-foreground"
+                "p-0 h-fit text-xs font-semibold text-muted-foreground hover:text-primary",
+                {
+                  "underline text-primary": item.url === `#${activeItem}`
+                }
               )}
+              asChild
             >
-              {item.title}
-            </Link>
+              <Link to={item.url}>{item.title}</Link>
+            </Button>
             {item.items?.length ? (
               <Tree tree={item} level={level + 1} activeItem={activeItem} />
             ) : null}

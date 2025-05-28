@@ -209,7 +209,7 @@ export default function AvatarInput({ value, onChange }) {
         >
           {!!finalImageUrl ? (
             <img
-              className="size-full object-cover p-1"
+              className="size-full object-cover p-0"
               src={finalImageUrl}
               alt="User avatar"
               width={64}

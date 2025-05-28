@@ -25,6 +25,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import AvatarInput from "@/components/features/avatar-input";
+import { getBase64Image } from "@/utils/image";
 
 export const loader = auth(function () {
   return {};
@@ -58,18 +59,13 @@ export default function CreateWorkspace() {
   } = form;
 
   async function onSubmit(data) {
-    const response = await fetch(data.avatar);
-    if (!response.ok) throw new Error("Failed to upload image");
-    const blob = await response.blob();
-
-    const base64Image = await new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(blob);
-    });
-
     fetcher.submit(
-      { ...data, avatar: base64Image },
+      {
+        ...data,
+        ...(!!data.avatar
+          ? { avatar: await getBase64Image(data.avatar) }
+          : null),
+      },
       {
         method: "post",
         action: "/workspaces",

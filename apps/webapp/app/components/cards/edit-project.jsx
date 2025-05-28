@@ -28,27 +28,20 @@ import AvatarInput from "@/components/features/avatar-input";
 import { getBase64Image } from "@/utils/image";
 
 const schema = z.object({
-  name: z
-    .string()
-    .nonempty("Workspace name is required")
-    .trim()
-    .min(1)
-    .max(255),
-  description: z.string().trim().max(255).optional(),
+  name: z.string().nonempty("Project name is required").trim().min(1).max(255),
+  description: z.string().trim().max(1000).optional(),
   avatar: z.any(),
 });
 
-export function EditWorkspaceCard(props) {
+export function EditProjectCard(props) {
   const fetcher = useFetcher();
-  const { workspace } = useLoaderData();
+  const { project } = useLoaderData();
 
   const form = useForm({
     defaultValues: {
-      name: workspace.name,
-      description: workspace.description,
-      ...(workspace.avatar
-        ? { avatar: `http://localhost:3000/x/${workspace.avatar}` }
-        : null),
+      name: project.name,
+      description: project.description,
+      avatar: project.avatar,
     },
     resolver: zodResolver(schema),
     mode: "onTouched",
@@ -70,11 +63,11 @@ export function EditWorkspaceCard(props) {
       {
         ...data,
         ...(avatar ? { avatar: await getBase64Image(avatar) } : avatar),
-        workspaceId: workspace.id,
+        projectId: project.id,
       },
       {
         method: "patch",
-        action: "/workspaces",
+        action: `/workspaces/${project.workspace}/projects`,
         encType: "application/json",
       }
     );
@@ -89,9 +82,9 @@ export function EditWorkspaceCard(props) {
   return (
     <Card {...props}>
       <CardHeader>
-        <CardTitle>Edit workspace</CardTitle>
+        <CardTitle>Edit project</CardTitle>
         <CardDescription>
-          Here you can update the details of your workspace.
+          Here you can update the details of project.
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-8">
@@ -119,9 +112,9 @@ export function EditWorkspaceCard(props) {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Workspace name</FormLabel>
+                      <FormLabel>Project name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Workspace 1" {...field} />
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -134,24 +127,30 @@ export function EditWorkspaceCard(props) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Workspace description
+                        Project description
                         <span className="text-muted-foreground text-xs font-light italic">
                           (Optional)
                         </span>
                       </FormLabel>
                       <FormControl>
-                        <Textarea
-                          placeholder=""
-                          {...field}
-                          className="min-h-32"
-                        />
+                        <Textarea {...field} className="min-h-32" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-4">
+                  {isDirty && (
+                    <Button
+                      type="button"
+                      className="cursor-pointer"
+                      variant="secondary"
+                      onClick={() => form.reset()}
+                    >
+                      Cancel
+                    </Button>
+                  )}
                   {fetcher.state === "submitting" ? (
                     <Button disabled>
                       <Loader2 className="animate-spin" />

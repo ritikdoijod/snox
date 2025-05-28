@@ -22,7 +22,7 @@ export async function uploadFile(fileData) {
   }
 
   // Generate a unique filename
-  const uploadDir = "/home/ritik/files/uploads/snox/";
+  const uploadDir = "uploads/";
   await fs.mkdir(uploadDir, { recursive: true });
   const fileExtension = mimeType.split("/")[1]; // e.g., "jpeg"
   const fileName = `${nanoid()}.${fileExtension}`;

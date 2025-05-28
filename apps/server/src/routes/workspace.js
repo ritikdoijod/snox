@@ -22,6 +22,7 @@ router.get(
     param: z.object({
       workspaceId: mongoObjectIdSchema("Invalid workspace id"),
     }),
+    query: getWorkspaceQuerySchema,
   }),
   getWorkspace
 );
@@ -38,8 +39,7 @@ router.patch(
     param: z.object({
       workspaceId: mongoObjectIdSchema("Invalid workspace id"),
     }),
-    query: getWorkspaceQuerySchema,
-    body: workspaceSchema.partial()
+    body: workspaceSchema.partial(),
   }),
   updateWorkspace
 );

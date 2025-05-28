@@ -1,3 +1,5 @@
+import { config } from "@/configs/app";
+
 export function transform(object) {
   if (!object) return;
 
@@ -12,6 +14,8 @@ export function transform(object) {
     for (const [key, value] of Object.entries(object)) {
       if (exlude.includes(key)) continue;
       if (key === "_id") newObject.id = value;
+      if (key === "avatar")
+        newObject.avatar = config.STATIC_FILE_SERVER + value;
       else {
         newObject[key] = transform(value);
       }

@@ -1,7 +1,10 @@
+import { useEffect } from "react";
 import { useNavigation, useFetcher, useLoaderData } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Loader2, ShieldAlert } from "lucide-react";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,24 +23,24 @@ import {
   FormMessage,
   FormDescription,
 } from "@/components/ui/form";
-import { Loader2, ShieldAlert } from "lucide-react";
+
 import { useAuth } from "@/lib/contexts/auth";
 
-export function DeleteWorkspaceCard(props) {
+export function DeleteProjectCard(props) {
   const navigation = useNavigation();
   const fetcher = useFetcher();
   const { user } = useAuth();
-  const { workspace } = useLoaderData();
+  const { project } = useLoaderData();
 
-  if (user.id !== workspace.createdBy) return null;
+  if (user.id !== project.createdBy) return null;
 
   function onSubmit() {
     fetcher.submit(
       {
-        workspaceId: workspace.id,
+        projectId: project.id,
       },
       {
-        action: "/workspaces",
+        action: `/workspaces/${project.workspace}/projects`,
         method: "delete",
         encType: "application/json",
       }
@@ -47,12 +50,12 @@ export function DeleteWorkspaceCard(props) {
   const schema = z.object({
     name: z
       .string()
-      .nonempty("Workspace name is required")
+      .nonempty("Project name is required")
       .trim()
       .min(1)
       .max(255)
-      .refine((val) => val === workspace.name, {
-        message: "Workspace name does not match",
+      .refine((val) => val === project.name, {
+        message: "Project name does not match",
       }),
   });
 
@@ -68,6 +71,12 @@ export function DeleteWorkspaceCard(props) {
     formState: { isDirty, isValid },
   } = form;
 
+  useEffect(() => {
+    if (!fetcher?.data) return;
+
+    if (fetcher.data.error) toast(fetcher.data.error?.message);
+  }, [fetcher.data]);
+
   return (
     <Card className="w-full" {...props}>
       <CardHeader>
@@ -75,9 +84,9 @@ export function DeleteWorkspaceCard(props) {
           <ShieldAlert className="size-5" />
           Danger zone
         </CardTitle>
-        <CardTitle>Delete workspace</CardTitle>
+        <CardTitle>Delete project</CardTitle>
         <CardDescription>
-          Deleting a workspace will permanently remove all its tasks, with no
+          Deleting a project will permanently remove all its tasks, with no
           option to recover them. Please be certain before proceeding.
         </CardDescription>
       </CardHeader>
@@ -92,15 +101,13 @@ export function DeleteWorkspaceCard(props) {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Workspace name</FormLabel>
+                      <FormLabel>Project name</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
                       <FormDescription>
-                        Please enter workspace name{" "}
-                        <span className="text-foreground">
-                          {workspace.name}
-                        </span>{" "}
+                        Please enter project name{" "}
+                        <span className="text-foreground">{project.name}</span>{" "}
                         to confirm deletion.
                       </FormDescription>
                       <FormMessage />
@@ -112,7 +119,7 @@ export function DeleteWorkspaceCard(props) {
                   {navigation.state === "submitting" ? (
                     <Button disabled>
                       <Loader2 className="animate-spin" />
-                      Deleting workspace...
+                      Deleting...
                     </Button>
                   ) : (
                     <Button

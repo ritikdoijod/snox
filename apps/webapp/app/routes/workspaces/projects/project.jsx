@@ -1,6 +1,14 @@
 import { format } from "date-fns";
 import { Link } from "react-router";
-import { CalendarDays, Clock, Info, Pencil, Plus, Search, Trash } from "lucide-react";
+import {
+  CalendarDays,
+  Clock,
+  Info,
+  Pencil,
+  Plus,
+  Search,
+  Trash,
+} from "lucide-react";
 import { auth } from "@/lib/auth";
 import { useAuth } from "@/lib/contexts/auth";
 
@@ -13,7 +21,13 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -91,82 +105,56 @@ const tasksTabs = [
 ];
 
 export default function ({
-  loaderData: { project, tasks },
+  loaderData: { project },
   params: { workspaceId, projectId },
 }) {
+  const tasks = []
   const { user } = useAuth();
 
   return (
     <div className="flex flex-1">
       <div className="px-6 space-y-3 flex-1">
-        <div className="flex items-center justify-between">
-          <Breadcrumb className="py-3">
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink
-                  to={`/workspaces/${workspaceId}/projects/${projectId}`}
-                >
-                  {project.name}
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem className="text-primary">Tasks</BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-          {!!tasks.length && (
-            <div className="flex gap-4 items-center">
-              <div className="mt-1 relative">
-                <Input
-                  className="peer pe-9 bg-background w-40 h-9"
-                  placeholder="Search task..."
-                />
-                <Button
-                  variant="ghost"
-                  className="text-muted-foreground absolute inset-y-0 end-0 flex items-center justify-center pe-3 peer-disabled:opacity-50 hover:bg-transparent dark:hover:bg-transparent cursor-pointer h-9"
-                >
-                  <Search size={16} aria-hidden="true" />
-                </Button>
+        <Card>
+          <CardHeader className="gap-3">
+            <CardTitle className="flex items-center gap-3">
+              <Avatar className="rounded-md">
+                <AvatarImage src={project.avatar} />
+                <AvatarFallback className="rounded-md">
+                  {project?.name[0].toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              {project.name}
+            </CardTitle>
+            <CardDescription>{project.description}</CardDescription>
+          </CardHeader>
+          <Separator />
+          <CardContent className="flex gap-6">
+            <Link to={`/workspaces/${workspaceId}/projects`}>
+              <div className="px-4 py-3 border rounded-xl min-w-40">
+                <h3 className="text-xs font-medium flex items-center justify-between gap-2">
+                  All Tasks{" "}
+                  <span className="text-cyan-500">
+                    {/* <Folders className="size-5" /> */}
+                  </span>
+                </h3>
+                <p className="mt-1 text-2xl font-semibold">{tasks.length}</p>
               </div>
-
-              <Button className="cursor-pointer size-8" asChild>
-                <Link
-                  to={`/workspaces/${workspaceId}/projects/${projectId}/tasks/new`}
-                >
-                  <Plus />
-                </Link>
-              </Button>
-            </div>
-          )}
-        </div>
+            </Link>
+          </CardContent>
+        </Card>
 
         <div>
           {tasks.length > 0 ? (
-            <Tabs defaultValue={tasksTabs[0].value}>
-              <TabsList className="flex gap-6 bg-transparent">
-                {tasksTabs.map((tab, index) => (
-                  <TabsTrigger key={index} value={tab.value} asChild>
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-
-              {tasksTabs.map((tab, index) => (
-                <TabsContent
-                  key={index}
-                  value={tab.value}
-                  className="mt-8 grid lg:grid-cols-2 lg:gap-8"
+            <div>
+              {tasks.map((task) => (
+                <Link
+                  to={`/workspaces/${workspaceId}/projects/${projectId}/tasks/${task.id}`}
+                  key={task.id}
                 >
-                  {tasks.map((task) => (
-                    <Link
-                      to={`/workspaces/${workspaceId}/projects/${projectId}/tasks/${task.id}`}
-                      key={task.id}
-                    >
-                      <TaskCard task={task} />
-                    </Link>
-                  ))}
-                </TabsContent>
+                  <TaskCard task={task} />
+                </Link>
               ))}
-            </Tabs>
+            </div>
           ) : (
             <Card className="grid gap-8 place-content-center">
               <CardContent className="flex flex-col items-center gap-8">
@@ -247,7 +235,7 @@ export default function ({
               asChild
             >
               <Link
-                to={`/workspaces/${workspaceId}/projects/${projectId}/settings`}
+                to={`/workspaces/${workspaceId}/projects/${projectId}/settings#edit`}
               >
                 <Pencil className="size-3" />
                 Edit
@@ -261,7 +249,7 @@ export default function ({
                 asChild
               >
                 <Link
-                  to={`/workspaces/${workspaceId}/projects/${projectId}/settings`}
+                  to={`/workspaces/${workspaceId}/projects/${projectId}/settings#delete`}
                 >
                   <Trash className="size-3" />
                   Delete
