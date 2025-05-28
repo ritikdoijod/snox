@@ -46,9 +46,7 @@ export function EditWorkspaceCard(props) {
     defaultValues: {
       name: workspace.name,
       description: workspace.description,
-      ...(workspace.avatar
-        ? { avatar: `http://localhost:3000/x/${workspace.avatar}` }
-        : null),
+      avatar: workspace.avatar
     },
     resolver: zodResolver(schema),
     mode: "onTouched",

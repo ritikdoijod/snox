@@ -15,7 +15,7 @@ export function transform(object) {
       if (exlude.includes(key)) continue;
       if (key === "_id") newObject.id = value;
       if (key === "avatar")
-        newObject.avatar = config.STATIC_FILE_SERVER + value;
+        newObject.avatar = config.STATIC_FILE_SERVER_URL + value;
       else {
         newObject[key] = transform(value);
       }

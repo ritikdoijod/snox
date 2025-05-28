@@ -5,7 +5,7 @@ const appConfig = () => {
     PORT: env("PORT", 8000),
     AUTH_SECRET: env("AUTH_SECRET"),
     MONGO_URI: env("MONGO_URI"),
-    STATIC_FILE_SERVER: env("STATIC_FILE_SERVER"),
+    STATIC_FILE_SERVER_URL: env("STATIC_FILE_SERVER_URL"),
   };
 };
 

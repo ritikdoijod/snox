@@ -37,7 +37,7 @@ const WorkspaceSwitcher = () => {
             <Button className="flex items-center gap-3 px-3 py-6 w-full">
               <Avatar className="rounded-md">
                 <AvatarImage
-                  src={`http://localhost:3000/x/${activeWorkspace.avatar}`}
+                  src={activeWorkspace.avatar}
                 />
                 <AvatarFallback className="rounded-md text-primary">
                   {activeWorkspace.name[0].toUpperCase()}

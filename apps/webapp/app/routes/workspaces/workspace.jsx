@@ -55,9 +55,7 @@ export default function Workspace({
           <CardHeader className="gap-3">
             <CardTitle className="flex items-center gap-3">
               <Avatar className="rounded-md">
-                <AvatarImage
-                  src={`http://localhost:3000/x/${workspace.avatar}`}
-                />
+                <AvatarImage src={workspace.avatar} />
                 <AvatarFallback className="rounded-md">
                   {workspace?.name[0].toUpperCase()}
                 </AvatarFallback>
@@ -101,9 +99,12 @@ export default function Workspace({
                 <Card className="py-4" key={project.id}>
                   <CardHeader className="px-4">
                     <CardTitle className="text-xs font-medium flex gap-2 items-center">
-                      <span>
-                        <Folder className="size-4" />
-                      </span>
+                      <Avatar className="size-5 rounded-sm">
+                        <AvatarImage src={project.avatar} />
+                        <AvatarFallback className="rounded-sm">
+                          {project?.name[0].toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
                       {project.name}
                     </CardTitle>
                     <CardDescription className="text-xs">
