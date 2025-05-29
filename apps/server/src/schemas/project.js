@@ -9,5 +9,5 @@ export const projectSchema = z.object({
 });
 
 export const getProjectsQuerySchema = z.object({
-  include: z.array(z.enum(["tasks", "user", "workspace"])).optional(),
+  include: z.array(z.enum(["tasks", "createdBy", "workspace"])).optional(),
 });

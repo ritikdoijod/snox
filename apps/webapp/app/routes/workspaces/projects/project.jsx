@@ -1,26 +1,19 @@
+import { Link, useOutletContext } from "react-router";
 import { format } from "date-fns";
-import { Link } from "react-router";
 import {
   CalendarDays,
   Clock,
   Info,
   Pencil,
   Plus,
-  Search,
   Trash,
+  ExternalLink,
 } from "lucide-react";
-import { auth } from "@/lib/auth";
 import { useAuth } from "@/lib/contexts/auth";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+
 import {
   Card,
   CardContent,
@@ -28,92 +21,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import { TaskCard } from "@/components/cards/task";
-import QueryString from "qs";
-
-export const loader = auth(async function ({ params: { projectId }, fc }) {
-  const { project } = await fc.get(
-    `/projects/${projectId}?${QueryString.stringify({
-      include: ["createdBy"],
-    })}`
-  );
-  const { tasks } = await fc.get(`/tasks`);
-
-  return {
-    project,
-    tasks: tasks.map((task) => ({
-      ...task,
-      assignee: {
-        id: "user1",
-        name: "User 1",
-        profilePic: "https://github.com/shadcn.png",
-        email: "user@mail.com",
-      },
-    })),
-  };
-});
-const tasksTabs = [
-  {
-    label: (
-      <Button
-        variant="outline"
-        className="px-3.5 rounded-full data-[state=active]:border border-border"
-      >
-        <span
-          className="size-1.5 rounded-full bg-cyan-500"
-          aria-hidden="true"
-        ></span>
-        All
-      </Button>
-    ),
-    value: "all",
-  },
-  {
-    label: (
-      <Button
-        variant="outline"
-        className="px-3.5 rounded-full data-[state=active]:border border-border"
-      >
-        <span
-          className="size-1.5 rounded-full bg-amber-500"
-          aria-hidden="true"
-        ></span>
-        Pending
-      </Button>
-    ),
-    value: "pending",
-  },
-  {
-    label: (
-      <Button
-        variant="outline"
-        className="px-3.5 rounded-full data-[state=active]:border border-border"
-      >
-        <span
-          className="size-1.5 rounded-full bg-red-500"
-          aria-hidden="true"
-        ></span>
-        Overdue
-      </Button>
-    ),
-    value: "overdue",
-  },
-];
-
-export default function ({
-  loaderData: { project },
-  params: { workspaceId, projectId },
-}) {
-  const tasks = []
+export default function ({ params: { workspaceId, projectId } }) {
   const { user } = useAuth();
+  const { project, tasks } = useOutletContext();
 
   return (
     <div className="flex flex-1">
-      <div className="px-6 space-y-3 flex-1">
+      <div className="px-6 space-y-6 flex-1">
         <Card>
           <CardHeader className="gap-3">
             <CardTitle className="flex items-center gap-3">
@@ -143,9 +59,10 @@ export default function ({
           </CardContent>
         </Card>
 
-        <div>
+        <div className="space-y-3">
+          <h2 className="ms-1 text-sm font-medium">Recent Projects</h2>
           {tasks.length > 0 ? (
-            <div>
+            <div className="grid grid-cols-2">
               {tasks.map((task) => (
                 <Link
                   to={`/workspaces/${workspaceId}/projects/${projectId}/tasks/${task.id}`}
@@ -260,5 +177,30 @@ export default function ({
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export function TaskCard({ task: { title, description, status, assignee } }) {
+  return (
+    <Card className="relative group cursor-pointer h-full">
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription className="line-clamp-2">
+          {description}
+        </CardDescription>{" "}
+      </CardHeader>
+      <Button
+        variant="ghost"
+        className="hidden group-hover:block cursor-pointer absolute right-0 top-0 hover:bg-transparent dark:hover:bg-transparent text-muted-foreground"
+      >
+        <ExternalLink />
+      </Button>
+      <CardContent className="flex gap-2 items-center">
+        <Avatar className="size-7 ring ring-card text-xs">
+          <AvatarImage src={assignee.profilePic} alt={assignee.name} />
+          <AvatarFallback>{assignee.name[0].toUpperCase()}</AvatarFallback>
+        </Avatar>
+      </CardContent>
+    </Card>
   );
 }

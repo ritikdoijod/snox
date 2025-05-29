@@ -2,16 +2,6 @@ import { format } from "date-fns";
 import { Link, useOutletContext } from "react-router";
 import QueryString from "qs";
 import { auth } from "@/lib/auth";
-
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import {
   Folders,
   UsersRound,
@@ -25,7 +15,17 @@ import {
   Trash,
   Folder,
 } from "lucide-react";
+
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/lib/contexts/auth";
 
 export const loader = auth(async function ({ params: { workspaceId }, fc }) {
@@ -96,22 +96,38 @@ export default function Workspace({
             <h2 className="ms-1 text-sm font-medium">Recent Projects</h2>
             <div className="grid gap-4 grid-cols-2">
               {projects.map((project) => (
-                <Card className="py-4" key={project.id}>
-                  <CardHeader className="px-4">
-                    <CardTitle className="text-xs font-medium flex gap-2 items-center">
-                      <Avatar className="size-5 rounded-sm">
-                        <AvatarImage src={project.avatar} />
-                        <AvatarFallback className="rounded-sm">
-                          {project?.name[0].toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      {project.name}
-                    </CardTitle>
-                    <CardDescription className="text-xs">
-                      {project.description}
-                    </CardDescription>
-                  </CardHeader>
-                </Card>
+                <Link
+                  key={project.id}
+                  to={`/workspaces/${workspaceId}/projects/${project.id}`}
+                >
+                  <Card className="py-4 gap-3">
+                    <CardHeader className="px-4">
+                      <CardTitle className="text-xs font-medium flex gap-2 items-center">
+                        <Avatar className="size-5 rounded-sm">
+                          <AvatarImage src={project.avatar} />
+                          <AvatarFallback className="rounded-sm">
+                            {project?.name[0].toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        {project.name}
+                      </CardTitle>
+                      <CardDescription className="text-xs line-clamp-2">
+                        {project.description}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="px-4">
+                      <div className="flex gap-1 items-center">
+                        <Avatar className="size-5">
+                          <AvatarImage src={project.createdBy.profilePic} />
+                          <AvatarFallback className="text-[0.55rem]">
+                            {project.createdBy.name[0].toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <p className="text-xs">{project.createdBy.name}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           </div>
@@ -120,16 +136,13 @@ export default function Workspace({
             <div className="grid gap-4 grid-cols-2">
               {members.map(({ id, user }) => (
                 <Link key={id} to={`/workspaces/${workspace.id}/members/${id}`}>
-                  <Card className="p-4">
-                    <CardHeader className="flex p-0 justify-between">
+                  <Card className="py-4">
+                    <CardHeader className="flex px-4 justify-between">
                       <div className="flex gap-2">
-                        <Avatar className="size-7">
+                        <Avatar className="size-5 rounded-sm">
                           <AvatarImage alt={user.name} />
-                          <AvatarFallback className="text-[0.65rem]">
-                            {user.name
-                              .split(" ")
-                              .map((chunk) => chunk[0])
-                              .join("")}
+                          <AvatarFallback className="text-[0.55rem] rounded-sm">
+                            {user.name[0].toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col space-y-0.5">

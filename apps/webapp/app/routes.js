@@ -24,17 +24,21 @@ export default [
         ...prefix(":workspaceId/projects", [
           index("./routes/workspaces/projects/index.jsx"),
           route("new", "./routes/workspaces/projects/new.jsx"),
-          route(":projectId", "./routes/workspaces/projects/project.jsx"),
-          route(":projectId/settings", "./routes/workspaces/projects/settings.jsx"),
-        ]),
-        ...prefix(":workspaceId/projects/:projectId/tasks", [
-          index("./routes/workspaces/tasks/index.jsx"),
-          route("new", "./routes/workspaces/tasks/new.jsx"),
-          route(":taskId", "./routes/workspaces/tasks/task.jsx"),
+          layout("./routes/workspaces/projects/layout.jsx", [
+            route(":projectId", "./routes/workspaces/projects/project.jsx"),
+            route(
+              ":projectId/settings",
+              "./routes/workspaces/projects/settings.jsx"
+            ),
+            ...prefix(":projectId/tasks", [
+              index("./routes/workspaces/tasks/index.jsx"),
+              route("new", "./routes/workspaces/tasks/new.jsx"),
+              route(":taskId", "./routes/workspaces/tasks/task.jsx"),
+            ]),
+          ]),
         ]),
       ]),
     ]),
-    
   ]),
   route("comments", "./routes/workspaces/tasks/comments.js"),
 ];

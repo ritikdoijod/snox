@@ -13,10 +13,32 @@ import { STATUS } from "@/utils/constants";
 import { Comment } from "@/models/comment";
 
 export const getTasks = asyncHandler(async function (c) {
-  const { include = [], filters, sort, fields, size, page } = c?.query;
+  const { include = [], filters = [], sort, fields, size, page } = c?.query;
+
+  const relationships = {
+    createdBy: [
+      {
+        $lookup: {
+          from: "users",
+          localField: "createdBy",
+          foreignField: "_id",
+          as: "createdBy",
+        },
+      },
+      {
+        $unwind: {
+          path: "$createdBy",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ],
+  };
 
   // aggregation pipeline
   const pipeline = [
+    // stage 6: filters
+    ...filters,
+
     // Stage 1: Lookup the project to get the workspace
     {
       $lookup: {
@@ -64,7 +86,7 @@ export const getTasks = asyncHandler(async function (c) {
           : [relationships[item]] // If it's a single stage, wrap in array
     ),
 
-    // // stage 6: clean up memberships in result
+    // stage 7: clean up
     {
       $project: {
         memberships: 0,
@@ -92,7 +114,10 @@ export const getTasks = asyncHandler(async function (c) {
 
 export const getTask = asyncHandler(async function (c) {
   const { taskId } = c.req.param();
-  const task = await Task.findById(taskId).populate("project");
+  const { include = [] } = c?.query;
+  const task = await Task.findById(taskId)
+    .populate("project")
+    .populate(include);
   if (!task) throw new NotFoundException("Task not found");
 
   await canViewTask(c.user.id, task.project.workspace);

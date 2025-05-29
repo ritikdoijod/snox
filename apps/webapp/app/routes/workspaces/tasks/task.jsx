@@ -1,21 +1,29 @@
-import { Link, useFetcher } from "react-router";
-import { formatDistanceToNow } from "date-fns";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Link, useFetcher, useOutletContext } from "react-router";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { format, formatDistanceToNow } from "date-fns";
 import {
-  Timeline,
-  TimelineContent,
-  TimelineDate,
-  TimelineHeader,
-  TimelineIndicator,
-  TimelineItem,
-  TimelineSeparator,
-  TimelineTitle,
-} from "@/components/ui/timeline";
+  Info,
+  CalendarDays,
+  Clock,
+  ClockAlert,
+  AlarmClockCheck,
+  Pen,
+  Trash,
+} from "lucide-react";
+import { RiSendPlaneFill } from "react-icons/ri";
+import QueryString from "qs";
 import { auth } from "@/lib/auth";
+
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -26,10 +34,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Badge } from "@/components/ui/badge";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -38,13 +42,42 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { RiSendPlaneFill } from "react-icons/ri";
+import {
+  Timeline,
+  TimelineContent,
+  TimelineDate,
+  TimelineHeader,
+  TimelineIndicator,
+  TimelineItem,
+  TimelineSeparator,
+  TimelineTitle,
+} from "@/components/ui/timeline";
+import { Separator } from "@/components/ui/separator";
+
 import { Textarea } from "@/components/ui/textarea";
-import QueryString from "qs";
+import { useAuth } from "@/lib/contexts/auth";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+  SelectItem,
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import DatePicker from "@/components/date-picker";
 
 export const loader = auth(async function ({ params: { taskId }, fc }) {
-  const { task } = await fc.get(`/tasks/${taskId}`);
+  const { task } = await fc.get(
+    `/tasks/${taskId}?${QueryString.stringify({
+      include: ["createdBy"],
+    })}`
+  );
+
   const { comments } = await fc.get(
     `/comments?${QueryString.stringify({
       include: ["createdBy"],
@@ -53,42 +86,6 @@ export const loader = auth(async function ({ params: { taskId }, fc }) {
 
   return { task, comments };
 });
-
-const comments = [
-  // {
-  //   id: "1",
-  //   data: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Corrupti placeat eveniet natus culpa ea expedita, voluptatum harum quos mollitia in inventore, hic id quasi tempore provident error quae at temporibus.",
-  //   createdAt: new Date().toString(),
-  //   updatedAt: new Date().toString(),
-  //   createdBy: {
-  //     id: "u1",
-  //     name: "Test User",
-  //     profilePic: "https://github.com/shadcn.png",
-  //   },
-  // },
-  // {
-  //   id: "2",
-  //   data: "this is test comment",
-  //   updatedAt: new Date().toString(),
-  //   createdAt: new Date().toString(),
-  //   createdBy: {
-  //     id: "u1",
-  //     name: "Test User",
-  //     profilePic: "",
-  //   },
-  // },
-  // {
-  //   id: "3",
-  //   data: "this is test comment",
-  //   updatedAt: new Date().toString(),
-  //   createdAt: new Date().toString(),
-  //   createdBy: {
-  //     id: "u1",
-  //     name: "Test User",
-  //     profilePic: "https://github.com/shadcn.png",
-  //   },
-  // },
-];
 
 const schema = z.object({
   content: z.string().nonempty(),
@@ -99,6 +96,8 @@ export default function Task({
   loaderData: { task, comments },
 }) {
   const fetcher = useFetcher();
+  const { user } = useAuth();
+  const { project } = useOutletContext();
 
   const form = useForm({
     defaultValues: {
@@ -128,36 +127,36 @@ export default function Task({
 
   return (
     <div className="flex flex-1">
-      <div className="px-8 space-y-4 flex-1">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link to={`/workspaces/${workspaceId}/projects/${projectId}`}>
-                  {projectId}
-                </Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem className="text-primary font-medium">
-              {task.title}
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+      <div className="px-6 space-y-4 flex-1">
+        <div className="flex items-center justify-between">
+          <Breadcrumb>
+            <BreadcrumbList className="text-xs">
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to={`/workspaces/${workspaceId}/projects/${projectId}`}>
+                    {project.name}
+                  </Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem className="text-primary font-medium">
+                {task.title}
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <div>
+            <Button size="sm" variant="outline" className="text-xs">
+              <Pen className="size-3" />
+              Edit
+            </Button>
+          </div>
+        </div>
         <Card>
           <CardHeader>
             <CardTitle>{task.title}</CardTitle>
             <CardDescription>{task.description}</CardDescription>
           </CardHeader>
-          <CardContent>
-            <Badge
-              size="sm"
-              className="text-xs px-3 py-1 rounded-full bg-destructive/5 text-destructive/80"
-            >
-              <span className="size-1.5 bg-destructive/80 mr-1 rounded-full"></span>
-              Overdue
-            </Badge>
-          </CardContent>
+          <CardContent></CardContent>
         </Card>
         <div className="px-2 mt-10">
           <div className="flex gap-2 items-center">
@@ -262,8 +261,150 @@ export default function Task({
         </div>
       </div>
       <Card className="w-2xs">
-        <CardHeader>Activity</CardHeader>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <span>
+              <Info className="size-5" />
+            </span>
+            Info
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex-1 space-y-6 text-sm">
+          {/* Owner Info */}
+          <div className="flex items-center gap-3">
+            <Avatar className="size-8">
+              <AvatarImage alt={task.createdBy?.name} />
+              <AvatarFallback>{task.createdBy?.name?.[0]}</AvatarFallback>
+            </Avatar>
+            <div>
+              <div className="text-xs font-medium">
+                {task.createdBy.id === user.id ? "You" : task.createdBy?.name}
+              </div>
+              <div className="text-[0.65rem] text-muted-foreground">Owner</div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Created */}
+          <div className="flex items-start gap-2">
+            <CalendarDays className="size-4 text-muted-foreground" />
+            <div className="text-xs space-y-1">
+              <div className="text-muted-foreground">Created</div>
+              <div>{format(task.createdAt, "d MMM yyyy, h:mm a")}</div>
+            </div>
+          </div>
+
+          {/* Updated */}
+          <div className="flex items-start gap-2">
+            <Clock className="size-4 text-muted-foreground mt-0.5" />
+            <div className="text-xs space-y-1">
+              <div className="text-muted-foreground">Last Updated</div>
+              <div>{format(task.updatedAt, "d MMM yyyy, h:mm a")}</div>
+            </div>
+          </div>
+
+          <Separator />
+
+          <div className="flex flex-col gap-6">
+            <div className="text-xs space-y-1 flex flex-col">
+              <Label
+                htmlFor="priority"
+                className="text-xs text-muted-foreground"
+              >
+                Priority
+              </Label>
+              <SelectPriority defaultValue={task.priority} />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-6">
+            <div className="text-xs space-y-1 flex flex-col">
+              <Label className="text-xs text-muted-foreground">Status</Label>
+              <SelectStatus defaultValue={task.status} />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-6">
+            <div className="text-xs space-y-1 flex flex-col">
+              <Label className="text-xs text-muted-foreground">Due Date</Label>
+              <div className="flex justify-between items-center">
+                {task.dueDate ? (
+                  <time dateTime={task.dueDate}>
+                    {format(task.dueDate, "d MMM yyyy")}
+                  </time>
+                ) : (
+                  "No due date"
+                )}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <CalendarDays />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="p-0 w-fit" align="end">
+                    <DatePicker className="border-none" />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button size="sm" className="text-xs bg-destructive/70 w-full">
+            <Trash className="size-3" />
+            Delete
+          </Button>
+        </CardFooter>
       </Card>
     </div>
+  );
+}
+
+function SelectStatus({ defaultValue }) {
+  return (
+    <Select onValueChange={() => {}} defaultValue={defaultValue}>
+      <SelectTrigger className="text-xs min-w-40">
+        <SelectValue />
+      </SelectTrigger>
+
+      <SelectContent>
+        <SelectItem className="text-xs flex gap-2" value="TODO">
+          <AlarmClockCheck className="size-4 text-cyan-500" />
+          Todo
+        </SelectItem>
+
+        <SelectItem className="text-xs" value="OVERDUE">
+          <ClockAlert className="size-4 text-red-500" />
+          Overdue
+        </SelectItem>
+      </SelectContent>
+    </Select>
+  );
+}
+
+function SelectPriority({ defaultValue }) {
+  return (
+    <Select defaultValue={defaultValue}>
+      <SelectTrigger className="text-xs min-w-30">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem className="text-xs" value="LOW">
+          <span className="size-1.5 bg-cyan-500 rounded-full"></span>
+          Low
+        </SelectItem>
+        <SelectItem className="text-xs" value="MEDIUM">
+          {" "}
+          <span className="size-1.5 bg-amber-500 rounded-full"></span>
+          Medium
+        </SelectItem>
+        <SelectItem className="text-xs" value="HIGH">
+          {" "}
+          <span className="size-1.5 bg-red-500 rounded-full"></span>
+          High
+        </SelectItem>
+      </SelectContent>
+    </Select>
   );
 }

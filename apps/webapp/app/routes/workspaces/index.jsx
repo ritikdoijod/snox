@@ -16,7 +16,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 
-
 export const loader = auth(async function ({ fc }) {
   const { workspaces } = await fc.get(
     `/workspaces?${QueryString.stringify({ include: ["members"] })}`
@@ -36,7 +35,7 @@ export const action = auth(async function ({ request, params, fc }) {
         description,
         avatar,
       });
-      actionData = { workspace };
+      actionData = redirect(`/workspaces/${workspace.id}`);
       break;
     }
 
@@ -94,9 +93,7 @@ export default function Workspaces({ loaderData: { workspaces } }) {
                   <CardHeader className="h-16">
                     <CardTitle className="flex items-center gap-3">
                       <Avatar className="rounded-md">
-                        <AvatarImage
-                          src={workspace.avatar}
-                        />
+                        <AvatarImage src={workspace.avatar} />
                         <AvatarFallback className="rounded-md">
                           {workspace.name[0].toUpperCase()}
                         </AvatarFallback>

@@ -28,7 +28,7 @@ export const getProjects = asyncHandler(async function (c) {
         as: "tasks",
       },
     },
-    user: [
+    createdBy: [
       {
         $lookup: {
           from: "users",

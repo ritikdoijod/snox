@@ -12,7 +12,7 @@ export const action = auth(async function ({
     case "POST": {
       const { title, description, priority, assignee } = await request.json();
 
-      const {task} = await fc.post("/tasks", {
+      const { task } = await fc.post("/tasks", {
         title,
         description,
         project: projectId,

@@ -21,6 +21,7 @@ export const loader = auth(async function ({ params: { workspaceId }, fc }) {
           },
         },
       ],
+      include: ["createdBy"],
     })}`
   );
 
