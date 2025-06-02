@@ -18,24 +18,27 @@ const userSchema = mongoose.Schema(
       type: String,
       select: true,
     },
-    profilePicture: {
+    avatar: {
       type: String,
       default: null,
-    }
+    },
+    bio: {
+      type: String,
+    },
   },
   {
     timestamps: true,
-  },
+  }
 );
 
-userSchema.pre("save", async function(next) {
+userSchema.pre("save", async function (next) {
   if (this.isModified("password") && this.password)
     this.password = await hash(this.password);
 
   next();
 });
 
-userSchema.methods.verifyPassword = async function(value) {
+userSchema.methods.verifyPassword = async function (value) {
   return await verify(this.password, value);
 };
 

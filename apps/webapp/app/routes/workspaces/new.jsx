@@ -24,7 +24,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import AvatarInput from "@/components/features/avatar-input";
+import AvatarInput from "@/components/avatar-input";
 import { getBase64Image } from "@/utils/image";
 
 export const loader = auth(function () {

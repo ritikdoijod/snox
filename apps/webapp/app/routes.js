@@ -10,6 +10,7 @@ export default [
         route("signup", "./routes/auth/signup.jsx"),
       ]),
     ]),
+    route("profile", "./routes/users/profile.jsx"),
     ...prefix("workspaces", [
       index("./routes/workspaces/index.jsx"),
       route("new", "./routes/workspaces/new.jsx"),

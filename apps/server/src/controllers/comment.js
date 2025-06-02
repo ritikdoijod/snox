@@ -6,9 +6,10 @@ import { asyncHandler } from "@/utils/async-handler";
 import { STATUS } from "@/utils/constants";
 import { Comment } from "@/models/comment";
 import { Permissions } from "@/enums/permission";
+import { canEditComment } from "@/policies/comment";
 
 export const getComments = asyncHandler(async function (c) {
-  const { include = [], filters, sort, fields, size, page } = c?.query;
+  const { include = [], filters = [], sort, fields, size, page } = c?.query;
 
   const relationships = {
     createdBy: [
@@ -47,7 +48,10 @@ export const getComments = asyncHandler(async function (c) {
 
   // aggregation pipeline
   const pipeline = [
-    // Stage 1: Lookup the task to get the project
+    // Stage 1: filters
+    ...filters,
+
+    // Stage 2: Lookup the task to get the project
     {
       $lookup: {
         from: "tasks",
@@ -57,11 +61,12 @@ export const getComments = asyncHandler(async function (c) {
       },
     },
 
-    // Stage 2: Unwind task to access project
+    // Stage 3: Unwind task to access project
     {
       $unwind: "$task",
     },
-    // Stage 3: Lookup the project to get the workspace
+
+    // Stage 4: Lookup the project to get the workspace
     {
       $lookup: {
         from: "projects",
@@ -70,10 +75,11 @@ export const getComments = asyncHandler(async function (c) {
         as: "project",
       },
     },
-    // Stage 4: Unwind project
+
+    // Stage 5: Unwind project
     { $unwind: "$project" },
 
-    // Stage 5: Lookup memberships to verify user is a member of the workspace
+    // Stage 6: Lookup memberships to verify user is a member of the workspace
     {
       $lookup: {
         from: "members",
@@ -96,21 +102,21 @@ export const getComments = asyncHandler(async function (c) {
         as: "memberships",
       },
     },
-    // Stage 6: Filter comments
+
+    // Stage 7: Filter comments
     {
       $match: {
         memberships: { $ne: [] },
       },
     },
 
-     // Stage 7: add relationships
-     ...include?.flatMap(
+    // Stage 8: add relationships
+    ...include?.flatMap(
       (item) =>
         Array.isArray(relationships[item])
           ? relationships[item] // If it's an array, spread it
           : [relationships[item]] // If it's a single stage, wrap in array
     ),
-
 
     // // stage 8: clean up
     {
@@ -177,7 +183,7 @@ export const updateComment = asyncHandler(async function (c) {
   if (!comment) throw new NotFoundException("Comment not found");
 
   // can edit comment
-  if (c.user.id !== comment.createdBy) ForbiddenException("Access denied");
+  await canEditComment(c.user, comment);
 
   const { content } = await c.req.json();
   const updatedComment = await Comment.findByIdAndUpdate(

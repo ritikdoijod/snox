@@ -134,6 +134,7 @@ export const createTask = asyncHandler(async function (c) {
     project: projectId,
     status,
     priority,
+    dueDate,
     assignee,
   } = await c.req.json();
 
@@ -149,6 +150,7 @@ export const createTask = asyncHandler(async function (c) {
     status,
     priority,
     createdBy: c.user.id,
+    dueDate,
     assignee,
   });
 
@@ -165,7 +167,7 @@ export const updateTask = asyncHandler(async function (c) {
   const task = await Task.findById(taskId);
   if (!task) throw new NotFoundException("Task not found");
 
-  const { title, description, project, status, priority, assignee } =
+  const { title, description, project, status, priority, dueDate, assignee } =
     await c.req.json();
 
   await canEditTask(c.user.id, task.id);
@@ -178,6 +180,7 @@ export const updateTask = asyncHandler(async function (c) {
       project,
       status,
       priority,
+      dueDate,
       assignee,
     },
     {

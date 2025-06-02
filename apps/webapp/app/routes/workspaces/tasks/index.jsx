@@ -28,11 +28,14 @@ export const action = auth(async function ({
     }
 
     case "PATCH": {
-      const { taskId, title, description, status } = await request.json();
+      const { taskId, title, description, status, priority, dueDate } =
+        await request.json();
       await fc.patch(`/tasks/${taskId}`, {
         title,
         description,
         status,
+        priority,
+        dueDate,
       });
       break;
     }

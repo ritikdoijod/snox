@@ -24,7 +24,7 @@ export const loader = auth(async function ({ fc }) {
   return { workspaces };
 });
 
-export const action = auth(async function ({ request, params, fc }) {
+export const action = auth(async function ({ request, fc }) {
   let actionData = {};
 
   switch (request.method) {

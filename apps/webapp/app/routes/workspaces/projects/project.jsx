@@ -7,7 +7,6 @@ import {
   Pencil,
   Plus,
   Trash,
-  ExternalLink,
 } from "lucide-react";
 import { useAuth } from "@/lib/contexts/auth";
 
@@ -60,9 +59,9 @@ export default function ({ params: { workspaceId, projectId } }) {
         </Card>
 
         <div className="space-y-3">
-          <h2 className="ms-1 text-sm font-medium">Recent Projects</h2>
+          <h2 className="ms-1 text-sm font-medium">Recent Tasks</h2>
           {tasks.length > 0 ? (
-            <div className="grid grid-cols-2">
+            <div className="grid grid-cols-2 gap-4">
               {tasks.map((task) => (
                 <Link
                   to={`/workspaces/${workspaceId}/projects/${projectId}/tasks/${task.id}`}
@@ -75,7 +74,7 @@ export default function ({ params: { workspaceId, projectId } }) {
           ) : (
             <Card className="grid gap-8 place-content-center">
               <CardContent className="flex flex-col items-center gap-8">
-                <p className="text-center">Start by creating your first task</p>
+                <p className="text-center text-xs">Start by creating your first task</p>
                 <Button className="cursor-pointer" asChild>
                   <Link
                     to={`/workspaces/${workspaceId}/projects/${projectId}/tasks/new`}
@@ -90,7 +89,7 @@ export default function ({ params: { workspaceId, projectId } }) {
                 <span className="text-sm text-nowrap"> Or </span>
                 <Separator className="flex-1" />
               </div>
-              <p className="text-center">Let others add you in a task</p>
+              <p className="text-center text-xs">Let others add you in a task</p>
             </Card>
           )}
         </div>
@@ -182,19 +181,13 @@ export default function ({ params: { workspaceId, projectId } }) {
 
 export function TaskCard({ task: { title, description, status, assignee } }) {
   return (
-    <Card className="relative group cursor-pointer h-full">
+    <Card className="cursor-pointer">
       <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription className="line-clamp-2">
+        <CardTitle className="text-xs">{title}</CardTitle>
+        <CardDescription className="line-clamp-2 text-xs">
           {description}
         </CardDescription>{" "}
       </CardHeader>
-      <Button
-        variant="ghost"
-        className="hidden group-hover:block cursor-pointer absolute right-0 top-0 hover:bg-transparent dark:hover:bg-transparent text-muted-foreground"
-      >
-        <ExternalLink />
-      </Button>
       <CardContent className="flex gap-2 items-center">
         <Avatar className="size-7 ring ring-card text-xs">
           <AvatarImage src={assignee.profilePic} alt={assignee.name} />

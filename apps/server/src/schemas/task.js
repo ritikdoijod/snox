@@ -8,5 +8,6 @@ export const taskSchema = z.object({
   project: mongoObjectIdSchema("Invalid project id"),
   status: z.enum(Object.values(STATUS.TASK)).optional(),
   priority: z.enum(Object.values(PRIORITY)).optional(),
+  dueDate: z.string(),
   assignee: mongoObjectIdSchema("Invalid user id"),
 });

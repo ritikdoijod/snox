@@ -19,21 +19,19 @@ const NavUser = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          size="icon"
-          className="cursor-pointer"
-        >
-          <Avatar className="rounded-md">
+        <Button variant="outline" size="icon" className="cursor-pointer">
+          <Avatar className="rounded-sm">
             <AvatarImage src={user.avatar} alt={user.name} />
-            <AvatarFallback className="bg-transparent">{user.name[0].toUpperCase()}</AvatarFallback>
+            <AvatarFallback className="bg-transparent">
+              {user.name[0].toUpperCase()}
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         className="w-[--radix-dropdown-menu-trigger-width] min-w-48 rounded-lg"
         align="end"
-        side="bottom" 
+        side="bottom"
         sideOffset={4}
       >
         <DropdownMenuLabel className="font-normal">
@@ -52,13 +50,11 @@ const NavUser = () => {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <User />
-            Profile
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Bell />
-            Notifications
+          <DropdownMenuItem asChild>
+            <Link to="/profile">
+              <User />
+              Profile
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

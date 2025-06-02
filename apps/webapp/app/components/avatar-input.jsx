@@ -24,6 +24,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
+import { cn } from "@/lib/utils";
 
 // Helper function to create a cropped image blob
 const createImage = (url) =>
@@ -81,7 +82,7 @@ async function getCroppedImg(
   }
 }
 
-export default function AvatarInput({ value, onChange }) {
+export default function AvatarInput({ value, onChange, className }) {
   const [
     { files, isDragging },
     {
@@ -193,12 +194,12 @@ export default function AvatarInput({ value, onChange }) {
   }, [fileId]); // Depend only on fileId
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="relative inline-flex">
+    <div className={cn("flex flex-col items-center gap-2 size-16", className)}>
+      <div className="relative inline-flex size-full">
         {/* Drop area - uses finalImageUrl */}
         <button
           type="button"
-          className="border-input hover:bg-accent/50 data-[dragging=true]:bg-accent/50 focus-visible:border-ring focus-visible:ring-ring/50 relative flex size-16 items-center justify-center overflow-hidden rounded-full border border-dashed transition-colors outline-none focus-visible:ring-[3px] has-disabled:pointer-events-none has-disabled:opacity-50"
+          className="border-input hover:bg-accent/50 data-[dragging=true]:bg-accent/50 focus-visible:border-ring focus-visible:ring-ring/50 relative flex size-full items-center justify-center overflow-hidden rounded-full border border-dashed transition-colors outline-none focus-visible:ring-[3px] has-disabled:pointer-events-none has-disabled:opacity-50"
           onClick={openFileDialog}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
@@ -211,7 +212,7 @@ export default function AvatarInput({ value, onChange }) {
             <img
               className="size-full object-cover p-0"
               src={finalImageUrl}
-              alt="User avatar"
+              alt="avatar"
               width={64}
               height={64}
               style={{ objectFit: "cover" }}

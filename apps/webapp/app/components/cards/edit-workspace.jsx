@@ -24,7 +24,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
-import AvatarInput from "@/components/features/avatar-input";
+import AvatarInput from "@/components/avatar-input";
 import { getBase64Image } from "@/utils/image";
 
 const schema = z.object({
