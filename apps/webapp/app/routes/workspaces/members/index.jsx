@@ -14,10 +14,19 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  CardContent,
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { AddMembersCard } from "@/components/features/add-members";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, Search } from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 export const loader = auth(async function ({ params: { workspaceId }, fc }) {
   const { members } = await fc.get(
@@ -66,48 +75,134 @@ export default function WorkspaceMembers({
 }) {
   return (
     <div className="flex flex-1">
-      <div className="px-8 space-y-3 flex-1">
-        <Breadcrumb className="py-3">
-          <BreadcrumbList>
-            <BreadcrumbItem className="text-primary font-medium">
-              Members
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+      <div className="px-6 space-y-3 flex-1">
+        <div className="flex justify-between items-center">
+          <Breadcrumb className="py-3">
+            <BreadcrumbList>
+              <BreadcrumbItem className="text-primary font-medium">
+                Members
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <div className="mt-1 relative">
+            <Input
+              className="peer pe-9 bg-background w-48 h-9"
+              placeholder="Search member..."
+            />
+            <Button
+              variant="ghost"
+              className="text-muted-foreground absolute inset-y-0 end-0 flex items-center justify-center pe-3 peer-disabled:opacity-50 hover:bg-transparent dark:hover:bg-transparent cursor-pointer h-9"
+            >
+              <Search size={16} aria-hidden="true" />
+            </Button>
+          </div>
+        </div>
         <ScrollArea className="flex-1">
-          <div className="grid grid-cols-2 mt-2 gap-4">
-            {members.map(({ id, user }) => (
-              <Link key={id} to={`/workspaces/${workspaceId}/members/${id}`}>
-                <Card className="p-4">
-                  <CardHeader className="flex p-0 justify-between">
-                    <div className="flex gap-2">
-                      <Avatar className="size-9">
-                        <AvatarImage alt={user.name} />
-                        <AvatarFallback className="text-xs">
-                          {user.name
-                            .split(" ")
-                            .map((chunk) => chunk[0])
-                            .join("")}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex flex-col space-y-0.5">
-                        <CardTitle className="text-sm">{user.name}</CardTitle>
-                        <CardDescription className="text-xs">
-                          {user.email}
-                        </CardDescription>
-                      </div>
-                    </div>
-                    {/* <Button size="sm" className="text-xs h-7">
-                        View
-                      </Button> */}
-                  </CardHeader>
-                </Card>
-              </Link>
+          <div className="grid grid-cols-2 gap-3 items-start">
+            {members.map((member) => (
+              <MemberCard key={member.id} member={member} />
             ))}
           </div>
         </ScrollArea>
       </div>
       <AddMembersCard />
     </div>
+  );
+}
+
+function MemberCard({ member: { user } }) {
+  const [expand, setExpand] = useState(false);
+
+  return (
+    <Card
+      className="py-3 rounded-md transition-all"
+      onClick={() => {
+        setExpand((prev) => !prev);
+      }}
+    >
+      <CardHeader className="flex justify-between px-3">
+        <div className="flex gap-2">
+          <Avatar className="rounded-md">
+            <AvatarImage src={user.avatar} alt={user.name} />
+            <AvatarFallback className="text-xs">
+              {user.name[0].toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col space-y-0.5">
+            <CardTitle className="text-xs">{user.name}</CardTitle>
+            <CardDescription className="text-xs italic">
+              {user.email}
+            </CardDescription>
+          </div>
+        </div>
+
+        <ChevronDown
+          className={cn("size-3 text-muted-foreground transition-all", {
+            "-rotate-180": expand,
+          })}
+        />
+      </CardHeader>
+
+      {expand && (
+        <CardContent className="px-3 space-y-5">
+          <div className="">
+            <h3 className="text-xs font-medium text-muted-foreground">
+              Workspace
+            </h3>
+            <div
+              className="flex gap-7 mt-3"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-2">
+                <Checkbox id="view-workspace" />
+                <Label className="text-xs" htmlFor="view-workspace">
+                  View
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox id="edit-workspace" />
+                <Label className="text-xs" htmlFor="edit-workspace">
+                  Edit
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox id="delete-workspace" />
+                <Label className="text-xs" htmlFor="delete-workspace">
+                  Delete
+                </Label>
+              </div>
+            </div>
+          </div>
+          <div className="">
+            <h3 className="text-xs font-medium text-muted-foreground">
+              Project
+            </h3>
+            <div
+              className="flex gap-7 mt-3"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-2">
+                <Checkbox id="view-workspace" />
+                <Label className="text-xs" htmlFor="view-workspace">
+                  View
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox id="edit-workspace" />
+                <Label className="text-xs" htmlFor="edit-workspace">
+                  Edit
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox id="delete-workspace" />
+                <Label className="text-xs" htmlFor="delete-workspace">
+                  Delete
+                </Label>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      )}
+    </Card>
   );
 }

@@ -1,4 +1,3 @@
-import { redirect } from "react-router";
 import { auth } from "@/lib/auth";
 
 export const action = auth(async function ({ request, fc }) {
@@ -24,7 +23,7 @@ export const action = auth(async function ({ request, fc }) {
     }
 
     case "DELETE": {
-      const {  commentId } = await request.json();
+      const { commentId } = await request.json();
       await fc.delete(`/comments/${commentId}`);
       break;
     }

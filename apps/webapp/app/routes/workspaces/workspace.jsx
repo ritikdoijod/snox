@@ -118,7 +118,7 @@ export default function Workspace({
                     <CardContent className="px-4">
                       <div className="flex gap-1 items-center">
                         <Avatar className="size-5">
-                          <AvatarImage src={project.createdBy.profilePic} />
+                          <AvatarImage src={project.createdBy.avatar} />
                           <AvatarFallback className="text-[0.55rem]">
                             {project.createdBy.name[0].toUpperCase()}
                           </AvatarFallback>
@@ -140,7 +140,7 @@ export default function Workspace({
                     <CardHeader className="flex px-4 justify-between">
                       <div className="flex gap-2">
                         <Avatar className="size-5 rounded-sm">
-                          <AvatarImage alt={user.name} />
+                          <AvatarImage src={user.avatar} alt={user.name} />
                           <AvatarFallback className="text-[0.55rem] rounded-sm">
                             {user.name[0].toUpperCase()}
                           </AvatarFallback>

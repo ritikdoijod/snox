@@ -15,7 +15,7 @@ const router = new Hono();
 
 router.get("/", getComments);
 router.get(
-  "/:taskId",
+  "/:commentId",
   validate({
     param: z.object({
       commentId: mongoObjectIdSchema("Invalid comment id"),
@@ -25,7 +25,7 @@ router.get(
 );
 router.post("/", validate({ body: commentSchema }), createComment);
 router.patch(
-  "/:taskId",
+  "/:commentId",
   validate({
     param: z.object({
       commentId: mongoObjectIdSchema("Invalid comment id"),
@@ -35,7 +35,7 @@ router.patch(
   updateComment
 );
 router.delete(
-  "/:taskId",
+  "/:commentId",
   validate({
     param: z.object({
       commentId: mongoObjectIdSchema("Invalid comment id"),

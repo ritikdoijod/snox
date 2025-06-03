@@ -105,12 +105,9 @@ export default function Workspaces({ loaderData: { workspaces } }) {
                   <CardContent>
                     <div className="flex -space-x-3">
                       {workspace?.members?.map((member) => (
-                        <Avatar
-                          key={member.id}
-                          className="size-9 ring ring-card"
-                        >
+                        <Avatar key={member.id} className="ring ring-card">
                           <AvatarImage
-                            src={member.user.profilePic}
+                            src={member.user.avatar}
                             alt={member.user.name}
                           />
                           <AvatarFallback className="text-xs">
@@ -119,7 +116,7 @@ export default function Workspaces({ loaderData: { workspaces } }) {
                         </Avatar>
                       ))}
                       {workspace?.members.length > 4 && (
-                        <Avatar className="size-9 ring-2 ring-card text-muted-foreground">
+                        <Avatar className="ring-2 ring-card text-muted-foreground">
                           <AvatarImage src="counter" alt="counter" />
                           <AvatarFallback className="text-xs">
                             {workspace?.members.length - 4}+

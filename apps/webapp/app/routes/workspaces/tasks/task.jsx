@@ -1,4 +1,4 @@
-import { createContext, use, useEffect, useState } from "react";
+import { createContext, use, useEffect, useRef, useState } from "react";
 import { Link, useFetcher, useOutletContext, useParams } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -84,6 +84,7 @@ import {
 } from "@/components/ui/popover";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const loader = auth(async function ({ params: { taskId }, fc }) {
   const { task } = await fc.get(
@@ -156,7 +157,7 @@ export default function Task({
   return (
     <TaskContext value={{ task, onSubmit }}>
       <div className="flex flex-1">
-        <div className="px-6 space-y-4 flex-1">
+        <div className="px-6 space-y-3 flex-1">
           <div className="flex items-center justify-between">
             <Breadcrumb>
               <BreadcrumbList className="text-xs bg-card h-8 px-5 border rounded-md">
@@ -605,7 +606,10 @@ function InfoCard() {
         {/* Owner Info */}
         <div className="flex items-center gap-3">
           <Avatar className="size-8">
-            <AvatarImage alt={task.createdBy?.name} />
+            <AvatarImage
+              src={task.createdBy.avatar}
+              alt={task.createdBy?.name}
+            />
             <AvatarFallback>{task.createdBy?.name?.[0]}</AvatarFallback>
           </Avatar>
           <div>
@@ -669,6 +673,70 @@ function InfoCard() {
 }
 
 function Comments({ comments }) {
+  const lastComment = comments[comments.length - 1];
+  const lastCommentRef = useRef(null);
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (lastCommentRef.current)
+      lastCommentRef.current.scrollIntoView({ behaviour: "smooth" });
+  }, [comments]);
+
+  const fetcher = useFetcher();
+  const { user } = useAuth();
+
+  const schema = z.object({
+    content: z.string().nonempty(),
+  });
+
+  const form = useForm({
+    defaultValues: {
+      content: lastComment.content,
+    },
+    resolver: zodResolver(schema),
+    mode: "onTouched",
+  });
+
+  const {
+    formState: { isDirty, isValid },
+  } = form;
+
+  function deleteComment() {
+    fetcher.submit(
+      {
+        commentId: lastComment.id,
+      },
+      {
+        action: `/comments`,
+        method: "delete",
+        encType: "application/json",
+      }
+    );
+  }
+
+  function editComment(data) {
+    fetcher.submit(
+      {
+        ...data,
+        commentId: lastComment.id,
+      },
+      {
+        action: `/comments`,
+        method: "patch",
+        encType: "application/json",
+      }
+    );
+  }
+
+  useEffect(() => {
+    if (!!fetcher.data && fetcher.data) {
+      setIsEditing(false);
+      form.reset({
+        content: lastComment.content,
+      });
+    }
+  }, [fetcher.data, lastComment.content]);
+
   return (
     <div className="px-2 mt-10">
       <div className="flex gap-2 items-center">
@@ -677,10 +745,10 @@ function Comments({ comments }) {
           {comments.length}
         </Badge>
       </div>
-      <div className="mt-8">
+      <ScrollArea className="h-96 mt-8">
         {!!comments.length ? (
           <Timeline>
-            {comments.map((comment) => (
+            {comments.slice(0, -1).map((comment) => (
               <TimelineItem
                 key={comment.id}
                 step={comment.id}
@@ -691,7 +759,7 @@ function Comments({ comments }) {
                   <TimelineIndicator className="grid place-content-center size-fit border-none">
                     <Avatar className="size-7 text-[0.65rem]">
                       <AvatarImage
-                        src={comment.createdBy.profilePic}
+                        src={comment.createdBy.avatar}
                         alt={comment.createdBy?.name}
                       />
                       <AvatarFallback className="bg-gray-200">
@@ -702,6 +770,7 @@ function Comments({ comments }) {
                       </AvatarFallback>
                     </Avatar>
                   </TimelineIndicator>
+
                   <TimelineTitle className="text-xs">
                     {comment.createdBy.name}
                   </TimelineTitle>
@@ -716,11 +785,124 @@ function Comments({ comments }) {
                 </TimelineContent>
               </TimelineItem>
             ))}
+            <TimelineItem
+              key={lastComment.id}
+              step={lastComment.id}
+              ref={lastCommentRef}
+              className="group-data-[orientation=vertical]/timeline:ms-12 group-data-[orientation=vertical]/timeline:not-last:pb-12"
+            >
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(editComment)}>
+                  <TimelineHeader>
+                    <TimelineSeparator />
+                    <TimelineIndicator className="grid place-content-center size-fit border-none">
+                      <Avatar className="size-7 text-[0.65rem]">
+                        <AvatarImage
+                          src={lastComment.createdBy.avatar}
+                          alt={lastComment.createdBy?.name}
+                        />
+                        <AvatarFallback className="bg-gray-200">
+                          {lastComment.createdBy?.name
+                            .split(" ")
+                            .map((chunk) => chunk[0])
+                            .join("")}
+                        </AvatarFallback>
+                      </Avatar>
+                    </TimelineIndicator>
+
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <TimelineTitle className="text-xs">
+                          {lastComment.createdBy.name}
+                        </TimelineTitle>
+                        <TimelineDate className="text-muted-foreground italic font-normal">
+                          {formatDistanceToNow(lastComment.updatedAt, {
+                            addSuffix: true,
+                          })}
+                        </TimelineDate>
+                      </div>
+                      {lastComment.createdBy.id === user.id && (
+                        <div className="flex">
+                          {isEditing ? (
+                            <>
+                              <Button
+                                type="button"
+                                variant="secondary"
+                                size="sm"
+                                className="cursor-pointer"
+                                onClick={() => setIsEditing(false)}
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                size="sm"
+                                className="cursor-pointer"
+                                type="submit"
+                                disabled={!isDirty || !isValid}
+                              >
+                                Save
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={deleteComment}
+                                className="cursor-pointer"
+                              >
+                                <Trash />
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => {
+                                  setIsEditing(true);
+                                }}
+                                className="cursor-pointer"
+                              >
+                                <Pen />
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </TimelineHeader>
+                  <TimelineContent className="text-xs text-foreground mt-1.5">
+                    {isEditing ? (
+                      <Card className="py-3 rounded-md">
+                        <CardContent className="px-4">
+                          <FormField
+                            control={form.control}
+                            name="content"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Textarea
+                                    className="field-sizing-content p-0 text-xs min-h-12 resize-y shadow-none border-none focus-visible:border-none focus-visible:ring-0"
+                                    {...field}
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      <p>{lastComment.content}</p>
+                    )}
+                  </TimelineContent>
+                </form>
+              </Form>
+            </TimelineItem>
           </Timeline>
         ) : (
           <p className="text-xs text-muted-foreground">No comments yet</p>
         )}
-      </div>
+      </ScrollArea>
     </div>
   );
 }

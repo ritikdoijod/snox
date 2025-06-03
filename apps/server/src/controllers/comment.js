@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 import { Task } from "@/models/task";
 import { canEditTask, canViewTask } from "@/policies/task";
-import { ForbiddenException, NotFoundException } from "@/utils/app-error";
+import { NotFoundException } from "@/utils/app-error";
 import { asyncHandler } from "@/utils/async-handler";
 import { STATUS } from "@/utils/constants";
 import { Comment } from "@/models/comment";
 import { Permissions } from "@/enums/permission";
-import { canEditComment } from "@/policies/comment";
+import { canDeleteComment, canEditComment } from "@/policies/comment";
 
 export const getComments = asyncHandler(async function (c) {
   const { include = [], filters = [], sort, fields, size, page } = c?.query;
@@ -204,8 +204,7 @@ export const deleteComment = asyncHandler(async function (c) {
   const comment = await Comment.findById(commentId);
   if (!comment) throw new NotFoundException("Comment not found");
 
-  // can delete comment
-  if (c.user.id !== comment.createdBy) ForbiddenException("Access denied");
+  await canDeleteComment(c.user, comment);
 
   await Comment.findByIdAndDelete(commentId);
 
