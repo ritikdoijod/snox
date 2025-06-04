@@ -119,9 +119,7 @@ export const getTask = asyncHandler(async function (c) {
   const task = await Task.findById(taskId).populate(include);
   if (!task) throw new NotFoundException("Task not found");
 
-  await canViewTask(c.user.id, task);
-
-  task.project = task.project.id;
+  await canViewTask(c.user, task);
 
   return c.json.success({ data: { task } });
 });
@@ -169,7 +167,7 @@ export const updateTask = asyncHandler(async function (c) {
   const { title, description, project, status, priority, dueDate, assignee } =
     await c.req.json();
 
-  await canEditTask(c.user.id, task.id);
+  await canEditTask(c.user, task);
 
   const updatedTask = await Task.findByIdAndUpdate(
     taskId,
@@ -196,10 +194,10 @@ export const deleteTask = asyncHandler(async function (c) {
     session.startTransaction();
 
     const { taskId } = c.req.param();
-    const task = await Task.findById(taskId).populate("project");
+    const task = await Task.findById(taskId);
     if (!task) throw new NotFoundException("Task not found");
 
-    await canDeleteTask(c.user.id, task.project.workspace);
+    await canDeleteTask(c.user, task);
 
     await Task.findByIdAndDelete(taskId).session(session);
     await Comment.deleteMany({ task: taskId }).session(session);

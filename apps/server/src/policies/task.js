@@ -6,30 +6,31 @@ import { RolePermissions } from "@/utils/role-permission";
 import mongoose from "mongoose";
 
 export const canViewTask = authz(async function (user, task) {
-  // TODO: check member role
   const pipeline = [
-    // Stage 1: Match the specific task
-    {
-      $match: {
-        _id: new mongoose.Types.ObjectId(task.id),
-      },
-    },
-    // Stage 2: Lookup the project to get the workspace
+    // Stage 1: Lookup the project to get the workspace
     {
       $lookup: {
         from: "projects",
-        localField: "project",
-        foreignField: "_id",
+        let: { projectId: task.project },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ["$_id", "$$projectId"],
+              },
+            },
+          },
+        ],
         as: "project",
       },
     },
 
-    // Stage 3: Unwind project to access workspace
+    // Stage 2: Unwind project to access workspace
     {
       $unwind: "$project",
     },
 
-    // Stage 4: Lookup memberships to verify user is a member of the workspace
+    // State 3: Lookup memberships to verify user is a member of the workspace
     {
       $lookup: {
         from: "members",
@@ -45,28 +46,18 @@ export const canViewTask = authz(async function (user, task) {
               },
             },
           },
+          { $limit: 1 },
         ],
-        as: "memberships",
-      },
-    },
-    // Stage 7: Filter tasks where user is a member
-    {
-      $match: {
-        memberships: { $ne: [] },
-      },
-    },
-
-    // stage 8: clean up
-    {
-      $project: {
-        _id: 1,
+        as: "member",
       },
     },
   ];
 
-  const result = await Task.aggregate(pipeline);
+  const member = await Member.aggregate(pipeline);
 
-  return result.length > 0;
+  return (
+    !!member && RolePermissions[member.role].includes(Permissions.VIEW_ONLY)
+  );
 });
 
 export const canCreateTask = authz(async function (user, project) {
@@ -82,27 +73,30 @@ export const canCreateTask = authz(async function (user, project) {
 
 export const canEditTask = authz(async function (user, task) {
   const pipeline = [
-    // Stage 1: Match the specific task
-    {
-      $match: {
-        _id: new mongoose.Types.ObjectId(task),
-      },
-    },
-    // Stage 2: Lookup the project to get the workspace
+    // Stage 1: Lookup the project to get the workspace
     {
       $lookup: {
         from: "projects",
-        localField: "project",
-        foreignField: "_id",
+        let: { projectId: task.project },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ["$_id", "$$projectId"],
+              },
+            },
+          },
+        ],
         as: "project",
       },
     },
 
-    // Stage 3: Unwind task to access project
+    // Stage 2: Unwind project to access workspace
     {
       $unwind: "$project",
     },
-    // Stage 4: Lookup memberships to verify user is a member of the workspace
+
+    // State 3: Lookup memberships to verify user is a member of the workspace
     {
       $lookup: {
         from: "members",
@@ -113,46 +107,76 @@ export const canEditTask = authz(async function (user, task) {
               $expr: {
                 $and: [
                   { $eq: ["$workspace", "$$workspaceId"] },
-                  { $eq: ["$user", new mongoose.Types.ObjectId(user)] },
+                  { $eq: ["$user", new mongoose.Types.ObjectId(user.id)] },
                 ],
-              },
-              permissions: {
-                $elemMatch: { $eq: Permissions.EDIT_TASK },
               },
             },
           },
+          { $limit: 1 },
         ],
-        as: "memberships",
-      },
-    },
-    // Stage 7: Filter tasks where user is a member
-    {
-      $match: {
-        memberships: { $ne: [] },
-      },
-    },
-
-    // stage 8: clean up
-    {
-      $project: {
-        _id: 1,
+        as: "member",
       },
     },
   ];
 
-  const result = await Task.aggregate(pipeline);
+  const member = await Member.aggregate(pipeline);
 
-  return result.length > 0;
+  return (
+    !!member && RolePermissions[member.role].includes(Permissions.EDIT_TASK)
+  );
 });
 
 export const canDeleteTask = authz(async function (user, workspace) {
-  const member = await Member.findOne({
-    user: user,
-    workspace: workspace,
-    permissions: {
-      $eq: Permissions.DELETE_TASK,
+  const pipeline = [
+    // Stage 1: Lookup the project to get the workspace
+    {
+      $lookup: {
+        from: "projects",
+        let: { projectId: task.project },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ["$_id", "$$projectId"],
+              },
+            },
+          },
+        ],
+        as: "project",
+      },
     },
-  });
 
-  return !!member;
+    // Stage 2: Unwind project to access workspace
+    {
+      $unwind: "$project",
+    },
+
+    // State 3: Lookup memberships to verify user is a member of the workspace
+    {
+      $lookup: {
+        from: "members",
+        let: { workspaceId: "$project.workspace" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$workspace", "$$workspaceId"] },
+                  { $eq: ["$user", new mongoose.Types.ObjectId(user.id)] },
+                ],
+              },
+            },
+          },
+          { $limit: 1 },
+        ],
+        as: "member",
+      },
+    },
+  ];
+
+  const member = await Member.aggregate(pipeline);
+
+  return (
+    !!member && RolePermissions[member.role].includes(Permissions.DELETE_TASK)
+  );
 });

@@ -6,7 +6,7 @@ import { asyncHandler } from "@/utils/async-handler";
 import { STATUS } from "@/utils/constants";
 import { Comment } from "@/models/comment";
 import { Permissions } from "@/enums/role";
-import { canDeleteComment, canEditComment } from "@/policies/comment";
+import { canCreateComment, canDeleteComment, canEditComment } from "@/policies/comment";
 
 export const getComments = asyncHandler(async function (c) {
   const { include = [], filters = [], sort, fields, size, page } = c?.query;
@@ -160,8 +160,8 @@ export const createComment = asyncHandler(async function (c) {
 
   const task = await Task.findById(taskId);
   if (!task) throw new NotFoundException("Task not found");
-
-  await canEditTask(c.user.id, task.id);
+  // TODO: add params
+  await canCreateComment()
 
   const comment = new Comment({
     content,

@@ -13,7 +13,6 @@ import {
   Pencil,
   Info,
   Trash,
-  Folder,
 } from "lucide-react";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";

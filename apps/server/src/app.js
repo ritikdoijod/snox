@@ -13,7 +13,7 @@ import userRoutes from "@/routes/user";
 import workspaceRoutes from "@/routes/workspace";
 // import memberRoutes from "@/routes/member";
 import projectRoutes from "@/routes/project";
-// import taskRoutes from "@/routes/task";
+import taskRoutes from "@/routes/task";
 // import commentRoutes from "@/routes/comment";
 
 const app = new Hono();
@@ -39,7 +39,7 @@ app.route("/users", userRoutes);
 app.route("/workspaces", workspaceRoutes);
 // app.route("/members", memberRoutes);
 app.route("/projects", projectRoutes);
-// app.route("/tasks", taskRoutes);
+app.route("/tasks", taskRoutes);
 // app.route("/comments", commentRoutes);
 
 export { app };
