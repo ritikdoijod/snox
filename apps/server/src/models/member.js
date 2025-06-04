@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Permissions } from "@/enums/permission";
+import { Roles } from "@/enums/role";
 
 const memberSchema = new mongoose.Schema(
   {
@@ -13,10 +13,10 @@ const memberSchema = new mongoose.Schema(
       ref: "Workspace",
       required: true,
     },
-    permissions: [
+    role: [
       {
         type: String,
-        enum: Object.values(Permissions),
+        enum: Object.values(Roles),
       },
     ],
   },

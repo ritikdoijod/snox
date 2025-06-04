@@ -9,8 +9,6 @@ import {
   getMember,
   getMembers,
   updateMember,
-  addPermissions,
-  removePermissions,
 } from "@/controllers/member";
 
 const router = new Hono();
@@ -46,28 +44,6 @@ router.delete(
     })
   ),
   deleteMember
-);
-
-// member permissions
-router.post(
-  "/:memberId/permissions",
-  zValidator(
-    "param",
-    z.object({
-      memberId: mongoObjectIdSchema("Invalid member id"),
-    })
-  ),
-  addPermissions
-);
-router.delete(
-  "/:memberId/permissions",
-  zValidator(
-    "param",
-    z.object({
-      memberId: mongoObjectIdSchema("Invalid member id"),
-    })
-  ),
-  removePermissions
 );
 
 export default router;

@@ -1,13 +1,9 @@
-import mongoose from "mongoose";
 import { asyncHandler } from "@/utils/async-handler";
-import { NotFoundException, ForbiddenException } from "@/utils/app-error";
+import { NotFoundException } from "@/utils/app-error";
 import { Member } from "@/models/member";
 import { User } from "@/models/user";
 import { Workspace } from "@/models/workspace";
-import { AppEvent } from "@/models/event";
 import { STATUS } from "@/utils/constants";
-import { Permissions } from "@/enums/permission";
-import { Actions } from "@/enums/action";
 import { canAddMember, canViewMember } from "@/policies/member";
 import { authz } from "@/utils/auth";
 
@@ -75,143 +71,27 @@ export async function getMember(c) {
 }
 
 export const createMember = asyncHandler(async function (c) {
-  const session = await mongoose.startSession();
+  const { user: userId, workspace: workspaceId, role } = await c.req.json();
 
-  try {
-    session.startTransaction();
-    const {
-      user: userId,
-      workspace: workspaceId,
-      permissions,
-    } = await c.req.json();
+  const user = await User.findById(userId);
+  if (!user) throw new NotFoundException("User not found");
 
-    const user = await User.findById(userId);
-    if (!user) throw new NotFoundException("User not found");
+  const workspace = await Workspace.findById(workspaceId);
+  if (!workspace) throw new NotFoundException("Workspace not found");
 
-    const workspace = await Workspace.findById(workspaceId);
-    if (!workspace) throw new NotFoundException("Workspace not found");
+  await canAddMember(c.user, workspace);
 
-    await authz(canAddMember, workspace, c.user);
+  const member = new Member({
+    user: userId,
+    workspace: workspaceId,
+    role,
+  });
 
-    const member = new Member({
-      user: userId,
-      workspace: workspaceId,
-      permissions,
-    });
+  await member.save();
 
-    const event = new AppEvent({
-      subject: member.id,
-      subjectType: "Member",
-      action: "create",
-      createdBy: c.user.id,
-      data: await c.req.json(),
-    });
-
-    await member.save({ session });
-    await event.save({ session });
-    await session.commitTransaction();
-
-    return c.json.success({ statusCode: STATUS.HTTP.CREATED, data: workspace });
-  } catch (error) {
-    await session.abortTransaction();
-    throw error;
-  } finally {
-    await session.endSession();
-  }
+  return c.json.success({ statusCode: STATUS.HTTP.CREATED, data: workspace });
 });
 
 export function updateMember(c) {}
 
 export function deleteMember(c) {}
-
-export const addPermissions = asyncHandler(async function (c) {
-  const session = await mongoose.startSession();
-
-  try {
-    session.startTransaction();
-    const { permissions } = await c.req.json();
-
-    const memberId = c.req.param("memberId");
-
-    const member = await Member.findById(memberId);
-
-    if (!member) throw new NotFoundException("Member not found");
-
-    const requestingMember = await Member.findOne({
-      user: c.user.id,
-      workspace: member.workspace,
-      permissions: {
-        $eq: Permissions.EDIT_MEMBER_PERMISSIONS,
-      },
-    });
-
-    if (!requestingMember) throw new ForbiddenException("Access denied");
-
-    member.push(permissions);
-
-    const event = new AppEvent({
-      subject: member.id,
-      subjectType: "Member",
-      action: Actions.ADD_PERMISSION,
-      createdBy: c.user.id,
-      data: await c.req.json(),
-    });
-
-    await member.save({ session });
-    await event.save({ session });
-    await session.commitTransaction();
-
-    return c.json.success({ statusCode: STATUS.HTTP.CREATED, data: workspace });
-  } catch (error) {
-    await session.abortTransaction();
-    throw error;
-  } finally {
-    await session.endSession();
-  }
-});
-
-export const removePermissions = asyncHandler(async function (c) {
-  const session = await mongoose.startSession();
-
-  try {
-    session.startTransaction();
-    const { permissions } = await c.req.json();
-
-    const memberId = c.req.param("memberId");
-
-    const member = await Member.findById(memberId);
-
-    if (!member) throw new NotFoundException("Member not found");
-
-    const requestingMember = await Member.findOne({
-      user: c.user.id,
-      workspace: member.workspace,
-      permissions: {
-        $eq: Permissions.EDIT_MEMBER_PERMISSIONS,
-      },
-    });
-
-    if (!requestingMember) throw new ForbiddenException("Access denied");
-
-    member.pull(permissions);
-
-    const event = new AppEvent({
-      subject: member.id,
-      subjectType: "Member",
-      action: Actions.REMOVE_PERMISSION,
-      createdBy: c.user.id,
-      data: await c.req.json(),
-    });
-
-    await member.save({ session });
-    await event.save({ session });
-    await session.commitTransaction();
-
-    return c.json.success({ statusCode: STATUS.HTTP.CREATED, data: workspace });
-  } catch (error) {
-    await session.abortTransaction();
-    throw error;
-  } finally {
-    await session.endSession();
-  }
-});

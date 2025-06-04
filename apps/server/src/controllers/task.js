@@ -1,16 +1,17 @@
 import mongoose from "mongoose";
 import { Project } from "@/models/project";
 import { Task } from "@/models/task";
+import { NotFoundException } from "@/utils/app-error";
+import { asyncHandler } from "@/utils/async-handler";
+import { STATUS } from "@/utils/constants";
+import { Comment } from "@/models/comment";
+
 import {
   canCreateTask,
   canViewTask,
   canEditTask,
   canDeleteTask,
 } from "@/policies/task";
-import { NotFoundException } from "@/utils/app-error";
-import { asyncHandler } from "@/utils/async-handler";
-import { STATUS } from "@/utils/constants";
-import { Comment } from "@/models/comment";
 
 export const getTasks = asyncHandler(async function (c) {
   const { include = [], filters = [], sort, fields, size, page } = c?.query;
@@ -36,10 +37,10 @@ export const getTasks = asyncHandler(async function (c) {
 
   // aggregation pipeline
   const pipeline = [
-    // stage 6: filters
+    // stage 1: filters
     ...filters,
 
-    // Stage 1: Lookup the project to get the workspace
+    // Stage 2: Lookup the project to get the workspace
     {
       $lookup: {
         from: "projects",
@@ -48,11 +49,11 @@ export const getTasks = asyncHandler(async function (c) {
         as: "project",
       },
     },
-    // Stage 2: Unwind project to access workspace
+    // Stage 3: Unwind project to access workspace
     {
       $unwind: "$project",
     },
-    // Stage 3: Lookup memberships to verify user is a member of the workspace
+    // Stage 4: Lookup memberships to verify user is a member of the workspace
     {
       $lookup: {
         from: "members",
@@ -72,13 +73,13 @@ export const getTasks = asyncHandler(async function (c) {
         as: "memberships",
       },
     },
-    // Stage 4: Filter tasks where user is a member
+    // Stage 5: Filter tasks where user is a member
     {
       $match: {
         memberships: { $ne: [] },
       },
     },
-    // stage 5: add relationships
+    // stage 6: add relationships
     ...include?.flatMap(
       (item) =>
         Array.isArray(relationships[item])
@@ -115,12 +116,10 @@ export const getTasks = asyncHandler(async function (c) {
 export const getTask = asyncHandler(async function (c) {
   const { taskId } = c.req.param();
   const { include = [] } = c?.query;
-  const task = await Task.findById(taskId)
-    .populate("project")
-    .populate(include);
+  const task = await Task.findById(taskId).populate(include);
   if (!task) throw new NotFoundException("Task not found");
 
-  await canViewTask(c.user.id, task.project.workspace);
+  await canViewTask(c.user.id, task);
 
   task.project = task.project.id;
 
@@ -141,7 +140,7 @@ export const createTask = asyncHandler(async function (c) {
   const project = await Project.findById(projectId);
   if (!project) throw new NotFoundException("Project not found");
 
-  await canCreateTask(c.user.id, project.workspace);
+  await canCreateTask(c.user, project);
 
   const task = new Task({
     title,

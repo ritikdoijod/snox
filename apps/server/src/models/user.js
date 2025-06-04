@@ -20,7 +20,6 @@ const userSchema = mongoose.Schema(
     },
     avatar: {
       type: String,
-      default: null,
     },
     bio: {
       type: String,

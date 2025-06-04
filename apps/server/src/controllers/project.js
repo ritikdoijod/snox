@@ -17,7 +17,7 @@ import {
 } from "@/policies/project";
 
 export const getProjects = asyncHandler(async function (c) {
-  const { include = [], filters, sort, fields, size, page } = c?.query;
+  const { include = [], filters = [], sort, fields, size, page } = c?.query;
 
   const relationships = {
     tasks: {
@@ -64,7 +64,10 @@ export const getProjects = asyncHandler(async function (c) {
 
   // aggregation pipeline
   const pipeline = [
-    // stage 1: match wokrspaces where user is a member
+    // stage 1: filters
+    ...filters,
+
+    // stage 2: match wokrspaces where user is a member
     {
       $lookup: {
         from: "members",
@@ -85,23 +88,20 @@ export const getProjects = asyncHandler(async function (c) {
       },
     },
 
-    // stage 2: filter projects where user is a member of any workspace
+    // stage 3: filter projects where user is a member of any workspace
     {
       $match: {
         memberships: { $ne: [] },
       },
     },
 
-    // stage 3: add relationships
+    // stage 4: add relationships
     ...include?.flatMap(
       (item) =>
         Array.isArray(relationships[item])
           ? relationships[item] // If it's an array, spread it
           : [relationships[item]] // If it's a single stage, wrap in array
     ),
-
-    // stage 4: filters
-    ...filters,
 
     // stage 5: clean up memberships in result
     {
@@ -133,7 +133,8 @@ export const getProject = asyncHandler(async function (c) {
   const { include = [] } = c?.query;
   const project = await Project.findById(projectId).populate(include);
   if (!project) throw new NotFoundException("Project not found");
-  await canViewProject(c.user.id, project.workspace);
+
+  await canViewProject(c.user, project);
 
   return c.json.success({
     data: { project },
@@ -151,7 +152,7 @@ export const createProject = asyncHandler(async function (c) {
   const workspace = await Workspace.findById(workspaceId);
   if (!workspace) throw new NotFoundException("Workspace not found");
 
-  await canCreateProject(c.user.id, workspaceId);
+  await canCreateProject(c.user, workspace);
 
   // check if project exist with same name in the workspace
   const existingProject = await Project.findOne({
@@ -186,7 +187,7 @@ export const updateProject = asyncHandler(async function (c) {
 
   const { name, description, avatar } = await c.req.json();
 
-  await canEditProject(c.user.id, project.workspace);
+  await canEditProject(c.user, project);
 
   const updatedProject = await Project.findByIdAndUpdate(
     project.id,
@@ -214,7 +215,7 @@ export const deleteProject = asyncHandler(async function (c) {
     const project = await Project.findById(projectId);
     if (!project) throw new NotFoundException("Project not found");
 
-    await canDeleteProject(c.user.id, project.workspace);
+    await canDeleteProject(c.user, project);
 
     await Project.findByIdAndDelete(project.id).session(session);
     const tasks = await Task.deleteMany({ project: project.id }).session(

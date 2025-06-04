@@ -5,7 +5,7 @@ import { NotFoundException } from "@/utils/app-error";
 import { asyncHandler } from "@/utils/async-handler";
 import { STATUS } from "@/utils/constants";
 import { Comment } from "@/models/comment";
-import { Permissions } from "@/enums/permission";
+import { Permissions } from "@/enums/role";
 import { canDeleteComment, canEditComment } from "@/policies/comment";
 
 export const getComments = asyncHandler(async function (c) {

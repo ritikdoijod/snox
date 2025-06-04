@@ -1,25 +1,25 @@
 import mongoose from "mongoose";
 
-import { Permissions } from "@/enums/permission";
-import { AppEvent } from "@/models/event";
+import { Roles } from "@/enums/role";
 import { Member } from "@/models/member";
 import { Workspace } from "@/models/workspace";
 import { Project } from "@/models/project";
 import { Task } from "@/models/task";
 import { Comment } from "@/models/comment";
-import {
-  canDeleteWorkspace,
-  canEditWorkspace,
-  canViewWorkspace,
-} from "@/policies/workspace";
 
 import { BadRequestException, NotFoundException } from "@/utils/app-error";
 import { asyncHandler } from "@/utils/async-handler";
 import { STATUS } from "@/utils/constants";
 import { uploadFile } from "@/utils/file-upload";
 
+import {
+  canDeleteWorkspace,
+  canEditWorkspace,
+  canViewWorkspace,
+} from "@/policies/workspace";
+
 export const getWorkspaces = asyncHandler(async function (c) {
-  const { include = [] } = c?.query;
+  const { include = [], filters = [], sort, fields, size, page } = c?.query;
 
   const reletionships = {
     members: {
@@ -50,7 +50,10 @@ export const getWorkspaces = asyncHandler(async function (c) {
   };
 
   const pipeline = [
-    // State 1
+    // State 1: filters
+    ...filters,
+
+    // State 2:
     {
       $lookup: {
         from: "members",
@@ -70,12 +73,18 @@ export const getWorkspaces = asyncHandler(async function (c) {
         as: "memberships",
       },
     },
+
+    // State 3
     {
       $match: {
         memberships: { $ne: [] },
       },
     },
+
+    // State 4
     ...include?.map((item) => reletionships[item]),
+
+    // State 5: clean up
     {
       $project: {
         memberships: 0,
@@ -97,7 +106,7 @@ export const getWorkspace = asyncHandler(async function (c) {
   const workspace = await Workspace.findById(workspaceId).populate(include);
   if (!workspace) throw new NotFoundException("Workspace not found");
 
-  await canViewWorkspace(c.user.id, workspaceId);
+  await canViewWorkspace(c.user, workspace);
 
   return c.json.success({ data: { workspace } });
 });
@@ -131,20 +140,11 @@ export const createWorkspace = asyncHandler(async function (c) {
     const member = new Member({
       user: c.user.id,
       workspace: newWorkspace.id,
-      permissions: Object.values(Permissions),
-    });
-
-    const event = new AppEvent({
-      subject: newWorkspace.id,
-      subjectType: "Workspace",
-      action: "create",
-      createdBy: c.user.id,
-      data: await c.req.json(),
+      role: Roles.OWNER,
     });
 
     await newWorkspace.save({ session });
     await member.save({ session });
-    await event.save({ session });
     await session.commitTransaction();
     await session.endSession();
     return c.json.success({
@@ -159,49 +159,28 @@ export const createWorkspace = asyncHandler(async function (c) {
 });
 
 export const updateWorkspace = asyncHandler(async function (c) {
-  const session = await mongoose.startSession();
+  const { workspaceId } = c.req.param();
 
-  try {
-    session.startTransaction();
-    const { workspaceId } = c.req.param();
+  const workspace = await Workspace.findById(workspaceId);
+  if (!workspace) throw new NotFoundException("Workspace not found");
 
-    const workspace = await Workspace.findById(workspaceId);
-    if (!workspace) throw new NotFoundException("Workspace not found");
+  await canEditWorkspace(c.user, workspace);
 
-    await canEditWorkspace(c.user.id, workspaceId);
+  const { name, description, avatar } = await c.req.json();
 
-    const { name, description, avatar } = await c.req.json();
+  const updatedWorkspace = await Workspace.findByIdAndUpdate(
+    workspaceId,
+    {
+      name,
+      description,
+      ...(avatar ? { avatar: await uploadFile(avatar) } : { avatar }),
+    },
+    {
+      returnDocument: "after",
+    }
+  );
 
-    const updatedWorkspace = await Workspace.findByIdAndUpdate(
-      workspaceId,
-      {
-        name,
-        description,
-        ...(avatar ? { avatar: await uploadFile(avatar) } : { avatar }),
-      },
-      {
-        returnDocument: "after",
-      }
-    ).session(session);
-
-    const event = new AppEvent({
-      subject: workspace.id,
-      subjectType: "Workspace",
-      action: "update",
-      createdBy: c.user.id,
-      data: await c.req.json(),
-    });
-
-    await event.save({ session });
-    await session.commitTransaction();
-    await session.endSession();
-
-    return c.json.success({ data: { workspace: updatedWorkspace } });
-  } catch (error) {
-    await session.abortTransaction();
-    await session.endSession();
-    throw error;
-  }
+  return c.json.success({ data: { workspace: updatedWorkspace } });
 });
 
 export const deleteWorkspace = asyncHandler(async function (c) {
@@ -214,7 +193,7 @@ export const deleteWorkspace = asyncHandler(async function (c) {
     const workspace = await Workspace.findById(workspaceId);
     if (!workspace) throw new NotFoundException("Workspace not found");
 
-    await canDeleteWorkspace(c.user.id, workspaceId);
+    await canDeleteWorkspace(c.user, workspace);
 
     await Workspace.findByIdAndDelete(workspaceId).session(session);
 
@@ -239,17 +218,6 @@ export const deleteWorkspace = asyncHandler(async function (c) {
         }).session(session);
       }
     }
-
-    const event = new AppEvent({
-      subject: workspaceId,
-      subjectType: "Workspace",
-      action: "delete",
-      createdBy: c.user.id,
-      data: workspace,
-    });
-
-    await event.save({ session });
-    await session.commitTransaction();
 
     return c.json.success({ data: {} });
   } catch (error) {
