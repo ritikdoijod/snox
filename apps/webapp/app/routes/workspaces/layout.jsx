@@ -42,21 +42,37 @@ export const loader = auth(async function ({
     })}`
   );
 
-  const userRole = members.find(
+  const userMember = members.find(
     (member) => member.user.id === session.get("uid")
-  ).id;
+  );
 
-  return { workspace, workspaces, projects, members, userRole };
+  const userRole = userMember.role;
+
+  return { workspace, workspaces, projects, members, userRole, userMember };
 });
 
 export default function WorkspaceLayout({
-  loaderData: { workspace, workspaces, projects, members, userRole },
+  loaderData: {
+    workspace,
+    workspaces,
+    projects,
+    members,
+    userRole,
+    userMember,
+  },
 }) {
   return (
     <div className="flex h-full mx-auto">
       <AppSidebar />
       <Outlet
-        context={{ workspace, workspaces, projects, members, userRole }}
+        context={{
+          workspace,
+          workspaces,
+          projects,
+          members,
+          userRole,
+          userMember,
+        }}
       />
     </div>
   );

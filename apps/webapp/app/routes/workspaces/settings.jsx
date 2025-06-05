@@ -33,7 +33,7 @@ const toc = {
   ],
 };
 
-export default function WorkspaceSettings({}) {
+export default function WorkspaceSettings() {
   return (
     <div className="flex flex-1" id="settings">
       <div className="px-6 flex-1">

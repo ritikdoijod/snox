@@ -22,6 +22,8 @@ export const canAddMember = authz(async function (user, workspace) {
 });
 
 export const canRemoveMember = authz(async function (user, member) {
+  if (user.id === member.user.toString()) return true;
+
   const userMember = await Member.findOne({
     user: user.id,
     workspace: member.workspace,

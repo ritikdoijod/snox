@@ -1,9 +1,17 @@
-import { Link } from "react-router";
 import QueryString from "qs";
+import {
+  useFetcher,
+  useParams,
+  useOutletContext,
+  useLoaderData,
+  redirect,
+} from "react-router";
+import { Plus, Search } from "lucide-react";
 
 import { auth } from "@/lib/auth";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -18,34 +26,13 @@ import {
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { AddMembersCard } from "@/components/features/add-members";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { ChevronDown, Search } from "lucide-react";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { Separator } from "@/components/ui/separator";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { Roles } from "@/enums/role";
 
-export const loader = auth(async function ({ params: { workspaceId }, fc }) {
-  const { members } = await fc.get(
-    `/members?${QueryString.stringify({
-      filters: {
-        workspace: workspaceId,
-      },
-      include: "user",
-    })}`
-  );
-
+export const loader = auth(async function ({ fc }) {
   const { users } = await fc.get("/users");
 
-  const memberUserIds = new Set(members.map((member) => member.user.id));
-
-  return {
-    members,
-    users: users.filter((user) => !memberUserIds.has(user.id)),
-  };
+  return { users };
 });
 
 export const action = auth(async function ({
@@ -56,12 +43,17 @@ export const action = auth(async function ({
   let actionData = {};
   switch (request.method) {
     case "POST":
-      const { user, permissions } = await request.json();
+      const { user, role } = await request.json();
       await fc.post("/members", {
         user,
         workspace: workspaceId,
-        permissions,
+        role,
       });
+      break;
+    case "DELETE":
+      const { memberId } = await request.json();
+      await fc.delete(`/members/${memberId}`);
+      actionData = redirect("/workspaces")
       break;
     default:
       throw new Error("Method not allowed");
@@ -69,10 +61,9 @@ export const action = auth(async function ({
   return actionData;
 });
 
-export default function WorkspaceMembers({
-  params: { workspaceId },
-  loaderData: { members, users },
-}) {
+export default function WorkspaceMembers() {
+  const { members } = useOutletContext();
+
   return (
     <div className="flex flex-1">
       <div className="px-6 space-y-3 flex-1">
@@ -129,6 +120,89 @@ function MemberCard({ member: { user, role } }) {
           </div>
         </div>
       </CardHeader>
+    </Card>
+  );
+}
+
+export function AddMemberCard({ user }) {
+  const fetcher = useFetcher();
+  const { workspaceId } = useParams();
+
+  async function onSubmit() {
+    fetcher.submit(
+      {
+        user: user.id,
+        workspace: workspaceId,
+        role: Roles.MEMBER,
+      },
+      {
+        action: `/workspaces/${workspaceId}/members`,
+        method: "post",
+        encType: "application/json",
+      }
+    );
+  }
+
+  return (
+    <Card key={user.id} className="p-2 rounded-md">
+      <CardHeader className="flex p-0 justify-between">
+        <div className="flex items-center gap-2">
+          <Avatar className="size-7">
+            <AvatarImage alt={user.name} />
+            <AvatarFallback className="text-[0.65rem]">
+              {user.name
+                .split(" ")
+                .map((chunk) => chunk[0])
+                .join("")}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col space-y-0.5">
+            <CardTitle className="text-xs">{user.name}</CardTitle>
+            <CardDescription className="text-xs">{user.email}</CardDescription>
+          </div>
+        </div>
+        <Button
+          variant="ghost"
+          className="size-7 cursor-pointer p-2"
+          onClick={onSubmit}
+        >
+          <Plus />
+        </Button>
+      </CardHeader>
+    </Card>
+  );
+}
+
+export function AddMembersCard() {
+  const { users } = useLoaderData();
+  const { members } = useOutletContext();
+
+  const memberUserIds = new Set(members.map((member) => member.user.id));
+
+  const nonMemberUsers = users.filter((user) => !memberUserIds.has(user.id));
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Add members</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="relative">
+          <Input className="peer pe-9" placeholder="Search user..." />
+          <Button
+            variant="ghost"
+            className="text-muted-foreground absolute inset-y-0 end-0 flex items-center justify-center pe-3 peer-disabled:opacity-50 hover:bg-transparent dark:hover:bg-transparent cursor-pointer"
+          >
+            <Search size={16} aria-hidden="true" />
+          </Button>
+        </div>
+
+        <div className="mt-12 space-y-3">
+          {nonMemberUsers.map((user) => (
+            <AddMemberCard user={user} key={user.id} />
+          ))}
+        </div>
+      </CardContent>
     </Card>
   );
 }

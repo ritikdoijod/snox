@@ -2,32 +2,38 @@ import { Link, useLoaderData, useMatch } from "react-router";
 import { ClipboardList, Pentagon, Settings2, UsersRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-
-const items = [
-  {
-    title: "Home",
-    icon: Pentagon,
-    url: "",
-  },
-  {
-    title: "My Tasks",
-    icon: ClipboardList,
-    url: "/tasks",
-  },
-  {
-    title: "Settings",
-    icon: Settings2,
-    url: "/settings",
-  },
-  {
-    title: "Members",
-    icon: UsersRound,
-    url: "/members",
-  },
-];
+import { RolePermissions } from "@/utils/role-permission";
+import { Permissions } from "@/enums/role";
 
 const NavMain = () => {
-  const { workspace: activeWorkspace } = useLoaderData();
+  const { workspace: activeWorkspace, userRole } = useLoaderData();
+
+  const items = [
+    {
+      title: "Home",
+      icon: Pentagon,
+      url: "",
+    },
+    {
+      title: "My Tasks",
+      icon: ClipboardList,
+      url: "/tasks",
+    },
+    ...(RolePermissions[userRole].includes(Permissions.EDIT_WORKSPACE)
+      ? [
+          {
+            title: "Settings",
+            icon: Settings2,
+            url: "/settings",
+          },
+        ]
+      : []),
+    {
+      title: "Members",
+      icon: UsersRound,
+      url: "/members",
+    },
+  ];
 
   return (
     <div className="space-y-2">
@@ -44,7 +50,9 @@ const NavMain = () => {
               key={index}
               variant="link"
               className={`text-xs p-0 has-[>svg]:p-0 h-9 ${
-                match ? "text-primary font-semibold underline" : "text-muted-foreground"
+                match
+                  ? "text-primary font-semibold underline"
+                  : "text-muted-foreground"
               }`}
               asChild
             >

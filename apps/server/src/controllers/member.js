@@ -4,7 +4,11 @@ import { Member } from "@/models/member";
 import { User } from "@/models/user";
 import { Workspace } from "@/models/workspace";
 import { STATUS } from "@/utils/constants";
-import { canAddMember, canViewMember } from "@/policies/member";
+import {
+  canAddMember,
+  canRemoveMember,
+  canViewMember,
+} from "@/policies/member";
 import mongoose from "mongoose";
 
 export async function getMembers(c) {
@@ -145,6 +149,37 @@ export const createMember = asyncHandler(async function (c) {
   return c.json.success({ statusCode: STATUS.HTTP.CREATED, data: workspace });
 });
 
-export function updateMember(c) {}
+// TODO: update logic for update member
+export const updateMember = asyncHandler(async function (c) {
+  const { user: userId, workspace: workspaceId, role } = await c.req.json();
 
-export function deleteMember(c) {}
+  const user = await User.findById(userId);
+  if (!user) throw new NotFoundException("User not found");
+
+  const workspace = await Workspace.findById(workspaceId);
+  if (!workspace) throw new NotFoundException("Workspace not found");
+
+  await canAddMember(c.user, workspace);
+
+  const member = new Member({
+    user: userId,
+    workspace: workspaceId,
+    role,
+  });
+
+  await member.save();
+
+  return c.json.success({ statusCode: STATUS.HTTP.CREATED, data: workspace });
+});
+
+export const deleteMember = asyncHandler(async function (c) {
+  const memberId = c.req.param("memberId");
+  const member = await Member.findById(memberId);
+  if (!member) throw new NotFoundException("Member not found");
+
+  await canRemoveMember(c.user, member);
+
+  await Member.findByIdAndDelete(member.id);
+
+  return c.json.success({ data: {} });
+});

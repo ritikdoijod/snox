@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Link, useOutletContext } from "react-router";
+import { Link, useFetcher, useOutletContext } from "react-router";
 import {
   Folders,
   UsersRound,
@@ -11,6 +11,7 @@ import {
   Pencil,
   Info,
   Trash,
+  UserRoundCog,
 } from "lucide-react";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -25,14 +26,32 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/lib/contexts/auth";
 import { auth } from "@/lib/auth";
+import { RolePermissions } from "@/utils/role-permission";
+import { Permissions } from "@/enums/role";
 
 export const loader = auth(async function () {
   return {};
 });
 
 export default function Workspace({ params: { workspaceId } }) {
-  const { workspace, projects, members } = useOutletContext();
+  const { workspace, projects, members, userRole, userMember } =
+    useOutletContext();
   const { user } = useAuth();
+
+  const fetcher = useFetcher();
+
+  function leaveWorkspace() {
+    fetcher.submit(
+      {
+        memberId: userMember.id,
+      },
+      {
+        action: `/workspaces/${workspaceId}/members`,
+        method: "delete",
+        encType: "application/json",
+      }
+    );
+  }
 
   return (
     <div className="flex flex-1">
@@ -159,38 +178,27 @@ export default function Workspace({ params: { workspaceId } }) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6 text-sm">
-          {/* Owner Info */}
-          <div className="flex items-center gap-3">
-            <Avatar className="size-8">
-              <AvatarImage
-                src={workspace.createdBy.avatar}
-                alt={workspace.createdBy.name}
-              />
-              <AvatarFallback>{workspace.createdBy.name[0]}</AvatarFallback>
-            </Avatar>
-            <div>
-              <div className="text-xs font-medium">
-                {workspace.createdBy.id === user.id
-                  ? "You"
-                  : workspace.createdBy.name}
+          {/* Owner */}
+          <div className="flex items-start gap-2">
+            <UserRoundCog className="size-4 text-muted-foreground" />
+            <div className="text-xs space-y-1">
+              <div className="text-muted-foreground">Owner</div>
+              <div className="flex items-center gap-2">
+                <Avatar className="size-6">
+                  <AvatarImage
+                    src={workspace.createdBy.avatar}
+                    alt={workspace.createdBy.name}
+                  />
+                  <AvatarFallback>{workspace.createdBy.name[0]}</AvatarFallback>
+                </Avatar>
+                <div className="text-xs font-medium">
+                  {workspace.createdBy.id === user.id
+                    ? "You"
+                    : workspace.createdBy.name}
+                </div>
               </div>
-              <div className="text-[0.65rem] text-muted-foreground">Owner</div>
             </div>
           </div>
-
-          <div className="space-y-3 text-xs">
-            {/* Your Role */}
-            {workspace.createdBy.id !== user.id && (
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <ShieldCheck className="size-4" />
-                <span>
-                  You are a <strong>member</strong>
-                </span>
-              </div>
-            )}
-          </div>
-
-          <Separator />
 
           {/* Created */}
           <div className="flex items-start gap-2">
@@ -205,8 +213,21 @@ export default function Workspace({ params: { workspaceId } }) {
           <div className="flex items-start gap-2">
             <Clock className="size-4 text-muted-foreground mt-0.5" />
             <div className="text-xs space-y-1">
-              <div className="text-muted-foreground">Last Updated</div>
+              <div className="text-muted-foreground">Updated</div>
               <div>{format(workspace.updatedAt, "d MMM yyyy, h:mm a")}</div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Your Role */}
+
+          <div className="space-y-3 text-xs">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <ShieldCheck className="size-4" />
+              <span>
+                You are a <strong>{userRole.toLowerCase()}</strong>
+              </span>
             </div>
           </div>
 
@@ -214,19 +235,23 @@ export default function Workspace({ params: { workspaceId } }) {
 
           {/* Actions */}
           <div className="flex justify-between">
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-xs flex items-center gap-2"
-              asChild
-            >
-              <Link to={`/workspaces/${workspaceId}/settings`}>
-                <Pencil className="size-3" />
-                Edit
-              </Link>
-            </Button>
+            {RolePermissions[userRole].includes(Permissions.EDIT_WORKSPACE) ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs flex items-center gap-2"
+                asChild
+              >
+                <Link to={`/workspaces/${workspaceId}/settings`}>
+                  <Pencil className="size-3" />
+                  Edit
+                </Link>
+              </Button>
+            ) : null}
 
-            {workspace.createdBy.id === user.id ? (
+            {RolePermissions[userRole].includes(
+              Permissions.DELETE_WORKSPACE
+            ) ? (
               <Button
                 size="sm"
                 className="bg-destructive/50 hover:bg-destructive/80 cursor-pointer text-xs"
@@ -239,9 +264,9 @@ export default function Workspace({ params: { workspaceId } }) {
               </Button>
             ) : (
               <Button
-                variant="ghost"
                 size="sm"
-                className="text-xs text-muted-foreground"
+                className="bg-destructive/50 hover:bg-destructive/80 cursor-pointer text-xs ml-auto"
+                onClick={leaveWorkspace}
               >
                 Leave
               </Button>
