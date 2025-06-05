@@ -110,16 +110,9 @@ export default function WorkspaceMembers({
   );
 }
 
-function MemberCard({ member: { user } }) {
-  const [expand, setExpand] = useState(false);
-
+function MemberCard({ member: { user, role } }) {
   return (
-    <Card
-      className="py-3 rounded-md transition-all"
-      onClick={() => {
-        setExpand((prev) => !prev);
-      }}
-    >
+    <Card className="py-3 rounded-md transition-all">
       <CardHeader className="flex justify-between px-3">
         <div className="flex gap-2">
           <Avatar className="rounded-md">
@@ -130,79 +123,12 @@ function MemberCard({ member: { user } }) {
           </Avatar>
           <div className="flex flex-col space-y-0.5">
             <CardTitle className="text-xs">{user.name}</CardTitle>
-            <CardDescription className="text-xs italic">
-              {user.email}
+            <CardDescription className="text-xs italic capitalize">
+              {role.toString().toLowerCase()}
             </CardDescription>
           </div>
         </div>
-
-        <ChevronDown
-          className={cn("size-3 text-muted-foreground transition-all", {
-            "-rotate-180": expand,
-          })}
-        />
       </CardHeader>
-
-      {expand && (
-        <CardContent className="px-3 space-y-5">
-          <div className="">
-            <h3 className="text-xs font-medium text-muted-foreground">
-              Workspace
-            </h3>
-            <div
-              className="flex gap-7 mt-3"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center gap-2">
-                <Checkbox id="view-workspace" />
-                <Label className="text-xs" htmlFor="view-workspace">
-                  View
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox id="edit-workspace" />
-                <Label className="text-xs" htmlFor="edit-workspace">
-                  Edit
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox id="delete-workspace" />
-                <Label className="text-xs" htmlFor="delete-workspace">
-                  Delete
-                </Label>
-              </div>
-            </div>
-          </div>
-          <div className="">
-            <h3 className="text-xs font-medium text-muted-foreground">
-              Project
-            </h3>
-            <div
-              className="flex gap-7 mt-3"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center gap-2">
-                <Checkbox id="view-workspace" />
-                <Label className="text-xs" htmlFor="view-workspace">
-                  View
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox id="edit-workspace" />
-                <Label className="text-xs" htmlFor="edit-workspace">
-                  Edit
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox id="delete-workspace" />
-                <Label className="text-xs" htmlFor="delete-workspace">
-                  Delete
-                </Label>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      )}
     </Card>
   );
 }

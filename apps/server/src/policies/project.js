@@ -6,10 +6,12 @@ import { RolePermissions } from "@/utils/role-permission";
 export const canViewProject = authz(async function (user, project) {
   const member = await Member.findOne({
     user: user,
-    workspace: workspace,
+    workspace: project.workspace,
   });
 
-  return !!member;
+  return (
+    !!member && RolePermissions[member.role].includes(Permissions.VIEW_ONLY)
+  );
 });
 
 export const canCreateProject = authz(async function (user, workspace) {
@@ -24,26 +26,25 @@ export const canCreateProject = authz(async function (user, workspace) {
   );
 });
 
-export const canEditProject = authz(async function (user, workspace) {
+export const canEditProject = authz(async function (user, project) {
   const member = await Member.findOne({
     user: user,
-    workspace: workspace,
-    permissions: {
-      $eq: Permissions.EDIT_PROJECT,
-    },
+    workspace: project.workspace,
   });
 
-  return !!member;
+  return (
+    !!member && RolePermissions[member.role].includes(Permissions.EDIT_PROJECT)
+  );
 });
 
-export const canDeleteProject = authz(async function (user, workspace) {
+export const canDeleteProject = authz(async function (user, project) {
   const member = await Member.findOne({
     user: user,
-    workspace: workspace,
-    permissions: {
-      $eq: Permissions.DELETE_PROJECT,
-    },
+    workspace: project.workspace,
   });
 
-  return !!member;
+  return (
+    !!member &&
+    RolePermissions[member.role].includes(Permissions.DELETE_PROJECT)
+  );
 });

@@ -5,47 +5,100 @@ import { User } from "@/models/user";
 import { Workspace } from "@/models/workspace";
 import { STATUS } from "@/utils/constants";
 import { canAddMember, canViewMember } from "@/policies/member";
-import { authz } from "@/utils/auth";
+import mongoose from "mongoose";
 
 export async function getMembers(c) {
-  const {
-    include,
-    filters: { workspace, ...filters },
-    sort,
-    fields,
-    size,
-    page,
-  } = c?.query;
+  const { include = [], filters = [], sort, fields, size, page } = c?.query;
 
-  const memberships = await Member.find({ user: c.user.id, workspace });
-
-  const workspaces = memberships.map((membership) => membership.workspace);
-
-  const query = {
-    $and: [
+  const relationships = {
+    user: [
       {
-        workspace: {
-          $in: workspaces,
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "user",
         },
       },
-      { ...filters },
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ],
+    workspace: [
+      {
+        $lookup: {
+          from: "workspaces",
+          localField: "workspace",
+          foreignField: "_id",
+          as: "workspace",
+        },
+      },
+      {
+        $unwind: {
+          path: "$workspace",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
     ],
   };
 
-  const options = {
-    populate: include,
-    sort,
-    limit: size,
-    skip: (page - 1) * size,
-  };
+  const pipeline = [
+    // Stage 1: filters
+    ...filters,
 
-  const projection = {
-    ...fields,
-    permissions: false,
-  };
+    // Stage 2: Lookup members collection to verify user has membership in the same workspace
+    {
+      $lookup: {
+        from: "members",
+        let: { workspaceId: "$workspace" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$workspace", "$$workspaceId"] },
+                  { $eq: ["$user", new mongoose.Types.ObjectId(c.user.id)] },
+                ],
+              },
+            },
+          },
+        ],
+        as: "memberships",
+      },
+    },
 
-  const members = await Member.find(query, projection, options);
-  const totalRecords = await Member.countDocuments(query);
+    // Stage 3: Only allow if viewer is a member of that workspace
+    {
+      $match: {
+        memberships: { $ne: [] },
+      },
+    },
+
+    // Stage 4:
+    // stage 4: add relationships
+    ...include?.flatMap(
+      (item) =>
+        Array.isArray(relationships[item])
+          ? relationships[item] // If it's an array, spread it
+          : [relationships[item]] // If it's a single stage, wrap in array
+    ),
+
+    // Stage 5: clean up memberships in result
+    {
+      $project: {
+        memberships: 0,
+      },
+    },
+  ];
+
+  const members = await Member.aggregate(pipeline);
+  const totalRecords = await Member.countDocuments([
+    ...pipeline,
+    { $count: "count" },
+  ]).then((result) => result[0]?.count || 0);
 
   return c.json.success({
     data: {
@@ -65,7 +118,7 @@ export async function getMember(c) {
 
   if (!member) throw new NotFoundException("Member not found");
 
-  await authz(canViewMember, member, c.user);
+  await canViewMember(c.user, member);
 
   return c.json.success({ data: { member } });
 }

@@ -13,12 +13,11 @@ const memberSchema = new mongoose.Schema(
       ref: "Workspace",
       required: true,
     },
-    role: [
-      {
-        type: String,
-        enum: Object.values(Roles),
-      },
-    ],
+    role: {
+      type: String,
+      enum: Object.values(Roles),
+      required: true,
+    },
   },
   {
     timestamps: true,

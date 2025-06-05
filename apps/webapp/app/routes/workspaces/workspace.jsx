@@ -1,7 +1,5 @@
 import { format } from "date-fns";
 import { Link, useOutletContext } from "react-router";
-import QueryString from "qs";
-import { auth } from "@/lib/auth";
 import {
   Folders,
   UsersRound,
@@ -26,25 +24,14 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/lib/contexts/auth";
+import { auth } from "@/lib/auth";
 
-export const loader = auth(async function ({ params: { workspaceId }, fc }) {
-  const { members } = await fc.get(
-    `/members?${QueryString.stringify({
-      filters: {
-        workspace: workspaceId,
-      },
-      include: "user",
-    })}`
-  );
-
-  return { members };
+export const loader = auth(async function () {
+  return {};
 });
 
-export default function Workspace({
-  params: { workspaceId },
-  loaderData: { members },
-}) {
-  const { workspace, projects } = useOutletContext();
+export default function Workspace({ params: { workspaceId } }) {
+  const { workspace, projects, members } = useOutletContext();
   const { user } = useAuth();
 
   return (
@@ -56,7 +43,7 @@ export default function Workspace({
               <Avatar className="rounded-md">
                 <AvatarImage src={workspace.avatar} />
                 <AvatarFallback className="rounded-md">
-                  {workspace?.name[0].toUpperCase()}
+                  {workspace.name[0].toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               {workspace.name}
@@ -105,7 +92,7 @@ export default function Workspace({
                         <Avatar className="size-5 rounded-sm">
                           <AvatarImage src={project.avatar} />
                           <AvatarFallback className="rounded-sm">
-                            {project?.name[0].toUpperCase()}
+                            {project.name[0].toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         {project.name}
@@ -175,32 +162,23 @@ export default function Workspace({
           {/* Owner Info */}
           <div className="flex items-center gap-3">
             <Avatar className="size-8">
-              <AvatarImage alt={workspace.createdBy?.name} />
-              <AvatarFallback>{workspace.createdBy?.name?.[0]}</AvatarFallback>
+              <AvatarImage
+                src={workspace.createdBy.avatar}
+                alt={workspace.createdBy.name}
+              />
+              <AvatarFallback>{workspace.createdBy.name[0]}</AvatarFallback>
             </Avatar>
             <div>
               <div className="text-xs font-medium">
                 {workspace.createdBy.id === user.id
                   ? "You"
-                  : workspace.createdBy?.name}
+                  : workspace.createdBy.name}
               </div>
               <div className="text-[0.65rem] text-muted-foreground">Owner</div>
             </div>
           </div>
 
           <div className="space-y-3 text-xs">
-            {/* Visibility */}
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <span>
-                {workspace.isPublic ? (
-                  <Globe className="size-4" />
-                ) : (
-                  <Lock className="size-4" />
-                )}
-              </span>
-              {workspace.isPublic ? "Public" : "Private"}
-            </div>
-
             {/* Your Role */}
             {workspace.createdBy.id !== user.id && (
               <div className="flex items-center gap-2 text-muted-foreground">

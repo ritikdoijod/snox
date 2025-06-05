@@ -29,30 +29,25 @@ export const canCreateComment = authz(async function (user, task) {
       $unwind: "$project",
     },
 
-    // State 3: Lookup memberships to verify user is a member of the workspace
+    // Stage 3: Lookup memberships to verify user is a member of the workspace
     {
-      $lookup: {
-        from: "members",
-        let: { workspaceId: "$project.workspace" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$workspace", "$$workspaceId"] },
-                  { $eq: ["$user", new mongoose.Types.ObjectId(user.id)] },
-                ],
-              },
-            },
-          },
-          { $limit: 1 },
-        ],
-        as: "member",
+      $match: {
+        $expr: {
+          $and: [
+            { $eq: ["$workspace", "$project.workspace"] },
+            { $eq: ["$user", new mongoose.Types.ObjectId(user.id)] },
+          ],
+        },
       },
+    },
+
+    // Stage 4:
+    {
+      $limit: 1,
     },
   ];
 
-  const member = await Member.aggregate(pipeline);
+  const [member] = await Member.aggregate(pipeline);
 
   return (
     !!member && RolePermissions[member.role].includes(Permissions.EDIT_TASK)

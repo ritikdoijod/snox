@@ -5,7 +5,11 @@ import { auth } from "@/lib/auth";
 
 import { AppSidebar } from "@/components/layout/app-sidebar";
 
-export const loader = auth(async function ({ params: { workspaceId }, fc }) {
+export const loader = auth(async function ({
+  params: { workspaceId },
+  fc,
+  session,
+}) {
   const { workspace } = await fc.get(
     `/workspaces/${workspaceId}?${QueryString.stringify({
       include: ["createdBy"],
@@ -25,16 +29,35 @@ export const loader = auth(async function ({ params: { workspaceId }, fc }) {
     })}`
   );
 
-  return { workspace, workspaces, projects };
+  const { members } = await fc.get(
+    `/members?${QueryString.stringify({
+      filters: [
+        {
+          $match: {
+            workspace: workspaceId,
+          },
+        },
+      ],
+      include: ["user"],
+    })}`
+  );
+
+  const userRole = members.find(
+    (member) => member.user.id === session.get("uid")
+  ).id;
+
+  return { workspace, workspaces, projects, members, userRole };
 });
 
 export default function WorkspaceLayout({
-  loaderData: { workspace, workspaces, projects },
+  loaderData: { workspace, workspaces, projects, members, userRole },
 }) {
   return (
     <div className="flex h-full mx-auto">
       <AppSidebar />
-      <Outlet context={{ workspace, workspaces, projects }} />
+      <Outlet
+        context={{ workspace, workspaces, projects, members, userRole }}
+      />
     </div>
   );
 }

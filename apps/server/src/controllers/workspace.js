@@ -21,7 +21,7 @@ import {
 export const getWorkspaces = asyncHandler(async function (c) {
   const { include = [], filters = [], sort, fields, size, page } = c?.query;
 
-  const reletionships = {
+  const relationships = {
     members: {
       $lookup: {
         from: "members",
@@ -82,7 +82,7 @@ export const getWorkspaces = asyncHandler(async function (c) {
     },
 
     // State 4
-    ...include?.map((item) => reletionships[item]),
+    ...include?.map((item) => relationships[item]),
 
     // State 5: clean up
     {
@@ -206,6 +206,7 @@ export const deleteWorkspace = asyncHandler(async function (c) {
     }).session(session);
 
     if (!!projects.length) {
+      // TODO: test this section
       const tasks = await Task.deleteMany({
         project: {
           $in: projects?.map((project) => project.id),
@@ -219,11 +220,16 @@ export const deleteWorkspace = asyncHandler(async function (c) {
       }
     }
 
+    await session.commitTransaction();
+    await session.endSession();
+    await session.endSession();
+
     return c.json.success({ data: {} });
   } catch (error) {
     await session.abortTransaction();
+    await session.endSession();
+
     throw error;
   } finally {
-    await session.endSession();
   }
 });

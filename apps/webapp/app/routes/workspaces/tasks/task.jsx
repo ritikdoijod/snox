@@ -423,7 +423,7 @@ function CommentForm() {
           <Card className="mt-8">
             <CardContent className="px-4 flex gap-4 items-start">
               <Avatar className="ring ring-card text-xs rounded-md">
-                <AvatarImage src={user.profilePic} alt={user.name} />
+                <AvatarImage src={user.avatar} alt={user.name} />
                 <AvatarFallback className="rounded-sm">
                   {user.name[0].toUpperCase()}
                 </AvatarFallback>
@@ -691,7 +691,7 @@ function Comments({ comments }) {
 
   const form = useForm({
     defaultValues: {
-      content: lastComment.content,
+      content: lastComment?.content,
     },
     resolver: zodResolver(schema),
     mode: "onTouched",
@@ -704,7 +704,7 @@ function Comments({ comments }) {
   function deleteComment() {
     fetcher.submit(
       {
-        commentId: lastComment.id,
+        commentId: lastComment?.id,
       },
       {
         action: `/comments`,
@@ -718,7 +718,7 @@ function Comments({ comments }) {
     fetcher.submit(
       {
         ...data,
-        commentId: lastComment.id,
+        commentId: lastComment?.id,
       },
       {
         action: `/comments`,
@@ -732,10 +732,10 @@ function Comments({ comments }) {
     if (!!fetcher.data && fetcher.data) {
       setIsEditing(false);
       form.reset({
-        content: lastComment.content,
+        content: lastComment?.content,
       });
     }
-  }, [fetcher.data, lastComment.content]);
+  }, [fetcher.data, lastComment?.content]);
 
   return (
     <div className="px-2 mt-10">
@@ -892,7 +892,7 @@ function Comments({ comments }) {
                         </CardContent>
                       </Card>
                     ) : (
-                      <p>{lastComment.content}</p>
+                      <p>{lastComment?.content}</p>
                     )}
                   </TimelineContent>
                 </form>

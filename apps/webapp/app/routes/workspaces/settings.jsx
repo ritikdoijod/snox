@@ -11,17 +11,7 @@ import { TableOfContents } from "@/components/ui/toc";
 export const loader = auth(async function ({ params: { workspaceId }, fc }) {
   const { workspace } = await fc.get(`/workspaces/${workspaceId}`);
 
-  const { events } = await fc.get(
-    `/events?${QueryString.stringify({
-      filters: {
-        workspace: workspaceId,
-      },
-      include: "createdBy",
-      sort: "-createdAt",
-    })}`
-  );
-
-  return { workspace, events };
+  return { workspace };
 });
 
 const toc = {

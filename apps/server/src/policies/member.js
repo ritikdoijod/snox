@@ -3,13 +3,13 @@ import { Member } from "@/models/member";
 import { authz } from "@/utils/auth";
 import { RolePermissions } from "@/utils/role-permission";
 
-export const canViewMember = authz(async function (user, workspace) {
-  const member = await Member.findOne({
+export const canViewMember = authz(async function (user, member) {
+  const userMember = await Member.findOne({
     user: user.id,
-    workspace: workspace.id,
+    workspace: member.workspace,
   });
 
-  return RolePermissions[member.role].includes(Permissions.VIEW_ONLY);
+  return RolePermissions[userMember.role].includes(Permissions.VIEW_ONLY);
 });
 
 export const canAddMember = authz(async function (user, workspace) {
@@ -21,11 +21,11 @@ export const canAddMember = authz(async function (user, workspace) {
   return RolePermissions[member.role].includes(Permissions.ADD_MEMBER);
 });
 
-export const canRemoveMember = authz(async function (user, workspace) {
-  const member = await Member.findOne({
+export const canRemoveMember = authz(async function (user, member) {
+  const userMember = await Member.findOne({
     user: user.id,
-    workspace: workspace.id,
+    workspace: member.workspace,
   });
 
-  return RolePermissions[member.role].includes(Permissions.REMOVE_MEMBER);
+  return RolePermissions[userMember.role].includes(Permissions.REMOVE_MEMBER);
 });
