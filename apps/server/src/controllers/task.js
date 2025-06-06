@@ -138,7 +138,7 @@ export const createTask = asyncHandler(async function (c) {
   const project = await Project.findById(projectId);
   if (!project) throw new NotFoundException("Project not found");
 
-  await canCreateTask(c.user, project);
+  await canCreateTask(c.user, project, assignee);
 
   const task = new Task({
     title,

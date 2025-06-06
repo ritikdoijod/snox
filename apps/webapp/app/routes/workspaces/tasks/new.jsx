@@ -1,16 +1,16 @@
 import { Link, useOutletContext } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Search } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import {  useFetcher, useParams } from "react-router";
+import { useFetcher, useParams } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
 import QueryString from "qs";
-
+import { CalendarIcon, Loader2, Search } from "lucide-react";
 import { auth } from "@/lib/auth";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -18,7 +18,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -26,7 +27,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-
 
 import {
   Form,
@@ -37,6 +37,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { PopoverClose } from "@radix-ui/react-popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -47,8 +53,10 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { PRIORITY, STATUS } from "@/utils/constants";
-import { useWorkspace } from "../context";
+import { PRIORITY } from "@/utils/constants";
+import { format, addDays, addMonths } from "date-fns";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/contexts/auth";
 
 export const loader = auth(async function ({ fc, params: { workspaceId } }) {
   const { members } = await fc.get(
@@ -71,26 +79,23 @@ const schema = z.object({
   title: z.string().min(3).max(255),
   description: z.string().max(1000).optional(),
   priority: z.enum(Object.values(PRIORITY)).optional(),
+  assignee: z.string().min(1, "Assignee is required"),
+  dueDate: z.any(),
 });
 
 export default function CreateTask({ loaderData: { members } }) {
   const { workspaceId, projectId } = useParams();
   const fetcher = useFetcher();
   const { project } = useOutletContext();
-  const { userMember } = useWorkspace();
+  const { user } = useAuth();
 
   function onSubmit(data) {
-    fetcher.submit(
-      {
-        ...data,
-        assignee: members[0].id,
-      },
-      {
-        method: "post",
-        action: `/workspaces/${workspaceId}/projects/${projectId}/tasks`,
-        encType: "application/json",
-      }
-    );
+    data = JSON.parse(JSON.stringify(data));
+    fetcher.submit(data, {
+      method: "post",
+      action: `/workspaces/${workspaceId}/projects/${projectId}/tasks`,
+      encType: "application/json",
+    });
   }
 
   useEffect(() => {
@@ -102,7 +107,7 @@ export default function CreateTask({ loaderData: { members } }) {
       title: "",
       description: "",
       priority: PRIORITY.LOW,
-      assignee: userMember.id,
+      assignee: user.id,
     },
     resolver: zodResolver(schema),
     mode: "onTouched",
@@ -174,7 +179,7 @@ export default function CreateTask({ loaderData: { members } }) {
                         </FormItem>
                       )}
                     />
-                    <div className="grid grid-cols-2 gap-8">
+                    <div className="grid grid-cols-3 gap-6">
                       <FormField
                         control={form.control}
                         name="priority"
@@ -222,7 +227,7 @@ export default function CreateTask({ loaderData: { members } }) {
                               defaultValue={field.value}
                             >
                               <FormControl>
-                                <SelectTrigger className="text-xs min-w-40 px-0 border-none">
+                                <SelectTrigger className="text-xs min-w-40">
                                   <SelectValue />
                                 </SelectTrigger>
                               </FormControl>
@@ -245,7 +250,7 @@ export default function CreateTask({ loaderData: { members } }) {
                                     <SelectItem
                                       key={id}
                                       className="text-xs"
-                                      value={id}
+                                      value={user.id}
                                     >
                                       <Avatar className="size-6 rounded-sm">
                                         <AvatarImage
@@ -266,6 +271,8 @@ export default function CreateTask({ loaderData: { members } }) {
                           </FormItem>
                         )}
                       />
+
+                      <DueDatePicker form={form} />
                     </div>
 
                     {fetcher.state === "submitting" ? (
@@ -291,5 +298,118 @@ export default function CreateTask({ loaderData: { members } }) {
       </div>
       <Card className="w-2xs"></Card>
     </div>
+  );
+}
+
+function DueDatePicker({ form }) {
+  const today = new Date();
+  const tomarrow = addDays(today, 1);
+  const nextWeek = addDays(today, 7);
+  const nextMonth = addMonths(today, 1);
+  const [dueDate, setDueDate] = useState(form.watch("dueDate") || null);
+
+  return (
+    <FormField
+      control={form.control}
+      name="dueDate"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Due Date</FormLabel>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                className={cn(
+                  "px-3 font-normal text-xs hover:bg-transparent cursor-pointer flex justify-between w-full border",
+                  !dueDate && "text-muted-foreground"
+                )}
+              >
+                {field.value ? (
+                  format(field.value, "PPP")
+                ) : (
+                  <span>No due date</span>
+                )}
+                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-fit flex gap-3" align="end">
+              <FormControl>
+                <Calendar
+                  mode="single"
+                  selected={dueDate || today}
+                  onSelect={setDueDate}
+                  month={dueDate || today}
+                  onMonthChange={setDueDate}
+                  className="p-0"
+                  disabled={[
+                    { before: today }, // Dates before today
+                  ]}
+                />
+              </FormControl>
+              <Separator orientation="vertical" />
+              <div className="flex flex-col">
+                <div className="flex flex-col px-2 flex-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start"
+                    onClick={() => {
+                      setDueDate(today);
+                    }}
+                  >
+                    Today
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start"
+                    onClick={() => {
+                      setDueDate(tomarrow);
+                    }}
+                  >
+                    Tomorrow
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start"
+                    onClick={() => {
+                      setDueDate(nextWeek);
+                    }}
+                  >
+                    Next week
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start"
+                    onClick={() => {
+                      setDueDate(nextMonth);
+                    }}
+                  >
+                    Next month
+                  </Button>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <PopoverClose asChild>
+                    <Button size="sm" variant="secondary">
+                      Close
+                    </Button>
+                  </PopoverClose>
+                  <Button size="sm" onClick={() => field.onChange(dueDate)}>
+                    Ok
+                  </Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </FormItem>
+      )}
+    />
   );
 }

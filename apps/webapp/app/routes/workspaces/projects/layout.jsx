@@ -8,6 +8,7 @@ export const loader = auth(async function ({ params: { projectId }, fc }) {
       include: ["createdBy"],
     })}`
   );
+  
   const { tasks } = await fc.get(
     `/tasks?${QueryString.stringify({
       filters: [
@@ -23,15 +24,7 @@ export const loader = auth(async function ({ params: { projectId }, fc }) {
 
   return {
     project,
-    tasks: tasks.map((task) => ({
-      ...task,
-      assignee: {
-        id: "user1",
-        name: "User 1",
-        profilePic: "https://github.com/shadcn.png",
-        email: "user@mail.com",
-      },
-    })),
+    tasks,
   };
 });
 

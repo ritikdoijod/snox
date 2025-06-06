@@ -77,14 +77,23 @@ export const canViewTask = authz(async function (user, task) {
   );
 });
 
-export const canCreateTask = authz(async function (user, project) {
-  const member = await Member.findOne({
+export const canCreateTask = authz(async function (user, project, assignee) {
+  const userMember = await Member.findOne({
     user: user.id,
     workspace: project.workspace,
   });
 
+  const assigneeMember = await Member.findOne({
+    user: assignee,
+    workspace: project.workspace,
+  });
+
+  if (!userMember || !assigneeMember) {
+    return false;
+  }
+
   return (
-    !!member && RolePermissions[member.role].includes(Permissions.CREATE_TASK)
+    !!userMember && RolePermissions[userMember.role].includes(Permissions.CREATE_TASK)
   );
 });
 

@@ -1,18 +1,9 @@
 import { createContext, use, useEffect, useRef, useState } from "react";
-import {
-  useFetcher,
-  useLoaderData,
-  useParams,
-} from "react-router";
+import { useFetcher, useLoaderData, useParams } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import {
-  format,
-  formatDistanceToNow,
-  addDays,
-  addMonths,
-} from "date-fns";
+import { format, formatDistanceToNow, addDays, addMonths } from "date-fns";
 import {
   Info,
   CalendarDays,
@@ -319,7 +310,7 @@ function SelectStatus() {
       }}
       defaultValue={task.status}
     >
-      <SelectTrigger className="text-xs min-w-40">
+      <SelectTrigger className="text-xs w-full">
         <SelectValue />
       </SelectTrigger>
 
@@ -347,7 +338,7 @@ function SelectPriority() {
         onSubmit({ priority: value });
       }}
     >
-      <SelectTrigger className="text-xs min-w-30">
+      <SelectTrigger className="text-xs w-full">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -379,7 +370,7 @@ function SelectAssignee() {
         onSubmit({ assignee: value });
       }}
     >
-      <SelectTrigger className="text-xs min-w-40">
+      <SelectTrigger className="text-xs w-full">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
@@ -398,7 +389,7 @@ function SelectAssignee() {
         <Separator />
         <ScrollArea className="max-h-36 flex flex-col mt-2">
           {members.map(({ id, user }) => (
-            <SelectItem key={id} className="text-xs" value={id}>
+            <SelectItem key={id} className="text-xs" value={user.id}>
               <Avatar className="size-6 rounded-sm">
                 <AvatarImage src={user.avatar} alt={user.name} />
                 <AvatarFallback className="text-xs">
@@ -514,7 +505,7 @@ function DueDatePicker() {
   });
 
   return (
-    <div className="">
+    <div className="space-y-1">
       <div className="text-xs text-muted-foreground font-medium">Due Date</div>
 
       <Popover>
@@ -522,7 +513,7 @@ function DueDatePicker() {
           <Button
             variant="ghost"
             className={cn(
-              "p-0 pe-3 font-normal text-xs hover:bg-transparent cursor-pointer flex justify-between w-full",
+              "px-3 font-normal text-xs hover:bg-transparent cursor-pointer flex justify-between w-full border",
               !task.dueDate && "text-muted-foreground"
             )}
           >
@@ -672,7 +663,7 @@ function InfoCard() {
         <div className="flex items-start gap-2">
           <Clock className="size-4 text-muted-foreground mt-0.5" />
           <div className="text-xs space-y-1">
-            <div className="text-muted-foreground">Last Updated</div>
+            <div className="text-muted-foreground">Updated</div>
             <div>{format(task.updatedAt, "d MMM yyyy, h:mm a")}</div>
           </div>
         </div>

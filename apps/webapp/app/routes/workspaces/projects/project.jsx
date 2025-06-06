@@ -44,7 +44,7 @@ export default function ({ params: { workspaceId, projectId } }) {
           </CardHeader>
           <Separator />
           <CardContent className="flex gap-6">
-            <Link to={`/workspaces/${workspaceId}/projects`}>
+            <Link to={`/workspaces/${workspaceId}/projects/${projectId}/tasks`}>
               <div className="px-4 py-3 border rounded-xl min-w-40">
                 <h3 className="text-xs font-medium flex items-center justify-between gap-2">
                   All Tasks{" "}
@@ -179,7 +179,7 @@ export default function ({ params: { workspaceId, projectId } }) {
   );
 }
 
-export function TaskCard({ task: { title, description, status, assignee } }) {
+export function TaskCard({ task: { title, description, status } }) {
   return (
     <Card className="cursor-pointer">
       <CardHeader>
@@ -189,10 +189,10 @@ export function TaskCard({ task: { title, description, status, assignee } }) {
         </CardDescription>{" "}
       </CardHeader>
       <CardContent className="flex gap-2 items-center">
-        <Avatar className="size-7 ring ring-card text-xs">
-          <AvatarImage src={assignee.profilePic} alt={assignee.name} />
+        {/* <Avatar className="size-7 ring ring-card text-xs">
+          <AvatarImage src={assignee.avatar} alt={assignee.name} />
           <AvatarFallback>{assignee.name[0].toUpperCase()}</AvatarFallback>
-        </Avatar>
+        </Avatar> */}
       </CardContent>
     </Card>
   );
