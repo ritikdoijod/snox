@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Link, useFetcher, useOutletContext } from "react-router";
+import { Link, useFetcher } from "react-router";
 import {
   Folders,
   UsersRound,
@@ -28,14 +28,14 @@ import { useAuth } from "@/lib/contexts/auth";
 import { auth } from "@/lib/auth";
 import { RolePermissions } from "@/utils/role-permission";
 import { Permissions } from "@/enums/role";
+import { useWorkspace } from "./context";
 
 export const loader = auth(async function () {
   return {};
 });
 
 export default function Workspace({ params: { workspaceId } }) {
-  const { workspace, projects, members, userRole, userMember } =
-    useOutletContext();
+  const { workspace, projects, members, userRole, userMember } = useWorkspace();
   const { user } = useAuth();
 
   const fetcher = useFetcher();

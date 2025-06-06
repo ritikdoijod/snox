@@ -52,14 +52,19 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { PRIORITY, STATUS } from "@/utils/constants";
+import { useWorkspace } from "../context";
 
 export const loader = auth(async function ({ fc, params: { workspaceId } }) {
   const { members } = await fc.get(
     `/members?${QueryString.stringify({
-      filters: {
-        workspace: workspaceId,
-      },
-      include: "user",
+      filters: [
+        {
+          $match: {
+            workspace: workspaceId,
+          },
+        },
+      ],
+      include: ["user"],
     })}`
   );
 
@@ -75,6 +80,8 @@ const schema = z.object({
 export default function CreateTask({ loaderData: { members } }) {
   const { workspaceId, projectId } = useParams();
   const fetcher = useFetcher();
+  const { project } = useOutletContext();
+  const { userMember } = useWorkspace();
 
   function onSubmit(data) {
     fetcher.submit(
@@ -99,6 +106,7 @@ export default function CreateTask({ loaderData: { members } }) {
       title: "",
       description: "",
       priority: PRIORITY.LOW,
+      assignee: userMember.id,
     },
     resolver: zodResolver(schema),
     mode: "onTouched",
@@ -110,25 +118,31 @@ export default function CreateTask({ loaderData: { members } }) {
 
   return (
     <div className="flex flex-1">
-      <div className="px-8 space-y-4 flex-1">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link to={`/workspaces/${workspaceId}/projects/${projectId}`}>
-                  {projectId}
-                </Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem className="text-primary font-medium">
-              Create new task
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        <Form {...form}>
-          <Card>
-            <CardContent>
+      <div className="px-6 space-y-3 flex-1">
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              <Breadcrumb>
+                <BreadcrumbList>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink asChild>
+                      <Link
+                        to={`/workspaces/${workspaceId}/projects/${projectId}`}
+                      >
+                        {project.name}
+                      </Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                  <BreadcrumbItem className="text-primary font-medium">
+                    Create new task
+                  </BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 <fieldset disabled={fetcher.state === "submitting"}>
                   <div className="grid gap-8">
@@ -201,64 +215,61 @@ export default function CreateTask({ loaderData: { members } }) {
                         )}
                       />
 
-                      {/* <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Assignee</FormLabel>
-                        <Popover>
-                          <PopoverTrigger>
-                            <div className="flex gap-2 items-center text-sm">
-                              <Avatar className="size-8 ring ring-card text-xs">
-                                <AvatarImage
-                                  src="https://github.com/shadcn.png"
-                                  alt=""
-                                />
-                                <AvatarFallback>A</AvatarFallback>
-                              </Avatar>
-                              Josh Er
-                            </div>
-                          </PopoverTrigger>
-                          <PopoverContent className="p-0">
-                            <div className="relative">
-                              <Input
-                                className="peer pe-9 rounded-none bg-inherit dark:bg-inherit focus-visible:ring-0 border-none shadow-none"
-                                placeholder="Search member..."
-                              />
-                              <Button
-                                variant="ghost"
-                                className="text-muted-foreground absolute inset-y-0 end-0 flex items-center justify-center pe-3 peer-disabled:opacity-50 hover:bg-transparent dark:hover:bg-transparent cursor-pointer"
-                              >
-                                <Search size={16} aria-hidden="true" />
-                              </Button>
-                            </div>
-                            <Separator />
-                            <ScrollArea className="max-h-36 flex flex-col">
-                              {members.map(({ id, user }) => (
-                                <div
-                                  className="flex gap-2 items-center text-sm p-2"
-                                  key={id}
-                                >
-                                  <Avatar className="size-9">
-                                    <AvatarImage alt={user.name} />
-                                    <AvatarFallback className="text-xs">
-                                      {user.name
-                                        .split(" ")
-                                        .map((chunk) => chunk[0])
-                                        .join("")}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                  {user.name}
+                      <FormField
+                        control={form.control}
+                        name="assignee"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Assignee</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="text-xs min-w-40 px-0 border-none">
+                                  <SelectValue />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <div className="relative px-2">
+                                  <Input
+                                    className="peer pe-9 rounded-none bg-inherit dark:bg-inherit focus-visible:ring-0 border-none shadow-none"
+                                    placeholder="Search member..."
+                                  />
+                                  <Button
+                                    variant="ghost"
+                                    className="text-muted-foreground absolute inset-y-0 end-0 flex items-center justify-center pe-3 peer-disabled:opacity-50 hover:bg-transparent dark:hover:bg-transparent cursor-pointer"
+                                  >
+                                    <Search size={16} aria-hidden="true" />
+                                  </Button>
                                 </div>
-                              ))}
-                            </ScrollArea>
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  /> */}
+                                <Separator />
+                                <ScrollArea className="max-h-36 flex flex-col mt-2">
+                                  {members.map(({ id, user }) => (
+                                    <SelectItem
+                                      key={id}
+                                      className="text-xs"
+                                      value={id}
+                                    >
+                                      <Avatar className="size-6 rounded-sm">
+                                        <AvatarImage
+                                          src={user.avatar}
+                                          alt={user.name}
+                                        />
+                                        <AvatarFallback className="text-xs">
+                                          {user.name[0].toUpperCase()}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      {user.name}
+                                    </SelectItem>
+                                  ))}
+                                </ScrollArea>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     </div>
 
                     {fetcher.state === "submitting" ? (
@@ -278,13 +289,11 @@ export default function CreateTask({ loaderData: { members } }) {
                   </div>
                 </fieldset>
               </form>
-            </CardContent>
-          </Card>
-        </Form>
+            </Form>
+          </CardContent>
+        </Card>
       </div>
-      <Card className="w-2xs">
-        <CardHeader>Activity</CardHeader>
-      </Card>
+      <Card className="w-2xs"></Card>
     </div>
   );
 }

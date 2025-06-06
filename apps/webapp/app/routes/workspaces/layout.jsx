@@ -4,6 +4,7 @@ import { Outlet } from "react-router";
 import { auth } from "@/lib/auth";
 
 import { AppSidebar } from "@/components/layout/app-sidebar";
+import { WorkspaceContext } from "./context";
 
 export const loader = auth(async function ({
   params: { workspaceId },
@@ -63,9 +64,8 @@ export default function WorkspaceLayout({
 }) {
   return (
     <div className="flex h-full mx-auto">
-      <AppSidebar />
-      <Outlet
-        context={{
+      <WorkspaceContext
+        value={{
           workspace,
           workspaces,
           projects,
@@ -73,7 +73,10 @@ export default function WorkspaceLayout({
           userRole,
           userMember,
         }}
-      />
+      >
+        <AppSidebar />
+        <Outlet />
+      </WorkspaceContext>
     </div>
   );
 }
