@@ -6,11 +6,34 @@ import mongoose from "mongoose";
 
 export const canViewTask = authz(async function (user, task) {
   const pipeline = [
-    // Stage 1: Lookup the project to get the workspace
+    // Stage 1: Lookup the task to get the project
+    {
+      $lookup: {
+        from: "tasks",
+        let: { taskId: new mongoose.Types.ObjectId(task.id) },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ["$_id", "$$taskId"],
+              },
+            },
+          },
+        ],
+        as: "task",
+      },
+    },
+
+    // Stage 2: Unwind task to access project
+    {
+      $unwind: "$task",
+    },
+
+    // Stage 3: Lookup the project to get the workspace
     {
       $lookup: {
         from: "projects",
-        let: { projectId: task.project },
+        let: { projectId: "$task.project" },
         pipeline: [
           {
             $match: {
@@ -24,12 +47,12 @@ export const canViewTask = authz(async function (user, task) {
       },
     },
 
-    // Stage 2: Unwind project to access workspace
+    // Stage 4: Unwind project to access workspace
     {
       $unwind: "$project",
     },
 
-    // Stage 3: Lookup memberships to verify user is a member of the workspace
+    // Stage 5: Lookup memberships to verify user is a member of the workspace
     {
       $match: {
         $expr: {
@@ -41,7 +64,7 @@ export const canViewTask = authz(async function (user, task) {
       },
     },
 
-    // Stage 4:
+    // Stage 6:
     {
       $limit: 1,
     },

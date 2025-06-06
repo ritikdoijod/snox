@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Link, useFetcher } from "react-router";
+import { Link, useFetcher, useNavigate } from "react-router";
 import {
   Folders,
   UsersRound,
@@ -29,6 +29,7 @@ import { auth } from "@/lib/auth";
 import { RolePermissions } from "@/utils/role-permission";
 import { Permissions } from "@/enums/role";
 import { useWorkspace } from "./context";
+import { useEffect } from "react";
 
 export const loader = auth(async function () {
   return {};
@@ -39,6 +40,7 @@ export default function Workspace({ params: { workspaceId } }) {
   const { user } = useAuth();
 
   const fetcher = useFetcher();
+  const navigate = useNavigate();
 
   function leaveWorkspace() {
     fetcher.submit(
@@ -52,6 +54,10 @@ export default function Workspace({ params: { workspaceId } }) {
       }
     );
   }
+
+  useEffect(() => {
+    if (fetcher.data && fetcher.data.success) navigate("/workspaces");
+  }, [fetcher.data]);
 
   return (
     <div className="flex flex-1">

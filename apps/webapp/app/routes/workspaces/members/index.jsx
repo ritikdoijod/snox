@@ -28,6 +28,7 @@ export const action = auth(async function ({
   params: { workspaceId },
   request,
   fc,
+  session,
 }) {
   let actionData = {};
   switch (request.method) {
@@ -42,7 +43,7 @@ export const action = auth(async function ({
     case "DELETE":
       const { memberId } = await request.json();
       await fc.delete(`/members/${memberId}`);
-      actionData = redirect("/workspaces");
+      actionData = { success: true };
       break;
     default:
       throw new Error("Method not allowed");

@@ -1,5 +1,9 @@
 import { createContext, use, useEffect, useRef, useState } from "react";
-import { Link, useFetcher, useOutletContext, useParams } from "react-router";
+import {
+  useFetcher,
+  useLoaderData,
+  useParams,
+} from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -8,7 +12,6 @@ import {
   formatDistanceToNow,
   addDays,
   addMonths,
-  getMonth,
 } from "date-fns";
 import {
   Info,
@@ -22,6 +25,8 @@ import {
   Eye,
   CircleCheck,
   CalendarIcon,
+  Search,
+  Folder,
 } from "lucide-react";
 import { RiSendPlaneFill } from "react-icons/ri";
 import QueryString from "qs";
@@ -31,13 +36,6 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import {
   Card,
   CardContent,
   CardDescription,
@@ -46,7 +44,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
-
+import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -86,10 +84,13 @@ import { PopoverClose } from "@radix-ui/react-popover";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-export const loader = auth(async function ({ params: { taskId }, fc }) {
+export const loader = auth(async function ({
+  params: { taskId, workspaceId },
+  fc,
+}) {
   const { task } = await fc.get(
     `/tasks/${taskId}?${QueryString.stringify({
-      include: ["createdBy"],
+      include: ["createdBy", "project"],
     })}`
   );
 
@@ -106,7 +107,20 @@ export const loader = auth(async function ({ params: { taskId }, fc }) {
     })}`
   );
 
-  return { task, comments };
+  const { members } = await fc.get(
+    `/members?${QueryString.stringify({
+      filters: [
+        {
+          $match: {
+            workspace: workspaceId,
+          },
+        },
+      ],
+      include: ["user"],
+    })}`
+  );
+
+  return { task, comments, members };
 });
 
 const TaskContext = createContext(undefined);
@@ -119,8 +133,6 @@ export default function Task({
   loaderData: { task, comments },
 }) {
   const fetcher = useFetcher();
-
-  const { project } = useOutletContext();
 
   const [isEditing, setIsEditing] = useState(false);
 
@@ -158,108 +170,87 @@ export default function Task({
     <TaskContext value={{ task, onSubmit }}>
       <div className="flex flex-1">
         <div className="px-6 space-y-3 flex-1">
-          <div className="flex items-center justify-between">
-            <Breadcrumb>
-              <BreadcrumbList className="text-xs bg-card h-8 px-5 border rounded-md">
-                <BreadcrumbItem>
-                  <BreadcrumbLink asChild>
-                    <Link
-                      to={`/workspaces/${workspaceId}/projects/${projectId}`}
-                    >
-                      {project.name}
-                    </Link>
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem className="text-primary font-medium max-w-40">
-                  <p className="truncate">{task.title}</p>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-            <div>
-              {isEditing ? (
-                <div className="space-x-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="text-xs"
-                    onClick={() => setIsEditing(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="text-xs"
-                    onClick={form.handleSubmit(onSubmit)}
-                    disabled={
-                      !form.formState.isDirty || !form.formState.isValid
-                    }
-                  >
-                    Save
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="text-xs"
-                  onClick={() => setIsEditing(true)} // Enter edit mode
-                >
-                  <Pen className="size-3" />
-                  Edit
-                </Button>
-              )}
-            </div>
-          </div>
-          <Card className="min-h-30">
-            <CardHeader>
+          <Card className="min-h-40">
+            <CardContent>
               {isEditing ? (
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)}>
-                    <FormField
-                      control={form.control}
-                      name="title"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <CardTitle asChild>
-                              <input
-                                {...field}
-                                className="w-full focus-within:outline-none"
-                              />
-                            </CardTitle>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem className="mt-2">
-                          <FormControl>
-                            <CardDescription asChild>
-                              <textarea
-                                {...field}
-                                className="w-full focus-within:outline-none max-h-30"
-                                placeholder="Add description here..."
-                              />
-                            </CardDescription>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <div className="space-y-6">
+                      <div className="space-y-3">
+                        <FormField
+                          control={form.control}
+                          name="title"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <CardTitle asChild>
+                                  <input
+                                    {...field}
+                                    className="w-full focus-within:outline-none"
+                                  />
+                                </CardTitle>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="description"
+                          render={({ field }) => (
+                            <FormItem className="mt-2">
+                              <FormControl>
+                                <CardDescription asChild>
+                                  <textarea
+                                    {...field}
+                                    className="w-full focus-within:outline-none min-h-20 max-h-40"
+                                    placeholder="Add description here..."
+                                  />
+                                </CardDescription>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="flex justify-end gap-3">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => setIsEditing(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={form.handleSubmit(onSubmit)}
+                          disabled={
+                            !form.formState.isDirty || !form.formState.isValid
+                          }
+                        >
+                          Save
+                        </Button>
+                      </div>
+                    </div>
                   </form>
                 </Form>
               ) : (
                 <>
-                  <CardTitle>{task.title}</CardTitle>
+                  <CardTitle className="flex justify-between items-start">
+                    {task.title}
+                    <Button
+                      variant="ghost"
+                      className="p-0 size-fit cursor-pointer"
+                      onClick={() => setIsEditing(true)} // Enter edit mode
+                    >
+                      <Pen className="size-3" />
+                    </Button>
+                  </CardTitle>
                   <CardDescription>{task.description}</CardDescription>
                 </>
               )}
-            </CardHeader>
+            </CardContent>
           </Card>
           <Comments comments={comments} />
           <CommentForm />
@@ -372,6 +363,52 @@ function SelectPriority() {
           <span className="size-1.5 bg-red-500 rounded-full"></span>
           High
         </SelectItem>
+      </SelectContent>
+    </Select>
+  );
+}
+
+function SelectAssignee() {
+  const { task, onSubmit } = useTask();
+  const { members } = useLoaderData();
+
+  return (
+    <Select
+      defaultValue={task.assignee}
+      onValueChange={(value) => {
+        onSubmit({ assignee: value });
+      }}
+    >
+      <SelectTrigger className="text-xs min-w-40">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        <div className="relative px-2">
+          <Input
+            className="peer pe-9 rounded-none bg-inherit dark:bg-inherit focus-visible:ring-0 border-none shadow-none"
+            placeholder="Search member..."
+          />
+          <Button
+            variant="ghost"
+            className="text-muted-foreground absolute inset-y-0 end-0 flex items-center justify-center pe-3 peer-disabled:opacity-50 hover:bg-transparent dark:hover:bg-transparent cursor-pointer"
+          >
+            <Search size={16} aria-hidden="true" />
+          </Button>
+        </div>
+        <Separator />
+        <ScrollArea className="max-h-36 flex flex-col mt-2">
+          {members.map(({ id, user }) => (
+            <SelectItem key={id} className="text-xs" value={id}>
+              <Avatar className="size-6 rounded-sm">
+                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarFallback className="text-xs">
+                  {user.name[0].toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              {user.name}
+            </SelectItem>
+          ))}
+        </ScrollArea>
       </SelectContent>
     </Select>
   );
@@ -640,6 +677,15 @@ function InfoCard() {
           </div>
         </div>
 
+        {/* Project */}
+        <div className="flex items-start gap-2">
+          <Folder className="size-4 text-muted-foreground" />
+          <div className="text-xs space-y-1">
+            <div className="text-muted-foreground">Project</div>
+            <div>{task.project.name}</div>
+          </div>
+        </div>
+
         <Separator />
 
         <div className="flex flex-col gap-6">
@@ -647,14 +693,21 @@ function InfoCard() {
             <Label htmlFor="priority" className="text-xs text-muted-foreground">
               Priority
             </Label>
-            <SelectPriority defaultValue={task.priority} />
+            <SelectPriority />
           </div>
         </div>
 
         <div className="flex flex-col gap-6">
           <div className="text-xs space-y-1 flex flex-col">
             <Label className="text-xs text-muted-foreground">Status</Label>
-            <SelectStatus defaultValue={task.status} />
+            <SelectStatus />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-6">
+          <div className="text-xs space-y-1 flex flex-col">
+            <Label className="text-xs text-muted-foreground">Assignee</Label>
+            <SelectAssignee />
           </div>
         </div>
 

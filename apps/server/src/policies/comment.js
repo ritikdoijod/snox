@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Permissions } from "@/enums/role";
 import { Comment } from "@/models/comment";
 import { Member } from "@/models/member";
