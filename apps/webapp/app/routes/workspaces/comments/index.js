@@ -3,10 +3,11 @@ import { auth } from "@/lib/auth";
 export const action = auth(async function ({ request, fc }) {
   let actionData = {};
 
+
   switch (request.method) {
     case "POST": {
       const { content, task } = await request.json();
-
+      console.log(content, task);
       await fc.post("/comments", {
         content,
         task,

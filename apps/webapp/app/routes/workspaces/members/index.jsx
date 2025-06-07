@@ -1,5 +1,12 @@
 import { useFetcher, useParams, useLoaderData, redirect } from "react-router";
-import { Plus, Search, Trash, UsersRound } from "lucide-react";
+import {
+  MoreHorizontal,
+  MoreVertical,
+  Plus,
+  Search,
+  Trash,
+  UsersRound,
+} from "lucide-react";
 
 import { auth } from "@/lib/auth";
 
@@ -12,11 +19,32 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuItem,
+  DropdownMenuShortcut,
+  DropdownMenuSeparator,
+  DropdownMenuSubTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-import { Roles } from "@/enums/role";
+import { Permissions, Roles } from "@/enums/role";
 import { useWorkspace } from "../context";
+import { RolePermissions } from "@/utils/role-permission";
+
+import {
+  Select,
+  SelectItem,
+  SelectContent,
+  SelectTrigger,
+} from "@/components/ui/select";
 
 export const loader = auth(async function ({ fc }) {
   const { users } = await fc.get("/users");
@@ -28,7 +56,6 @@ export const action = auth(async function ({
   params: { workspaceId },
   request,
   fc,
-  session,
 }) {
   let actionData = {};
   switch (request.method) {
@@ -40,11 +67,19 @@ export const action = auth(async function ({
         role,
       });
       break;
-    case "DELETE":
+    case "PATCH": {
+      const { memberId, role } = await request.json();
+      await fc.patch(`/members/${memberId}`, {
+        role,
+      });
+      break;
+    }
+    case "DELETE": {
       const { memberId } = await request.json();
       await fc.delete(`/members/${memberId}`);
       actionData = { success: true };
       break;
+    }
     default:
       throw new Error("Method not allowed");
   }
@@ -97,8 +132,9 @@ export default function WorkspaceMembers() {
 function MemberCard({ member: { id, user, role } }) {
   const fetcher = useFetcher();
   const { workspaceId } = useParams();
+  const { userRole } = useWorkspace();
 
-  async function onSubmit() {
+  function deleteMember() {
     fetcher.submit(
       {
         memberId: id,
@@ -106,6 +142,20 @@ function MemberCard({ member: { id, user, role } }) {
       {
         action: `/workspaces/${workspaceId}/members`,
         method: "delete",
+        encType: "application/json",
+      }
+    );
+  }
+
+  function changeRole(newRole) {
+    fetcher.submit(
+      {
+        memberId: id,
+        role: newRole,
+      },
+      {
+        action: `/workspaces/${workspaceId}/members`,
+        method: "patch",
         encType: "application/json",
       }
     );
@@ -129,13 +179,50 @@ function MemberCard({ member: { id, user, role } }) {
           </div>
         </div>
         {role !== Roles.OWNER && (
-          <Button
-            variant="ghost"
-            className="size-7 cursor-pointer p-2 text-destructive/70 hover:bg-destructive/70 hover:text-primary-foreground"
-            onClick={onSubmit}
-          >
-            <Trash className="size-3.5" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="size-7 p-2">
+                <MoreVertical className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel className="text-muted-foreground text-xs">
+                Actions
+              </DropdownMenuLabel>
+              {RolePermissions[userRole].includes(
+                Permissions.CHANGE_MEMBER_ROLE
+              ) && (
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger className="text-xs">
+                    Change role
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem onClick={() => changeRole(Roles.ADMIN)}>
+                        Admin
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => changeRole(Roles.MEMBER)}
+                      >
+                        Member
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+              )}
+              {RolePermissions[userRole].includes(
+                Permissions.REMOVE_MEMBER
+              ) && (
+                <DropdownMenuItem
+                  onClick={deleteMember}
+                  className="cursor-pointer"
+                >
+                  <Trash className="me-1 size-4" />
+                  Remove
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
       </CardHeader>
     </Card>

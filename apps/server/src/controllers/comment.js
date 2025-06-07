@@ -97,9 +97,6 @@ export const getComments = asyncHandler(async function (c) {
                   { $eq: ["$user", new mongoose.Types.ObjectId(c.user.id)] },
                 ],
               },
-              permissions: {
-                $elemMatch: { $eq: Permissions.VIEW_ONLY },
-              },
             },
           },
         ],

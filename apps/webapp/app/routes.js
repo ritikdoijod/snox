@@ -38,5 +38,5 @@ export default [
       ]),
     ]),
   ]),
-  route("comments", "./routes/workspaces/tasks/comments.js"),
+  route("comments", "./routes/workspaces/comments/index.js"),
 ];

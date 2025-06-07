@@ -31,6 +31,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -118,34 +119,19 @@ export default function CreateTask({ loaderData: { members } }) {
   } = form;
 
   return (
-    <div className="flex flex-1">
-      <div className="px-6 space-y-3 flex-1">
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <Breadcrumb>
-                <BreadcrumbList>
-                  <BreadcrumbItem>
-                    <BreadcrumbLink asChild>
-                      <Link
-                        to={`/workspaces/${workspaceId}/projects/${projectId}`}
-                      >
-                        {project.name}
-                      </Link>
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem className="text-primary font-medium">
-                    Create new task
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)}>
-                <fieldset disabled={fetcher.state === "submitting"}>
+    <div className="flex-1 flex">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="size-full">
+          <fieldset
+            disabled={fetcher.state === "submitting"}
+            className="size-full flex"
+          >
+            <div className="px-6 space-y-3 flex-1">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Create New Task</CardTitle>
+                </CardHeader>
+                <CardContent>
                   <div className="grid gap-8">
                     <FormField
                       control={form.control}
@@ -179,101 +165,7 @@ export default function CreateTask({ loaderData: { members } }) {
                         </FormItem>
                       )}
                     />
-                    <div className="grid grid-cols-3 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="priority"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Priority</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger className="text-xs min-w-30">
-                                  <SelectValue />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem className="text-xs" value="LOW">
-                                  <span className="size-1.5 bg-cyan-500 rounded-full"></span>
-                                  Low
-                                </SelectItem>
-                                <SelectItem className="text-xs" value="MEDIUM">
-                                  {" "}
-                                  <span className="size-1.5 bg-amber-500 rounded-full"></span>
-                                  Medium
-                                </SelectItem>
-                                <SelectItem className="text-xs" value="HIGH">
-                                  {" "}
-                                  <span className="size-1.5 bg-red-500 rounded-full"></span>
-                                  High
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="assignee"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Assignee</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger className="text-xs min-w-40">
-                                  <SelectValue />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <div className="relative px-2">
-                                  <Input
-                                    className="peer pe-9 rounded-none bg-inherit dark:bg-inherit focus-visible:ring-0 border-none shadow-none"
-                                    placeholder="Search member..."
-                                  />
-                                  <Button
-                                    variant="ghost"
-                                    className="text-muted-foreground absolute inset-y-0 end-0 flex items-center justify-center pe-3 peer-disabled:opacity-50 hover:bg-transparent dark:hover:bg-transparent cursor-pointer"
-                                  >
-                                    <Search size={16} aria-hidden="true" />
-                                  </Button>
-                                </div>
-                                <Separator />
-                                <ScrollArea className="max-h-36 flex flex-col mt-2">
-                                  {members.map(({ id, user }) => (
-                                    <SelectItem
-                                      key={id}
-                                      className="text-xs"
-                                      value={user.id}
-                                    >
-                                      <Avatar className="size-6 rounded-sm">
-                                        <AvatarImage
-                                          src={user.avatar}
-                                          alt={user.name}
-                                        />
-                                        <AvatarFallback className="text-xs">
-                                          {user.name[0].toUpperCase()}
-                                        </AvatarFallback>
-                                      </Avatar>
-                                      {user.name}
-                                    </SelectItem>
-                                  ))}
-                                </ScrollArea>
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <DueDatePicker form={form} />
-                    </div>
+                    <div className="grid grid-cols-3 gap-6"></div>
 
                     {fetcher.state === "submitting" ? (
                       <Button disabled className="cursor-pointer">
@@ -290,13 +182,113 @@ export default function CreateTask({ loaderData: { members } }) {
                       </Button>
                     )}
                   </div>
-                </fieldset>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
-      <Card className="w-2xs"></Card>
+                </CardContent>
+              </Card>
+            </div>
+            <Card className="w-2xs">
+              <CardContent className="space-y-6">
+                <FormItem>
+                  <FormLabel>Project</FormLabel>
+                  <FormDescription>{project.name}</FormDescription>
+                </FormItem>
+                <FormField
+                  control={form.control}
+                  name="priority"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Priority</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="text-xs min-w-30">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem className="text-xs" value="LOW">
+                            <span className="size-1.5 bg-cyan-500 rounded-full"></span>
+                            Low
+                          </SelectItem>
+                          <SelectItem className="text-xs" value="MEDIUM">
+                            {" "}
+                            <span className="size-1.5 bg-amber-500 rounded-full"></span>
+                            Medium
+                          </SelectItem>
+                          <SelectItem className="text-xs" value="HIGH">
+                            {" "}
+                            <span className="size-1.5 bg-red-500 rounded-full"></span>
+                            High
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="assignee"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Assignee</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="text-xs min-w-40">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <div className="relative px-2">
+                            <Input
+                              className="peer pe-9 rounded-none bg-inherit dark:bg-inherit focus-visible:ring-0 border-none shadow-none"
+                              placeholder="Search member..."
+                            />
+                            <Button
+                              variant="ghost"
+                              className="text-muted-foreground absolute inset-y-0 end-0 flex items-center justify-center pe-3 peer-disabled:opacity-50 hover:bg-transparent dark:hover:bg-transparent cursor-pointer"
+                            >
+                              <Search size={16} aria-hidden="true" />
+                            </Button>
+                          </div>
+                          <Separator />
+                          <ScrollArea className="max-h-36 flex flex-col mt-2">
+                            {members.map(({ id, user }) => (
+                              <SelectItem
+                                key={id}
+                                className="text-xs"
+                                value={user.id}
+                              >
+                                <Avatar className="size-6 rounded-sm">
+                                  <AvatarImage
+                                    src={user.avatar}
+                                    alt={user.name}
+                                  />
+                                  <AvatarFallback className="text-xs">
+                                    {user.name[0].toUpperCase()}
+                                  </AvatarFallback>
+                                </Avatar>
+                                {user.name}
+                              </SelectItem>
+                            ))}
+                          </ScrollArea>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <DueDatePicker form={form} />
+              </CardContent>
+            </Card>
+          </fieldset>
+        </form>
+      </Form>
     </div>
   );
 }

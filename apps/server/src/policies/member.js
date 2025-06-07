@@ -1,4 +1,4 @@
-import { Permissions } from "@/enums/role";
+import { Permissions, Roles } from "@/enums/role";
 import { Member } from "@/models/member";
 import { authz } from "@/utils/auth";
 import { RolePermissions } from "@/utils/role-permission";
@@ -19,6 +19,22 @@ export const canAddMember = authz(async function (user, workspace) {
   });
 
   return RolePermissions[member.role].includes(Permissions.ADD_MEMBER);
+});
+
+export const canChangeMemberRole = authz(async function (user, member, role) {
+  if (!(role === Roles.ADMIN || role === Roles.MEMBER)) {
+    return false;
+  }
+
+  const userMember = await Member.findOne({
+    user: user.id,
+    workspace: member.workspace,
+  });
+
+  return (
+    !!userMember &&
+    RolePermissions[userMember.role].includes(Permissions.CHANGE_MEMBER_ROLE)
+  );
 });
 
 export const canRemoveMember = authz(async function (user, member) {

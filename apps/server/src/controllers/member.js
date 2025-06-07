@@ -6,6 +6,7 @@ import { Workspace } from "@/models/workspace";
 import { STATUS } from "@/utils/constants";
 import {
   canAddMember,
+  canChangeMemberRole,
   canRemoveMember,
   canViewMember,
 } from "@/policies/member";
@@ -117,9 +118,7 @@ export async function getMembers(c) {
 
 export async function getMember(c) {
   const memberId = c.req.param("memberId");
-
   const member = await Member.findById(memberId);
-
   if (!member) throw new NotFoundException("Member not found");
 
   await canViewMember(c.user, member);
@@ -149,27 +148,20 @@ export const createMember = asyncHandler(async function (c) {
   return c.json.success({ statusCode: STATUS.HTTP.CREATED, data: workspace });
 });
 
-// TODO: update logic for update member
 export const updateMember = asyncHandler(async function (c) {
-  const { user: userId, workspace: workspaceId, role } = await c.req.json();
+  const memberId = c.req.param("memberId");
+  const member = await Member.findById(memberId);
+  if (!member) throw new NotFoundException("Member not found");
+  const { role } = await c.req.json();
 
-  const user = await User.findById(userId);
-  if (!user) throw new NotFoundException("User not found");
+  await canChangeMemberRole(c.user, member, role);
 
-  const workspace = await Workspace.findById(workspaceId);
-  if (!workspace) throw new NotFoundException("Workspace not found");
-
-  await canAddMember(c.user, workspace);
-
-  const member = new Member({
-    user: userId,
-    workspace: workspaceId,
-    role,
-  });
-
+  const updatedMember = await Member.findByIdAndUpdate(member.id, { role });
   await member.save();
 
-  return c.json.success({ statusCode: STATUS.HTTP.CREATED, data: workspace });
+  return c.json.success({
+    data: { member: updatedMember },
+  });
 });
 
 export const deleteMember = asyncHandler(async function (c) {

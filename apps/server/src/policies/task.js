@@ -93,11 +93,12 @@ export const canCreateTask = authz(async function (user, project, assignee) {
   }
 
   return (
-    !!userMember && RolePermissions[userMember.role].includes(Permissions.CREATE_TASK)
+    !!userMember &&
+    RolePermissions[userMember.role].includes(Permissions.CREATE_TASK)
   );
 });
 
-export const canEditTask = authz(async function (user, task) {
+export const canEditTask = authz(async function (user, task, assignee) {
   const pipeline = [
     // Stage 1: Lookup the project to get the workspace
     {
@@ -140,14 +141,26 @@ export const canEditTask = authz(async function (user, task) {
     },
   ];
 
-  const [member] = await Member.aggregate(pipeline);
+  const [userMember] = await Member.aggregate(pipeline);
+
+  if (assignee) {
+    const assigneeMember = await Member.findOne({
+      user: assignee,
+      workspace: project.workspace,
+    });
+
+    if (!userMember || !assigneeMember) {
+      return false;
+    }
+  }
 
   return (
-    !!member && RolePermissions[member.role].includes(Permissions.EDIT_TASK)
+    !!userMember &&
+    RolePermissions[userMember.role].includes(Permissions.EDIT_TASK)
   );
 });
 
-export const canDeleteTask = authz(async function (user, workspace) {
+export const canDeleteTask = authz(async function (user, task) {
   const pipeline = [
     // Stage 1: Lookup the project to get the workspace
     {

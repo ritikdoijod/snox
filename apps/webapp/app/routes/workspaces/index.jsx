@@ -73,7 +73,8 @@ export default function Workspaces({ loaderData: { workspaces } }) {
         <Fragment>
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">Workspaces</h2>
-            <div className="mt-1 relative">
+            <div className="flex items-center gap-3">
+              <div className="mt-1 relative">
               <Input
                 className="peer pe-9 bg-background w-48 h-9"
                 placeholder="Search workspace..."
@@ -84,6 +85,13 @@ export default function Workspaces({ loaderData: { workspaces } }) {
               >
                 <Search size={16} aria-hidden="true" />
               </Button>
+            </div>
+            <Button className="h-8" asChild>
+              <Link to="/workspaces/new">
+                <Plus className="me-1" />
+                New
+              </Link>
+            </Button>
             </div>
           </div>
           <div className="mt-8 grid grid-cols-3 gap-8">

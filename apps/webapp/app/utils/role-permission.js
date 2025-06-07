@@ -12,8 +12,7 @@ export const RolePermissions = {
     Permissions.REMOVE_MEMBER,
 
     Permissions.CREATE_PROJECT,
-    Permissions.EDIT_PROJECT,
-    Permissions.DELETE_PROJECT,
+    Permissions.MANAGE_PROJECT_SETTINGS,
 
     Permissions.CREATE_TASK,
     Permissions.EDIT_TASK,
@@ -27,8 +26,8 @@ export const RolePermissions = {
     Permissions.EDIT_PROJECT,
     Permissions.DELETE_PROJECT,
     Permissions.CREATE_TASK,
-    Permissions.EDIT_TASK,
-    Permissions.DELETE_TASK,
+    Permissions.MANAGE_PROJECT_SETTINGS,
+
     Permissions.MANAGE_WORKSPACE_SETTINGS,
     Permissions.VIEW_ONLY,
   ],

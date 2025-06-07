@@ -1,13 +1,6 @@
 import { Link, useOutletContext } from "react-router";
 import { format } from "date-fns";
-import {
-  CalendarDays,
-  Clock,
-  Info,
-  Pencil,
-  Plus,
-  Trash,
-} from "lucide-react";
+import { CalendarDays, Clock, Info, Pencil, Plus, Trash } from "lucide-react";
 import { useAuth } from "@/lib/contexts/auth";
 
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -21,10 +14,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useWorkspace } from "@/routes/workspaces/context";
+import { RolePermissions } from "@/utils/role-permission";
+import { Permissions } from "@/enums/role";
 
 export default function ({ params: { workspaceId, projectId } }) {
   const { user } = useAuth();
   const { project, tasks } = useOutletContext();
+  const { userRole } = useWorkspace();
 
   return (
     <div className="flex flex-1">
@@ -74,7 +71,9 @@ export default function ({ params: { workspaceId, projectId } }) {
           ) : (
             <Card className="grid gap-8 place-content-center">
               <CardContent className="flex flex-col items-center gap-8">
-                <p className="text-center text-xs">Start by creating your first task</p>
+                <p className="text-center text-xs">
+                  Start by creating your first task
+                </p>
                 <Button className="cursor-pointer" asChild>
                   <Link
                     to={`/workspaces/${workspaceId}/projects/${projectId}/tasks/new`}
@@ -89,7 +88,9 @@ export default function ({ params: { workspaceId, projectId } }) {
                 <span className="text-sm text-nowrap"> Or </span>
                 <Separator className="flex-1" />
               </div>
-              <p className="text-center text-xs">Let others add you in a task</p>
+              <p className="text-center text-xs">
+                Let others add you in a task
+              </p>
             </Card>
           )}
         </div>
@@ -143,22 +144,24 @@ export default function ({ params: { workspaceId, projectId } }) {
           <Separator />
 
           {/* Actions */}
-          <div className="flex justify-between">
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-xs flex items-center gap-2"
-              asChild
-            >
-              <Link
-                to={`/workspaces/${workspaceId}/projects/${projectId}/settings#edit`}
+          {RolePermissions[userRole]?.includes(
+            Permissions.MANAGE_PROJECT_SETTINGS
+          ) && (
+            <div className="flex justify-between">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs flex items-center gap-2"
+                asChild
               >
-                <Pencil className="size-3" />
-                Edit
-              </Link>
-            </Button>
+                <Link
+                  to={`/workspaces/${workspaceId}/projects/${projectId}/settings#edit`}
+                >
+                  <Pencil className="size-3" />
+                  Edit
+                </Link>
+              </Button>
 
-            {project.createdBy.id === user.id && (
               <Button
                 size="sm"
                 className="bg-destructive/50 hover:bg-destructive/80 cursor-pointer text-xs"
@@ -171,8 +174,8 @@ export default function ({ params: { workspaceId, projectId } }) {
                   Delete
                 </Link>
               </Button>
-            )}
-          </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
@@ -189,6 +192,7 @@ export function TaskCard({ task: { title, description, status } }) {
         </CardDescription>{" "}
       </CardHeader>
       <CardContent className="flex gap-2 items-center">
+        <span className="text-xs text-muted-foreground">{status.toLowerCase()}</span>
         {/* <Avatar className="size-7 ring ring-card text-xs">
           <AvatarImage src={assignee.avatar} alt={assignee.name} />
           <AvatarFallback>{assignee.name[0].toUpperCase()}</AvatarFallback>

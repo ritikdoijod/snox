@@ -84,8 +84,10 @@ export const action = auth(async function ({
     }
 
     case "DELETE": {
-      await fc.delete(`/projects/${projectId}`);
-      actionData = { success: true };
+      const { taskId } = await request.json();
+      await fc.delete(`/tasks/${taskId}`);
+      actionData = redirect(
+        `/workspaces/${workspaceId}/projects/${projectId}/tasks`);
       break;
     }
 

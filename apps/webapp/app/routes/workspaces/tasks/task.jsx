@@ -162,8 +162,9 @@ export default function Task({
       <div className="flex flex-1">
         <div className="px-6 space-y-3 flex-1">
           <Card className="min-h-40">
-            <CardContent>
               {isEditing ? (
+            <CardContent>
+
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)}>
                     <div className="space-y-6">
@@ -185,6 +186,7 @@ export default function Task({
                             </FormItem>
                           )}
                         />
+                        
                         <FormField
                           control={form.control}
                           name="description"
@@ -226,8 +228,10 @@ export default function Task({
                     </div>
                   </form>
                 </Form>
+            </CardContent>
+
               ) : (
-                <>
+                <CardHeader>
                   <CardTitle className="flex justify-between items-start">
                     {task.title}
                     <Button
@@ -239,9 +243,8 @@ export default function Task({
                     </Button>
                   </CardTitle>
                   <CardDescription>{task.description}</CardDescription>
-                </>
+                </CardHeader>
               )}
-            </CardContent>
           </Card>
           <Comments comments={comments} />
           <CommentForm />
@@ -707,10 +710,7 @@ function InfoCard() {
         </div>
       </CardContent>
       <CardFooter>
-        <Button size="sm" className="text-xs bg-destructive/70 w-full">
-          <Trash className="size-3" />
-          Delete
-        </Button>
+        <DeleteTaskButton />
       </CardFooter>
     </Card>
   );
@@ -807,10 +807,7 @@ function Comments({ comments }) {
                         alt={comment.createdBy?.name}
                       />
                       <AvatarFallback className="bg-gray-200">
-                        {comment.createdBy?.name
-                          .split(" ")
-                          .map((chunk) => chunk[0])
-                          .join("")}
+                        {comment.createdBy?.name[0].toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </TimelineIndicator>
@@ -846,10 +843,7 @@ function Comments({ comments }) {
                           alt={lastComment.createdBy?.name}
                         />
                         <AvatarFallback className="bg-gray-200">
-                          {lastComment.createdBy?.name
-                            .split(" ")
-                            .map((chunk) => chunk[0])
-                            .join("")}
+                          {lastComment.createdBy?.name[0].toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                     </TimelineIndicator>
@@ -948,5 +942,33 @@ function Comments({ comments }) {
         )}
       </ScrollArea>
     </div>
+  );
+}
+
+function DeleteTaskButton() {
+  const fetcher = useFetcher();
+  const { taskId, workspaceId, projectId } = useParams();
+
+  function deleteTask() {
+    fetcher.submit(
+      { taskId },
+      {
+        action: `/workspaces/${workspaceId}/projects/${projectId}/tasks`,
+        method: "delete",
+        encType: "application/json",
+      }
+    );
+  }
+
+  return (
+    <Button
+      type="button"
+      size="sm"
+      className="text-xs bg-destructive/70 w-full hover:bg-destructive/80 cursor-pointer"
+      onClick={deleteTask}
+    >
+      <Trash className="size-3" />
+      Delete Task
+    </Button>
   );
 }
