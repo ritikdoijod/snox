@@ -1,0 +1,49 @@
+import { Permissions, Roles } from "@/enums/role";
+import { Member } from "@/models/member";
+import { authz } from "@/utils/auth";
+import { RolePermissions } from "@/utils/role-permission";
+
+export const canViewMember = authz(async function (user, member) {
+  const userMember = await Member.findOne({
+    user: user.id,
+    workspace: member.workspace,
+  });
+
+  return RolePermissions[userMember.role].includes(Permissions.VIEW_ONLY);
+});
+
+export const canAddMember = authz(async function (user, workspace) {
+  const member = await Member.findOne({
+    user: user.id,
+    workspace: workspace.id,
+  });
+
+  return RolePermissions[member.role].includes(Permissions.ADD_MEMBER);
+});
+
+export const canChangeMemberRole = authz(async function (user, member, role) {
+  if (!(role === Roles.ADMIN || role === Roles.MEMBER)) {
+    return false;
+  }
+
+  const userMember = await Member.findOne({
+    user: user.id,
+    workspace: member.workspace,
+  });
+
+  return (
+    !!userMember &&
+    RolePermissions[userMember.role].includes(Permissions.CHANGE_MEMBER_ROLE)
+  );
+});
+
+export const canRemoveMember = authz(async function (user, member) {
+  if (user.id === member.user.toString()) return true;
+
+  const userMember = await Member.findOne({
+    user: user.id,
+    workspace: member.workspace,
+  });
+
+  return RolePermissions[userMember.role].includes(Permissions.REMOVE_MEMBER);
+});
