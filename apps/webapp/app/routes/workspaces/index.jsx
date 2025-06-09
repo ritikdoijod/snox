@@ -1,5 +1,5 @@
-import { Fragment } from "react";
-import { Link, redirect } from "react-router";
+import { Fragment, useState, useEffect } from "react";
+import { Link, redirect, useNavigate } from "react-router";
 import { Plus, Search } from "lucide-react";
 import QueryString from "qs";
 
@@ -16,9 +16,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 
-export const loader = auth(async function ({ fc }) {
+export const loader = auth(async function ({ fc, request }) {
+  const search = new URL(request.url).searchParams.get("search");
+
   const { workspaces } = await fc.get(
-    `/workspaces?${QueryString.stringify({ include: ["members"] })}`
+    `/workspaces?${QueryString.stringify({
+      include: ["members"],
+      search,
+    })}`
   );
 
   return { workspaces };
@@ -67,31 +72,44 @@ export const action = auth(async function ({ request, fc }) {
 });
 
 export default function Workspaces({ loaderData: { workspaces } }) {
+  const navigate = useNavigate();
+  const [search, setSearch] = useState();
+
+  useEffect(() => {
+    if (!search || search === "") navigate("/workspaces");
+    else {
+      navigate(`/workspaces?search=${search}`);
+    }
+  }, [search]);
+
   return (
     <div className="px-8 py-12">
-      {workspaces.length > 0 ? (
+      {workspaces.length > 0 || search ? (
         <Fragment>
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">Workspaces</h2>
             <div className="flex items-center gap-3">
               <div className="mt-1 relative">
-              <Input
-                className="peer pe-9 bg-background w-48 h-9"
-                placeholder="Search workspace..."
-              />
-              <Button
-                variant="ghost"
-                className="text-muted-foreground absolute inset-y-0 end-0 flex items-center justify-center pe-3 peer-disabled:opacity-50 hover:bg-transparent dark:hover:bg-transparent cursor-pointer h-9"
-              >
-                <Search size={16} aria-hidden="true" />
+                <Input
+                  className="peer pe-9 bg-background w-48 h-9"
+                  placeholder="Search workspace..."
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                  }}
+                />
+                <Button
+                  variant="ghost"
+                  className="text-muted-foreground absolute inset-y-0 end-0 flex items-center justify-center pe-3 peer-disabled:opacity-50 hover:bg-transparent dark:hover:bg-transparent cursor-pointer h-9"
+                >
+                  <Search size={16} aria-hidden="true" />
+                </Button>
+              </div>
+              <Button className="h-8" asChild>
+                <Link to="/workspaces/new">
+                  <Plus className="me-1" />
+                  New
+                </Link>
               </Button>
-            </div>
-            <Button className="h-8" asChild>
-              <Link to="/workspaces/new">
-                <Plus className="me-1" />
-                New
-              </Link>
-            </Button>
             </div>
           </div>
           <div className="mt-8 grid grid-cols-3 gap-8">
@@ -139,7 +157,8 @@ export default function Workspaces({ loaderData: { workspaces } }) {
           </div>
         </Fragment>
       ) : (
-        <div className="grid gap-8 p-8 place-content-center border border-dashed rounded-lg">
+        !search && (
+          <div className="grid gap-8 p-8 place-content-center border border-dashed rounded-lg">
           <div className="flex flex-col items-center gap-8">
             <p className="text-center">
               Start by creating your first workspace
@@ -158,6 +177,7 @@ export default function Workspaces({ loaderData: { workspaces } }) {
           </div>
           <p className="text-center">Let others include you in a workspace.</p>
         </div>
+        )
       )}
     </div>
   );

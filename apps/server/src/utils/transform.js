@@ -13,13 +13,17 @@ export function transform(object) {
 
     for (const [key, value] of Object.entries(object)) {
       if (exlude.includes(key)) continue;
-      if (key === "_id") {
+      else if (key === "_id") {
         newObject.id = value;
         continue;
       }
-      if (key === "avatar")
-        newObject.avatar = config.STATIC_FILE_SERVER_URL + value;
-      else {
+      else if (key === "avatar") {
+        if (isValidURL(value)) {
+          newObject.avatar = value;
+        } else {
+          newObject.avatar = config.STATIC_FILE_SERVER_URL + value;
+        }
+      } else {
         newObject[key] = transform(value);
       }
     }
@@ -27,4 +31,13 @@ export function transform(object) {
   }
 
   return object;
+}
+
+function isValidURL(string) {
+  try {
+    new URL(string);
+    return true;
+  } catch (e) {
+    return false;
+  }
 }

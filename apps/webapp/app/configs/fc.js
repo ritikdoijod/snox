@@ -2,8 +2,7 @@ import { AppError } from "@/lib/errors";
 import { create } from "@/lib/fc";
 
 export const fc = create({
-  // TODO: set env for backend URL
-  baseURL: "http://localhost:8000",
+  baseURL: import.meta.env.VITE_SERVER_URL,
   headers: {
     "Content-type": "application/json",
   },

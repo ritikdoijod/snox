@@ -27,6 +27,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
+import { getGoogleAuthURL } from "@/utils/google";
 
 export { loader } from "./loaders";
 export { login as action } from "./actions";
@@ -51,8 +52,7 @@ const schema = z.object({
 });
 
 export function SignInCard() {
-   const fetcher = useFetcher();
-
+  const fetcher = useFetcher();
 
   const form = useForm({
     defaultValues: {
@@ -85,9 +85,11 @@ export function SignInCard() {
       </CardHeader>
       <CardContent className="grid gap-8">
         <div className="grid">
-          <Button variant="outline" className="cursor-pointer">
-            <FcGoogle />
-            <span className="ml-4">Login with Google</span>
+          <Button variant="outline" className="cursor-pointer" asChild>
+            <Link to={getGoogleAuthURL()}>
+              <FcGoogle />
+              <span className="ml-4">Login with Google</span>
+            </Link>
           </Button>
         </div>
         <div className="flex gap-4 items-center">
@@ -95,7 +97,7 @@ export function SignInCard() {
           <span className="text-sm text-nowrap"> Or continue with </span>
           <Separator className="flex-1" />
         </div>
-         <Form {...form}>
+        <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <fieldset disabled={fetcher.state === "submitting"}>
               <div className="grid gap-8">
@@ -148,7 +150,7 @@ export function SignInCard() {
                 )}
               </div>
             </fieldset>
-           </form>
+          </form>
         </Form>
       </CardContent>
       <CardFooter className="justify-center text-sm text-muted-foreground">

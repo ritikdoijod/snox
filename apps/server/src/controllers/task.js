@@ -14,7 +14,7 @@ import {
 } from "@/policies/task";
 
 export const getTasks = asyncHandler(async function (c) {
-  const { include = [], filters = [], sort, fields, size, page } = c?.query;
+  const { search, include = [], filters = [], sort, fields, size, page } = c?.query;
 
   const relationships = {
     createdBy: [
@@ -37,10 +37,24 @@ export const getTasks = asyncHandler(async function (c) {
 
   // aggregation pipeline
   const pipeline = [
-    // stage 1: filters
+    // Stage 1: Search
+    ...(search
+      ? [
+          {
+            $match: {
+              $or: [
+                { name: { $regex: search, $options: "i" } },
+                { description: { $regex: search, $options: "i" } },
+              ],
+            },
+          },
+        ]
+      : []),
+
+    // Stage 2: Filters
     ...filters,
 
-    // Stage 2: Lookup the project to get the workspace
+    // Stage 3: Lookup the project to get the workspace
     {
       $lookup: {
         from: "projects",
@@ -49,11 +63,12 @@ export const getTasks = asyncHandler(async function (c) {
         as: "project",
       },
     },
-    // Stage 3: Unwind project to access workspace
+
+    // Stage 4: Unwind project to access workspace
     {
       $unwind: "$project",
     },
-    // Stage 4: Lookup memberships to verify user is a member of the workspace
+    // Stage 5: Lookup memberships to verify user is a member of the workspace
     {
       $lookup: {
         from: "members",
@@ -73,13 +88,15 @@ export const getTasks = asyncHandler(async function (c) {
         as: "memberships",
       },
     },
-    // Stage 5: Filter tasks where user is a member
+
+    // Stage 6: Filter tasks where user is a member
     {
       $match: {
         memberships: { $ne: [] },
       },
     },
-    // stage 6: add relationships
+
+    // Stage 7: add relationships
     ...include?.flatMap(
       (item) =>
         Array.isArray(relationships[item])
@@ -87,7 +104,7 @@ export const getTasks = asyncHandler(async function (c) {
           : [relationships[item]] // If it's a single stage, wrap in array
     ),
 
-    // stage 7: clean up
+    // Stage 8: clean up
     {
       $project: {
         memberships: 0,

@@ -49,4 +49,7 @@ const taskSchema = new mongoose.Schema(
   }
 );
 
+taskSchema.index({ name: 1 });
+taskSchema.index({ description: 1 });
+
 export const Task = mongoose.model("Task", taskSchema);

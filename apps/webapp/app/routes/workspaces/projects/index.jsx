@@ -1,5 +1,7 @@
-import { Link, redirect } from "react-router";
+import { useState, useEffect } from "react";
+import { Link, redirect, useNavigate } from "react-router";
 import { Folders, Plus, Search } from "lucide-react";
+import QueryString from "qs";
 import { auth } from "@/lib/auth";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,7 +15,30 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useWorkspace } from "../context";
+
+export const loader = auth(async function ({
+  fc,
+  request,
+  params: { workspaceId },
+}) {
+  const search = new URL(request.url).searchParams.get("search");
+
+  const { projects } = await fc.get(
+    `/projects?${QueryString.stringify({
+      search,
+      filters: [
+        {
+          $match: {
+            workspace: workspaceId,
+          },
+        },
+      ],
+      include: ["createdBy"],
+    })}`
+  );
+
+  return { projects };
+});
 
 export const action = auth(async function ({ request, params, fc }) {
   let actionData = {};
@@ -60,8 +85,20 @@ export const action = auth(async function ({ request, params, fc }) {
   return actionData;
 });
 
-export default function WorkspaceProjects({ params: { workspaceId } }) {
-  const { projects } = useWorkspace();
+export default function WorkspaceProjects({
+  params: { workspaceId },
+  loaderData: { projects },
+}) {
+  const navigate = useNavigate();
+  const [search, setSearch] = useState();
+
+  useEffect(() => {
+    if (!search || search === "")
+      navigate(`/workspaces/${workspaceId}/projects`);
+    else {
+      navigate(`/workspaces/${workspaceId}/projects?search=${search}`);
+    }
+  }, [search]);
 
   return (
     <div className="flex flex-1">
@@ -78,6 +115,9 @@ export default function WorkspaceProjects({ params: { workspaceId } }) {
                   <Input
                     className="peer pe-9 bg-background w-48 h-9"
                     placeholder="Search project..."
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                    }}
                   />
                   <Button
                     variant="ghost"

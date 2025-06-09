@@ -17,7 +17,7 @@ import {
 } from "@/policies/project";
 
 export const getProjects = asyncHandler(async function (c) {
-  const { include = [], filters = [], sort, fields, size, page } = c?.query;
+  const { search, include = [], filters = [], sort, fields, size, page } = c?.query;
 
   const relationships = {
     tasks: {
@@ -64,10 +64,24 @@ export const getProjects = asyncHandler(async function (c) {
 
   // aggregation pipeline
   const pipeline = [
-    // stage 1: filters
+     // Stage 1: Search
+    ...(search
+      ? [
+          {
+            $match: {
+              $or: [
+                { name: { $regex: search, $options: "i" } },
+                { description: { $regex: search, $options: "i" } },
+              ],
+            },
+          },
+        ]
+      : []),
+
+    // Stage 2: filters
     ...filters,
 
-    // stage 2: match wokrspaces where user is a member
+    // Stage 3: match wokrspaces where user is a member
     {
       $lookup: {
         from: "members",
@@ -88,14 +102,14 @@ export const getProjects = asyncHandler(async function (c) {
       },
     },
 
-    // stage 3: filter projects where user is a member of any workspace
+    // Stage 4: filter projects where user is a member of any workspace
     {
       $match: {
         memberships: { $ne: [] },
       },
     },
 
-    // stage 4: add relationships
+    // Stage 5: add relationships
     ...include?.flatMap(
       (item) =>
         Array.isArray(relationships[item])
@@ -103,7 +117,7 @@ export const getProjects = asyncHandler(async function (c) {
           : [relationships[item]] // If it's a single stage, wrap in array
     ),
 
-    // stage 5: clean up memberships in result
+    // Stage 6: clean up memberships in result
     {
       $project: {
         memberships: 0,

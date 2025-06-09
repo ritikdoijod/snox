@@ -6,8 +6,9 @@ export default [
     ...prefix("auth", [
       layout("./routes/auth/layout.jsx", [
         route("login", "./routes/auth/login.jsx"),
-        route("logout", "./routes/auth/logout.jsx"),
         route("signup", "./routes/auth/signup.jsx"),
+        route("callback/google", "./routes/auth/callback/google.js"),
+        route("logout", "./routes/auth/logout.jsx"),
       ]),
     ]),
     route("profile", "./routes/users/profile.jsx"),

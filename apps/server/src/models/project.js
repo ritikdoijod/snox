@@ -31,6 +31,7 @@ const projectSchema = new mongoose.Schema(
   },
 );
 
-const Project = mongoose.model("Project", projectSchema);
+projectSchema.index({ name: 1 });
+projectSchema.index({ description: 1 });
 
-export { Project };
+export const Project = mongoose.model("Project", projectSchema);

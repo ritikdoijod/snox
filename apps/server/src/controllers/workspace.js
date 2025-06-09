@@ -19,7 +19,15 @@ import {
 } from "@/policies/workspace";
 
 export const getWorkspaces = asyncHandler(async function (c) {
-  const { include = [], filters = [], sort, fields, size, page } = c?.query;
+  const {
+    search,
+    include = [],
+    filters = [],
+    sort,
+    fields,
+    size,
+    page,
+  } = c?.query;
 
   const relationships = {
     members: {
@@ -50,10 +58,24 @@ export const getWorkspaces = asyncHandler(async function (c) {
   };
 
   const pipeline = [
-    // State 1: filters
+    // Stage 1: Search
+    ...(search
+      ? [
+          {
+            $match: {
+              $or: [
+                { name: { $regex: search, $options: "i" } },
+                { description: { $regex: search, $options: "i" } },
+              ],
+            },
+          },
+        ]
+      : []),
+
+    // Stage 2: filters
     ...filters,
 
-    // State 2:
+    // Stage 3:
     {
       $lookup: {
         from: "members",
@@ -74,17 +96,17 @@ export const getWorkspaces = asyncHandler(async function (c) {
       },
     },
 
-    // State 3
+    // Stage 4
     {
       $match: {
         memberships: { $ne: [] },
       },
     },
 
-    // State 4
+    // Stage 5
     ...include?.map((item) => relationships[item]),
 
-    // State 5: clean up
+    // Stage 6: clean up
     {
       $project: {
         memberships: 0,

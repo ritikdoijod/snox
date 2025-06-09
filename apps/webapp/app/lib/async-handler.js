@@ -3,6 +3,7 @@ export function asyncHandler(fn) {
     try {
       return await fn(...args);
     } catch (error) {
+      console.log(error);
       return { error };
     }
   };

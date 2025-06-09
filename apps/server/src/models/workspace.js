@@ -26,6 +26,9 @@ const workspaceSchema = new mongoose.Schema(
   }
 );
 
+workspaceSchema.index({ name: 1 });
+workspaceSchema.index({ description: 1 });
+
 const Workspace = mongoose.model("Workspace", workspaceSchema);
 
 export { Workspace };

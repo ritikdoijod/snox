@@ -1,4 +1,5 @@
-import { Link, redirect } from "react-router";
+import { useState, useEffect } from "react";
+import { Link, redirect, useNavigate } from "react-router";
 import QueryString from "qs";
 import { Folders, Plus, Search } from "lucide-react";
 
@@ -16,9 +17,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-export const loader = auth(async function ({ params: { projectId }, fc }) {
+export const loader = auth(async function ({
+  params: { projectId },
+  fc,
+  request,
+}) {
+  const search = new URL(request.url).searchParams.get("search");
+
   const { tasks } = await fc.get(
     `/tasks?${QueryString.stringify({
+      search,
       filters: [
         {
           $match: {
@@ -44,7 +52,8 @@ export const action = auth(async function ({
 
   switch (request.method) {
     case "POST": {
-      const { title, description, priority, assignee, dueDate } = await request.json();
+      const { title, description, priority, assignee, dueDate } =
+        await request.json();
 
       const { task } = await fc.post("/tasks", {
         title,
@@ -53,7 +62,7 @@ export const action = auth(async function ({
         priority,
         status: "TODO",
         assignee,
-        dueDate
+        dueDate,
       });
 
       actionData = redirect(
@@ -87,7 +96,8 @@ export const action = auth(async function ({
       const { taskId } = await request.json();
       await fc.delete(`/tasks/${taskId}`);
       actionData = redirect(
-        `/workspaces/${workspaceId}/projects/${projectId}/tasks`);
+        `/workspaces/${workspaceId}/projects/${projectId}/tasks`
+      );
       break;
     }
 
@@ -104,6 +114,19 @@ export default function Tasks({
   params: { workspaceId, projectId },
   loaderData: { tasks },
 }) {
+  const navigate = useNavigate();
+  const [search, setSearch] = useState();
+
+  useEffect(() => {
+    if (!search || search === "")
+      navigate(`/workspaces/${workspaceId}/projects/${projectId}/tasks`);
+    else {
+      navigate(
+        `/workspaces/${workspaceId}/projects/${projectId}/tasks?search=${search}`
+      );
+    }
+  }, [search]);
+
   return (
     <div className="flex flex-1">
       <div className="px-6 space-y-3 flex-1">
@@ -119,6 +142,9 @@ export default function Tasks({
                   <Input
                     className="peer pe-9 bg-background w-48 h-9"
                     placeholder="Search task..."
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                    }}
                   />
                   <Button
                     variant="ghost"
@@ -128,7 +154,9 @@ export default function Tasks({
                   </Button>
                 </div>
                 <Button className="size-8" asChild>
-                  <Link to={`/workspaces/${workspaceId}/projects/${projectId}/tasks/new`}>
+                  <Link
+                    to={`/workspaces/${workspaceId}/projects/${projectId}/tasks/new`}
+                  >
                     <Plus />
                   </Link>
                 </Button>
