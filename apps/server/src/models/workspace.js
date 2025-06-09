@@ -23,7 +23,7 @@ const workspaceSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 workspaceSchema.index({ name: 1 });

@@ -23,7 +23,7 @@ export const loader = auth(async function ({ fc, request }) {
     `/workspaces?${QueryString.stringify({
       include: ["members"],
       search,
-    })}`
+    })}`,
   );
 
   return { workspaces };
@@ -159,24 +159,26 @@ export default function Workspaces({ loaderData: { workspaces } }) {
       ) : (
         !search && (
           <div className="grid gap-8 p-8 place-content-center border border-dashed rounded-lg">
-          <div className="flex flex-col items-center gap-8">
+            <div className="flex flex-col items-center gap-8">
+              <p className="text-center">
+                Start by creating your first workspace
+              </p>
+              <Button asChild>
+                <Link to="/workspaces/new">
+                  <Plus />
+                  Create workspace
+                </Link>
+              </Button>
+            </div>
+            <div className="flex gap-4 items-center w-lg">
+              <Separator className="flex-1" />
+              <span className="text-sm text-nowrap"> Or </span>
+              <Separator className="flex-1" />
+            </div>
             <p className="text-center">
-              Start by creating your first workspace
+              Let others include you in a workspace.
             </p>
-            <Button asChild>
-              <Link to="/workspaces/new">
-                <Plus />
-                Create workspace
-              </Link>
-            </Button>
           </div>
-          <div className="flex gap-4 items-center w-lg">
-            <Separator className="flex-1" />
-            <span className="text-sm text-nowrap"> Or </span>
-            <Separator className="flex-1" />
-          </div>
-          <p className="text-center">Let others include you in a workspace.</p>
-        </div>
         )
       )}
     </div>

@@ -59,7 +59,7 @@ export const googleOAuthCallback = asyncHandler(async function (c) {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-    }
+    },
   );
 
   const { id_token } = await res.json();
@@ -71,7 +71,7 @@ export const googleOAuthCallback = asyncHandler(async function (c) {
   const user = await User.findOneAndUpdate(
     { email },
     { name, email, avatar: picture },
-    { upsert: true, new: true }
+    { upsert: true, new: true },
   );
 
   const token = await signToken(user.id);

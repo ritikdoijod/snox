@@ -125,7 +125,7 @@ export function EditWorkspaceCard(props) {
         method: "patch",
         action: "/workspaces",
         encType: "application/json",
-      }
+      },
     );
   }
 
@@ -242,7 +242,7 @@ export function DeleteWorkspaceCard(props) {
         action: "/workspaces",
         method: "delete",
         encType: "application/json",
-      }
+      },
     );
   }
 

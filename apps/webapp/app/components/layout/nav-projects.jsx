@@ -35,7 +35,7 @@ const NavProjects = () => {
               {
                 "bg-accent text-accent-foreground font-semibold":
                   projectId === project.id,
-              }
+              },
             )}
             key={project.id}
           >
@@ -43,9 +43,7 @@ const NavProjects = () => {
               to={`/workspaces/${project.workspace}/projects/${project.id}`}
             >
               <Avatar className="size-5 rounded-sm">
-                <AvatarImage
-                  src={project.avatar}
-                />
+                <AvatarImage src={project.avatar} />
                 <AvatarFallback className="rounded-sm bg-transparent">
                   <Folder />
                 </AvatarFallback>

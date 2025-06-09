@@ -9,7 +9,7 @@ const signToken = async (userId) =>
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + 60 * 60,
     },
-    config.AUTH_SECRET
+    config.AUTH_SECRET,
   );
 
 const verifyToken = async (token) => await verify(token, config.AUTH_SECRET);

@@ -16,7 +16,7 @@ router.get(
       userId: mongoObjectIdSchema("Invalid user id"),
     }),
   }),
-  getUser
+  getUser,
 );
 router.patch("/", validate({ body: userSchema.partial() }), updateUser);
 

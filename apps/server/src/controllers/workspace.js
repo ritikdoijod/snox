@@ -148,7 +148,7 @@ export const createWorkspace = asyncHandler(async function (c) {
 
     if (existingWorkspace) {
       throw new BadRequestException(
-        "Workspace with the same name already exists."
+        "Workspace with the same name already exists.",
       );
     }
 
@@ -199,7 +199,7 @@ export const updateWorkspace = asyncHandler(async function (c) {
     },
     {
       returnDocument: "after",
-    }
+    },
   );
 
   return c.json.success({ data: { workspace: updatedWorkspace } });

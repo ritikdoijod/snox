@@ -46,7 +46,7 @@ const taskSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 taskSchema.index({ name: 1 });

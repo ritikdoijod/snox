@@ -69,7 +69,7 @@ export function WorkspaceTimeline({ events }) {
 
   return (
     <Timeline>
-      {timelineItems.map((item) => (
+      {timelineItems.map((item) =>
         item.type === "date" ? (
           <TimelineItem
             key={item.key}
@@ -102,8 +102,8 @@ export function WorkspaceTimeline({ events }) {
               </TimelineIndicator>
             </TimelineHeader>
           </TimelineItem>
-        )
-      ))}
+        ),
+      )}
     </Timeline>
   );
 }

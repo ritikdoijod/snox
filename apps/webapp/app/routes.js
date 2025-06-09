@@ -27,7 +27,7 @@ export default [
             route(":projectId", "./routes/workspaces/projects/project.jsx"),
             route(
               ":projectId/settings",
-              "./routes/workspaces/projects/settings.jsx"
+              "./routes/workspaces/projects/settings.jsx",
             ),
             ...prefix(":projectId/tasks", [
               index("./routes/workspaces/tasks/index.jsx"),

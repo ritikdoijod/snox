@@ -28,7 +28,8 @@ const FEATURES = [
   },
   {
     title: "Minimal UI",
-    description: "Stay focused on your tasks with a clean and simple interface.",
+    description:
+      "Stay focused on your tasks with a clean and simple interface.",
     icon: "🎨",
   },
 ];

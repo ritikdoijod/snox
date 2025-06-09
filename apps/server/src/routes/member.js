@@ -20,9 +20,9 @@ router.get(
     "param",
     z.object({
       memberId: mongoObjectIdSchema("Invalid member id"),
-    })
+    }),
   ),
-  getMember
+  getMember,
 );
 router.post("/", createMember);
 router.patch(
@@ -31,9 +31,9 @@ router.patch(
     "param",
     z.object({
       memberId: mongoObjectIdSchema("Invalid member id"),
-    })
+    }),
   ),
-  updateMember
+  updateMember,
 );
 router.delete(
   "/:memberId",
@@ -41,9 +41,9 @@ router.delete(
     "param",
     z.object({
       memberId: mongoObjectIdSchema("Invalid member id"),
-    })
+    }),
   ),
-  deleteMember
+  deleteMember,
 );
 
 export default router;

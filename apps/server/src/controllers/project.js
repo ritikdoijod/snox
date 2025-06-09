@@ -17,7 +17,15 @@ import {
 } from "@/policies/project";
 
 export const getProjects = asyncHandler(async function (c) {
-  const { search, include = [], filters = [], sort, fields, size, page } = c?.query;
+  const {
+    search,
+    include = [],
+    filters = [],
+    sort,
+    fields,
+    size,
+    page,
+  } = c?.query;
 
   const relationships = {
     tasks: {
@@ -64,7 +72,7 @@ export const getProjects = asyncHandler(async function (c) {
 
   // aggregation pipeline
   const pipeline = [
-     // Stage 1: Search
+    // Stage 1: Search
     ...(search
       ? [
           {
@@ -114,7 +122,7 @@ export const getProjects = asyncHandler(async function (c) {
       (item) =>
         Array.isArray(relationships[item])
           ? relationships[item] // If it's an array, spread it
-          : [relationships[item]] // If it's a single stage, wrap in array
+          : [relationships[item]], // If it's a single stage, wrap in array
     ),
 
     // Stage 6: clean up memberships in result
@@ -212,7 +220,7 @@ export const updateProject = asyncHandler(async function (c) {
     },
     {
       returnDocument: "after",
-    }
+    },
   );
 
   return c.json.success({
@@ -233,7 +241,7 @@ export const deleteProject = asyncHandler(async function (c) {
 
     await Project.findByIdAndDelete(project.id).session(session);
     const tasks = await Task.deleteMany({ project: project.id }).session(
-      session
+      session,
     );
 
     if (!!tasks.length) {

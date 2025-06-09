@@ -21,7 +21,7 @@ router.get(
       commentId: mongoObjectIdSchema("Invalid comment id"),
     }),
   }),
-  getComment
+  getComment,
 );
 router.post("/", validate({ body: commentSchema }), createComment);
 router.patch(
@@ -32,7 +32,7 @@ router.patch(
     }),
     body: commentSchema.partial(),
   }),
-  updateComment
+  updateComment,
 );
 router.delete(
   "/:commentId",
@@ -41,7 +41,7 @@ router.delete(
       commentId: mongoObjectIdSchema("Invalid comment id"),
     }),
   }),
-  deleteComment
+  deleteComment,
 );
 
 export default router;

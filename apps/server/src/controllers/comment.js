@@ -116,7 +116,7 @@ export const getComments = asyncHandler(async function (c) {
       (item) =>
         Array.isArray(relationships[item])
           ? relationships[item] // If it's an array, spread it
-          : [relationships[item]] // If it's a single stage, wrap in array
+          : [relationships[item]], // If it's a single stage, wrap in array
     ),
 
     // // stage 8: clean up
@@ -161,7 +161,7 @@ export const createComment = asyncHandler(async function (c) {
 
   const task = await Task.findById(taskId);
   if (!task) throw new NotFoundException("Task not found");
-  
+
   await canCreateComment(c.user, task);
 
   const comment = new Comment({
@@ -194,7 +194,7 @@ export const updateComment = asyncHandler(async function (c) {
     },
     {
       returnDocument: "after",
-    }
+    },
   );
 
   return c.json.success({ data: { comment: updatedComment } });

@@ -1,5 +1,5 @@
-import { HTTPException } from 'hono/http-exception';
-import { STATUS } from "@/utils/constants.js"
+import { HTTPException } from "hono/http-exception";
+import { STATUS } from "@/utils/constants.js";
 
 export const ERROR_CODES = {
   BAD_REQUEST: "BAD_REQUEST",

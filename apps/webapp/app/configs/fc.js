@@ -29,6 +29,6 @@ fc.hooks.res.use(async (res) => {
     res.error?.details?.reduce((acc, current) => {
       acc[current.field] = current.message;
       return acc;
-    }, {})
+    }, {}),
   );
 });

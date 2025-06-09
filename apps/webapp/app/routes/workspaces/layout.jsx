@@ -14,7 +14,7 @@ export const loader = auth(async function ({
   const { workspace } = await fc.get(
     `/workspaces/${workspaceId}?${QueryString.stringify({
       include: ["createdBy"],
-    })}`
+    })}`,
   );
   const { workspaces } = await fc.get("/workspaces");
   const { projects } = await fc.get(
@@ -27,7 +27,7 @@ export const loader = auth(async function ({
         },
       ],
       include: ["createdBy"],
-    })}`
+    })}`,
   );
 
   const { members } = await fc.get(
@@ -40,11 +40,11 @@ export const loader = auth(async function ({
         },
       ],
       include: ["user"],
-    })}`
+    })}`,
   );
 
   const userMember = members.find(
-    (member) => member.user.id === session.get("uid")
+    (member) => member.user.id === session.get("uid"),
   );
 
   const userRole = userMember.role;

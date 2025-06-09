@@ -6,7 +6,7 @@ export const loader = auth(async function ({ params: { projectId }, fc }) {
   const { project } = await fc.get(
     `/projects/${projectId}?${QueryString.stringify({
       include: ["createdBy"],
-    })}`
+    })}`,
   );
 
   const { tasks } = await fc.get(
@@ -19,7 +19,7 @@ export const loader = auth(async function ({ params: { projectId }, fc }) {
         },
       ],
       include: ["createdBy", "assignee"],
-    })}`
+    })}`,
   );
 
   return {

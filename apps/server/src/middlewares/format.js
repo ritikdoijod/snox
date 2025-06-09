@@ -14,7 +14,7 @@ const format = ({ apiVersion }) => {
             ...meta,
           },
         },
-        statusCode
+        statusCode,
       );
 
     c.json.error = ({
@@ -35,7 +35,7 @@ const format = ({ apiVersion }) => {
             apiVersion,
           },
         }),
-        status
+        status,
       );
 
     await next();

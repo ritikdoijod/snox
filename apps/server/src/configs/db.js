@@ -6,7 +6,6 @@ mongoose.set("strict", false);
 
 const connectToDB = async () => {
   try {
-
     await mongoose.connect(config.MONGO_URI);
     logger.info("Database connected.");
   } catch (error) {

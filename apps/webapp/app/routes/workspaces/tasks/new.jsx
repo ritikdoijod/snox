@@ -70,7 +70,7 @@ export const loader = auth(async function ({ fc, params: { workspaceId } }) {
         },
       ],
       include: ["user"],
-    })}`
+    })}`,
   );
 
   return { members };
@@ -314,7 +314,7 @@ function DueDatePicker({ form }) {
                 variant="ghost"
                 className={cn(
                   "px-3 font-normal text-xs hover:bg-transparent cursor-pointer flex justify-between w-full border",
-                  !dueDate && "text-muted-foreground"
+                  !dueDate && "text-muted-foreground",
                 )}
               >
                 {field.value ? (

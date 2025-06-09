@@ -1,9 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { customAlphabet } from 'nanoid'
+import { customAlphabet } from "nanoid";
 
 export async function uploadFile(fileData) {
-  const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz', 15);
+  const nanoid = customAlphabet("abcdefghijklmnopqrstuvwxyz", 15);
   // Extract mime type and base64 data from data URL
   const matches = fileData.match(/^data:(.+);base64,(.+)$/);
   if (!matches) {

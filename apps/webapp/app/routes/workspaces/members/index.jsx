@@ -143,7 +143,7 @@ function MemberCard({ member: { id, user, role } }) {
         action: `/workspaces/${workspaceId}/members`,
         method: "delete",
         encType: "application/json",
-      }
+      },
     );
   }
 
@@ -157,7 +157,7 @@ function MemberCard({ member: { id, user, role } }) {
         action: `/workspaces/${workspaceId}/members`,
         method: "patch",
         encType: "application/json",
-      }
+      },
     );
   }
 
@@ -190,7 +190,7 @@ function MemberCard({ member: { id, user, role } }) {
                 Actions
               </DropdownMenuLabel>
               {RolePermissions[userRole].includes(
-                Permissions.CHANGE_MEMBER_ROLE
+                Permissions.CHANGE_MEMBER_ROLE,
               ) && (
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger className="text-xs">
@@ -211,7 +211,7 @@ function MemberCard({ member: { id, user, role } }) {
                 </DropdownMenuSub>
               )}
               {RolePermissions[userRole].includes(
-                Permissions.REMOVE_MEMBER
+                Permissions.REMOVE_MEMBER,
               ) && (
                 <DropdownMenuItem
                   onClick={deleteMember}
@@ -244,7 +244,7 @@ export function AddMemberCard({ user }) {
         action: `/workspaces/${workspaceId}/members`,
         method: "post",
         encType: "application/json",
-      }
+      },
     );
   }
 

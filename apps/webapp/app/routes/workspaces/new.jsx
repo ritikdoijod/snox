@@ -73,7 +73,7 @@ export default function CreateWorkspace() {
         method: "post",
         action: "/workspaces",
         encType: "application/json",
-      }
+      },
     );
   }
 

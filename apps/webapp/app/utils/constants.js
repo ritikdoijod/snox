@@ -10,18 +10,18 @@ const STATUS = Object.freeze({
     INTERNAL_SERVER_ERROR: 500,
   },
   TASK: {
-    TODO: 'TODO',
+    TODO: "TODO",
     IN_PROGRESS: "IN_PROGRESS",
     REVIEW: "REVIEW",
     DONE: "DONE",
     BACKLOG: "BACKLOG",
-  }
+  },
 });
 
 const PRIORITY = Object.freeze({
   LOW: "LOW",
   MEDIUM: "MEDIUM",
-  HIGH: "HIGH"
-})
+  HIGH: "HIGH",
+});
 
 export { STATUS, PRIORITY };

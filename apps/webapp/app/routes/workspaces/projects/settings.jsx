@@ -33,7 +33,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { TableOfContents } from "@/components/ui/toc";
 import { Textarea } from "@/components/ui/textarea";
 
-
 export const loader = auth(async function ({ params: { projectId }, fc }) {
   const { project } = await fc.get(`/projects/${projectId}`);
 
@@ -121,7 +120,7 @@ export function EditProjectCard(props) {
         method: "patch",
         action: `/workspaces/${project.workspace}/projects`,
         encType: "application/json",
-      }
+      },
     );
   }
 
@@ -244,7 +243,7 @@ export function DeleteProjectCard(props) {
         action: `/workspaces/${project.workspace}/projects`,
         method: "delete",
         encType: "application/json",
-      }
+      },
     );
   }
 

@@ -41,7 +41,7 @@ async function getCroppedImg(
   pixelCrop,
   // Optional: specify output size
   outputWidth = pixelCrop.width,
-  outputHeight = pixelCrop.height
+  outputHeight = pixelCrop.height,
 ) {
   try {
     const image = await createImage(imageSrc);
@@ -67,7 +67,7 @@ async function getCroppedImg(
       0,
       outputWidth,
       // Draw onto the output size
-      outputHeight
+      outputHeight,
     );
 
     // Convert canvas to blob

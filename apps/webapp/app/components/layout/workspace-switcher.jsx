@@ -36,9 +36,7 @@ const WorkspaceSwitcher = () => {
           <DropdownMenuTrigger asChild>
             <Button className="flex items-center gap-3 px-3 py-6 w-full">
               <Avatar className="rounded-md">
-                <AvatarImage
-                  src={activeWorkspace?.avatar}
-                />
+                <AvatarImage src={activeWorkspace?.avatar} />
                 <AvatarFallback className="rounded-md text-primary">
                   {activeWorkspace?.name[0].toUpperCase()}
                 </AvatarFallback>
@@ -68,9 +66,7 @@ const WorkspaceSwitcher = () => {
               >
                 <Link to={`/workspaces/${workspace.id}`}>
                   <Avatar className="rounded-md">
-                    <AvatarImage
-                      src={workspace.avatar}
-                    />
+                    <AvatarImage src={workspace.avatar} />
                     <AvatarFallback className="rounded-md">
                       {workspace.name[0].toUpperCase()}
                     </AvatarFallback>

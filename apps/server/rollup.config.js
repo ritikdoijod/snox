@@ -18,7 +18,10 @@ const aliases = Object.entries(jsconfig.compilerOptions?.paths).flatMap(
 
       return {
         find: new RegExp(`^${pattern}`),
-        replacement: path.join(path.resolve(jsconfig.compilerOptions.baseUrl, target), "$1"),
+        replacement: path.join(
+          path.resolve(jsconfig.compilerOptions.baseUrl, target),
+          "$1",
+        ),
       };
     });
   },
@@ -29,7 +32,7 @@ const config = {
   output: {
     dir: "dist",
     format: "es",
-    preserveModules: true
+    preserveModules: true,
   },
   plugins: [alias({ entries: aliases })],
 };

@@ -34,7 +34,7 @@ export const loader = auth(async function ({
         },
       ],
       include: ["createdBy"],
-    })}`
+    })}`,
   );
 
   return { projects };
@@ -56,7 +56,7 @@ export const action = auth(async function ({
         workspace: workspaceId,
       });
       actionData = redirect(
-        `/workspaces/${workspaceId}/projects/${project.id}`
+        `/workspaces/${workspaceId}/projects/${project.id}`,
       );
       break;
     }

@@ -88,7 +88,7 @@ export async function getMembers(c) {
       (item) =>
         Array.isArray(relationships[item])
           ? relationships[item] // If it's an array, spread it
-          : [relationships[item]] // If it's a single stage, wrap in array
+          : [relationships[item]], // If it's a single stage, wrap in array
     ),
 
     // Stage 5: clean up memberships in result

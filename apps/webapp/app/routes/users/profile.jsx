@@ -76,7 +76,7 @@ export default function UserProfile() {
         method: "patch",
         action: "/profile",
         encType: "application/json",
-      }
+      },
     );
   }
 

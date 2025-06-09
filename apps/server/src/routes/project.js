@@ -22,7 +22,7 @@ router.get(
       projectId: mongoObjectIdSchema("Invalid project id"),
     }),
   }),
-  getProject
+  getProject,
 );
 router.post("/", validate({ body: projectSchema }), createProject);
 router.patch(
@@ -33,7 +33,7 @@ router.patch(
     }),
     body: projectSchema.partial(),
   }),
-  updateProject
+  updateProject,
 );
 router.delete(
   "/:projectId",
@@ -42,7 +42,7 @@ router.delete(
       projectId: mongoObjectIdSchema("Invalid project id"),
     }),
   }),
-  deleteProject
+  deleteProject,
 );
 
 export default router;

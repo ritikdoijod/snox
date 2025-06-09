@@ -16,8 +16,7 @@ export function transform(object) {
       else if (key === "_id") {
         newObject.id = value;
         continue;
-      }
-      else if (key === "avatar") {
+      } else if (key === "avatar") {
         if (isValidURL(value)) {
           newObject.avatar = value;
         } else {

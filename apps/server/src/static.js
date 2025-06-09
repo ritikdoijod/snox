@@ -7,14 +7,12 @@ const app = new Hono();
 
 // serve static files
 app.use(
-  '/x/*',
+  "/x/*",
   serveStatic({
-    root: './',
-    rewriteRequestPath: (path) =>
-      path.replace(/^\/x/, '/uploads'),
-  })
-)
-
+    root: "./",
+    rewriteRequestPath: (path) => path.replace(/^\/x/, "/uploads"),
+  }),
+);
 
 serve(
   {
@@ -23,8 +21,7 @@ serve(
   },
   (info) => {
     logger.info(
-      `Static file server is running on http://localhost:${info.port}`
+      `Static file server is running on http://localhost:${info.port}`,
     );
-  }
+  },
 );
-

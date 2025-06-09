@@ -35,7 +35,7 @@ export const loader = auth(async function ({
         },
       ],
       include: ["createdBy"],
-    })}`
+    })}`,
   );
 
   return {
@@ -66,7 +66,7 @@ export const action = auth(async function ({
       });
 
       actionData = redirect(
-        `/workspaces/${workspaceId}/projects/${projectId}/tasks/${task.id}`
+        `/workspaces/${workspaceId}/projects/${projectId}/tasks/${task.id}`,
       );
       break;
     }
@@ -96,7 +96,7 @@ export const action = auth(async function ({
       const { taskId } = await request.json();
       await fc.delete(`/tasks/${taskId}`);
       actionData = redirect(
-        `/workspaces/${workspaceId}/projects/${projectId}/tasks`
+        `/workspaces/${workspaceId}/projects/${projectId}/tasks`,
       );
       break;
     }
@@ -122,7 +122,7 @@ export default function Tasks({
       navigate(`/workspaces/${workspaceId}/projects/${projectId}/tasks`);
     else {
       navigate(
-        `/workspaces/${workspaceId}/projects/${projectId}/tasks?search=${search}`
+        `/workspaces/${workspaceId}/projects/${projectId}/tasks?search=${search}`,
       );
     }
   }, [search]);

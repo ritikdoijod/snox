@@ -95,7 +95,7 @@ export default function CreateProject() {
         method: "post",
         action: `/workspaces/${workspaceId}/projects`,
         encType: "application/json",
-      }
+      },
     );
   }
 

@@ -51,7 +51,7 @@ export default function Workspace({ params: { workspaceId } }) {
         action: `/workspaces/${workspaceId}/members`,
         method: "delete",
         encType: "application/json",
-      }
+      },
     );
   }
 
@@ -256,7 +256,7 @@ export default function Workspace({ params: { workspaceId } }) {
             ) : null}
 
             {RolePermissions[userRole].includes(
-              Permissions.DELETE_WORKSPACE
+              Permissions.DELETE_WORKSPACE,
             ) ? (
               <Button
                 size="sm"

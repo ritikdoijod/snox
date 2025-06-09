@@ -14,7 +14,7 @@ export function TableOfContents({ toc }) {
             .filter(Boolean)
             .map((id) => id?.split("#")[1])
         : [],
-    [toc]
+    [toc],
   );
   const activeHeading = useActiveItem(itemIds);
 
@@ -42,7 +42,7 @@ function useActiveItem(itemIds) {
           }
         });
       },
-      { rootMargin: `0% 0% -80% 0%` }
+      { rootMargin: `0% 0% -80% 0%` },
     );
 
     itemIds?.forEach((id) => {
@@ -76,8 +76,8 @@ function Tree({ tree, level = 1, activeItem }) {
               className={cn(
                 "p-0 h-fit text-xs font-semibold text-muted-foreground hover:text-primary",
                 {
-                  "underline text-primary": item.url === `#${activeItem}`
-                }
+                  "underline text-primary": item.url === `#${activeItem}`,
+                },
               )}
               asChild
             >

@@ -31,7 +31,7 @@ export const loader = auth(async function ({ fc, request, session }) {
         },
       ],
       include: ["createdBy", "assignee"],
-    })}`
+    })}`,
   );
 
   return {

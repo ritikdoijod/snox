@@ -21,7 +21,7 @@ router.get(
       taskId: mongoObjectIdSchema("Invalid project id"),
     }),
   }),
-  getTask
+  getTask,
 );
 router.post("/", validate({ body: taskSchema }), createTask);
 router.patch(
@@ -32,7 +32,7 @@ router.patch(
     }),
     body: taskSchema.partial(),
   }),
-  updateTask
+  updateTask,
 );
 router.delete(
   "/:taskId",
@@ -41,7 +41,7 @@ router.delete(
       taskId: mongoObjectIdSchema("Invalid project id"),
     }),
   }),
-  deleteTask
+  deleteTask,
 );
 
 export default router;

@@ -14,7 +14,15 @@ import {
 } from "@/policies/task";
 
 export const getTasks = asyncHandler(async function (c) {
-  const { search, include = [], filters = [], sort, fields, size, page } = c?.query;
+  const {
+    search,
+    include = [],
+    filters = [],
+    sort,
+    fields,
+    size,
+    page,
+  } = c?.query;
 
   const relationships = {
     createdBy: [
@@ -117,7 +125,7 @@ export const getTasks = asyncHandler(async function (c) {
       (item) =>
         Array.isArray(relationships[item])
           ? relationships[item] // If it's an array, spread it
-          : [relationships[item]] // If it's a single stage, wrap in array
+          : [relationships[item]], // If it's a single stage, wrap in array
     ),
 
     // Stage 8: clean up
@@ -215,7 +223,7 @@ export const updateTask = asyncHandler(async function (c) {
     },
     {
       returnDocument: "after",
-    }
+    },
   );
 
   return c.json.success({ data: { task: updatedTask } });

@@ -81,7 +81,7 @@ export const loader = auth(async function ({
   const { task } = await fc.get(
     `/tasks/${taskId}?${QueryString.stringify({
       include: ["createdBy", "project"],
-    })}`
+    })}`,
   );
 
   const { comments } = await fc.get(
@@ -94,7 +94,7 @@ export const loader = auth(async function ({
         },
       ],
       include: ["createdBy"],
-    })}`
+    })}`,
   );
 
   const { members } = await fc.get(
@@ -107,7 +107,7 @@ export const loader = auth(async function ({
         },
       ],
       include: ["user"],
-    })}`
+    })}`,
   );
 
   return { task, comments, members };
@@ -135,7 +135,7 @@ export default function Task({
       z.object({
         title: z.string().nonempty("Title is required"),
         description: z.string().optional(),
-      })
+      }),
     ),
     mode: "onTouched",
   });
@@ -151,7 +151,7 @@ export default function Task({
         action: `/workspaces/${workspaceId}/projects/${projectId}/tasks`,
         method: "patch",
         encType: "application/json",
-      }
+      },
     );
     setIsEditing(false);
   }
@@ -161,9 +161,8 @@ export default function Task({
       <div className="flex flex-1">
         <div className="px-6 space-y-3 flex-1">
           <Card className="min-h-40">
-              {isEditing ? (
-            <CardContent>
-
+            {isEditing ? (
+              <CardContent>
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmit)}>
                     <div className="space-y-6">
@@ -185,7 +184,7 @@ export default function Task({
                             </FormItem>
                           )}
                         />
-                        
+
                         <FormField
                           control={form.control}
                           name="description"
@@ -227,23 +226,22 @@ export default function Task({
                     </div>
                   </form>
                 </Form>
-            </CardContent>
-
-              ) : (
-                <CardHeader>
-                  <CardTitle className="flex justify-between items-start">
-                    {task.title}
-                    <Button
-                      variant="ghost"
-                      className="p-0 size-fit cursor-pointer"
-                      onClick={() => setIsEditing(true)} // Enter edit mode
-                    >
-                      <Pen className="size-3" />
-                    </Button>
-                  </CardTitle>
-                  <CardDescription>{task.description}</CardDescription>
-                </CardHeader>
-              )}
+              </CardContent>
+            ) : (
+              <CardHeader>
+                <CardTitle className="flex justify-between items-start">
+                  {task.title}
+                  <Button
+                    variant="ghost"
+                    className="p-0 size-fit cursor-pointer"
+                    onClick={() => setIsEditing(true)} // Enter edit mode
+                  >
+                    <Pen className="size-3" />
+                  </Button>
+                </CardTitle>
+                <CardDescription>{task.description}</CardDescription>
+              </CardHeader>
+            )}
           </Card>
           <Comments comments={comments} />
           <CommentForm />
@@ -438,7 +436,7 @@ function CommentForm() {
         action: `/comments`,
         method: "post",
         encType: "application/json",
-      }
+      },
     );
   }
 
@@ -516,7 +514,7 @@ function DueDatePicker() {
             variant="ghost"
             className={cn(
               "px-3 font-normal text-xs hover:bg-transparent cursor-pointer flex justify-between w-full border",
-              !task.dueDate && "text-muted-foreground"
+              !task.dueDate && "text-muted-foreground",
             )}
           >
             {task.dueDate ? (
@@ -753,7 +751,7 @@ function Comments({ comments }) {
         action: `/comments`,
         method: "delete",
         encType: "application/json",
-      }
+      },
     );
   }
 
@@ -767,7 +765,7 @@ function Comments({ comments }) {
         action: `/comments`,
         method: "patch",
         encType: "application/json",
-      }
+      },
     );
   }
 
@@ -955,7 +953,7 @@ function DeleteTaskButton() {
         action: `/workspaces/${workspaceId}/projects/${projectId}/tasks`,
         method: "delete",
         encType: "application/json",
-      }
+      },
     );
   }
 

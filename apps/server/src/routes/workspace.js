@@ -24,14 +24,14 @@ router.get(
     }),
     query: getWorkspaceQuerySchema,
   }),
-  getWorkspace
+  getWorkspace,
 );
 router.post(
   "/",
   validate({
     body: workspaceSchema,
   }),
-  createWorkspace
+  createWorkspace,
 );
 router.patch(
   "/:workspaceId",
@@ -41,7 +41,7 @@ router.patch(
     }),
     body: workspaceSchema.partial(),
   }),
-  updateWorkspace
+  updateWorkspace,
 );
 router.delete(
   "/:workspaceId",
@@ -50,7 +50,7 @@ router.delete(
       workspaceId: mongoObjectIdSchema("Invalid workspace id"),
     }),
   }),
-  deleteWorkspace
+  deleteWorkspace,
 );
 
 export default router;

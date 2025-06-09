@@ -32,7 +32,7 @@ export const updateUser = asyncHandler(async function (c) {
     },
     {
       returnDocument: "after",
-    }
+    },
   );
 
   return c.json.success({ data: { user } });

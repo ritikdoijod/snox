@@ -145,7 +145,7 @@ export default function ({ params: { workspaceId, projectId } }) {
 
           {/* Actions */}
           {RolePermissions[userRole]?.includes(
-            Permissions.MANAGE_PROJECT_SETTINGS
+            Permissions.MANAGE_PROJECT_SETTINGS,
           ) && (
             <div className="flex justify-between">
               <Button
@@ -197,7 +197,7 @@ export function TaskCard({ task: { title, description, status, assignee } }) {
             .split("_")
             .map(
               (word) =>
-                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
             )
             .join(" ")}
         </span>
