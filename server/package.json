@@ -3,7 +3,8 @@
   "type": "module",
   "scripts": {
     "dev": "rollup -c && node --env-file=.env.dev --watch dist/server.js",
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "start": "node dist/server.js"
   },
   "dependencies": {
     "@hono/node-server": "^1.14.1",
