@@ -40,13 +40,16 @@ export const loader = auth(async function ({
   return { projects };
 });
 
-export const action = auth(async function ({ request, params, fc }) {
+export const action = auth(async function ({
+  request,
+  params: { workspaceId },
+  fc,
+}) {
   let actionData = {};
 
   switch (request.method) {
     case "POST": {
       const { name, description } = await request.json();
-      const { workspaceId } = params;
       const { project } = await fc.post("/projects", {
         name,
         description,

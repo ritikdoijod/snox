@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { Link, useFetcher, useNavigation } from "react-router";
+import { Link, useFetcher } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -26,6 +26,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
+import { getGoogleAuthURL } from "@/utils/google";
 
 export { loader } from "./loaders";
 export { signup as action } from "./actions";
@@ -85,9 +86,11 @@ function SignUpCard() {
       </CardHeader>
       <CardContent className="grid gap-8">
         <div className="grid">
-          <Button variant="outline" className="cursor-pointer">
-            <FcGoogle />
-            <span className="ml-4">Sign up with Google</span>
+          <Button variant="outline" className="cursor-pointer" asChild>
+            <Link to={getGoogleAuthURL()}>
+              <FcGoogle />
+              <span className="ml-4">Sign up with Google</span>
+            </Link>
           </Button>
         </div>
         <div className="flex gap-4 items-center">

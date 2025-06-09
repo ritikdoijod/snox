@@ -82,7 +82,7 @@ async function getCroppedImg(
   }
 }
 
-export default function AvatarInput({ value, onChange, className }) {
+export function AvatarInput({ value, onChange, className }) {
   const [
     { files, isDragging },
     {

@@ -27,9 +27,9 @@ const FEATURES = [
     icon: "✅",
   },
   {
-    title: "Notifications",
-    description: "Stay updated with instant notifications and reminders.",
-    icon: "🔔",
+    title: "Minimal UI",
+    description: "Stay focused on your tasks with a clean and simple interface.",
+    icon: "🎨",
   },
 ];
 
@@ -69,7 +69,7 @@ export default function HomePage() {
 
       {/* Features Section */}
       <section className="bg-muted flex-1 py-12 w-2xl mx-auto">
-        <h2 className="text-2xl italic text-center mb-8">Features</h2>
+        <h2 className="text-2xl font-semibold text-center mb-8">Why Snox?</h2>
         <div className="grid grid-cols-2 gap-4">
           {FEATURES.map((feature) => (
             <Card key={feature.title}>
@@ -88,7 +88,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="mx-auto py-12 text-xs text-muted-foreground">
-        &copy; {new Date().getFullYear()} Snox. All rights reserved.
+        &copy; {new Date().getFullYear()} Snox. Built for modern workspaces.
       </footer>
     </main>
   );

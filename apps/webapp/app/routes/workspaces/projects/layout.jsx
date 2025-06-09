@@ -8,7 +8,7 @@ export const loader = auth(async function ({ params: { projectId }, fc }) {
       include: ["createdBy"],
     })}`
   );
-  
+
   const { tasks } = await fc.get(
     `/tasks?${QueryString.stringify({
       filters: [
@@ -18,7 +18,7 @@ export const loader = auth(async function ({ params: { projectId }, fc }) {
           },
         },
       ],
-      include: ["createdBy"],
+      include: ["createdBy", "assignee"],
     })}`
   );
 

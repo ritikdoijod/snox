@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { Link, redirect, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import QueryString from "qs";
-import { Folders, Info, Plus, Search } from "lucide-react";
+import { Info, Search, SquareCheck } from "lucide-react";
 
 import { auth } from "@/lib/auth";
 
@@ -17,11 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-export const loader = auth(async function ({
-  params: { projectId },
-  fc,
-  request,
-}) {
+export const loader = auth(async function ({ fc, request, session }) {
   const search = new URL(request.url).searchParams.get("search");
 
   const { tasks } = await fc.get(
@@ -30,11 +26,11 @@ export const loader = auth(async function ({
       filters: [
         {
           $match: {
-            project: projectId,
+            assignee: session.get("uid"),
           },
         },
       ],
-      include: ["createdBy"],
+      include: ["createdBy", "assignee"],
     })}`
   );
 
@@ -43,87 +39,17 @@ export const loader = auth(async function ({
   };
 });
 
-export const action = auth(async function ({
-  request,
-  params: { workspaceId, projectId },
-  fc,
-}) {
-  let actionData = {};
-
-  switch (request.method) {
-    case "POST": {
-      const { title, description, priority, assignee, dueDate } =
-        await request.json();
-
-      const { task } = await fc.post("/tasks", {
-        title,
-        description,
-        project: projectId,
-        priority,
-        status: "TODO",
-        assignee,
-        dueDate,
-      });
-
-      actionData = redirect(
-        `/workspaces/${workspaceId}/projects/${projectId}/tasks/${task.id}`
-      );
-      break;
-    }
-
-    case "PATCH": {
-      const {
-        taskId,
-        title,
-        description,
-        status,
-        priority,
-        dueDate,
-        assignee,
-      } = await request.json();
-      await fc.patch(`/tasks/${taskId}`, {
-        title,
-        description,
-        status,
-        priority,
-        dueDate,
-        assignee,
-      });
-      break;
-    }
-
-    case "DELETE": {
-      const { taskId } = await request.json();
-      await fc.delete(`/tasks/${taskId}`);
-      actionData = redirect(
-        `/workspaces/${workspaceId}/projects/${projectId}/tasks`
-      );
-      break;
-    }
-
-    default: {
-      actionData = { error: { message: "Method not allowed" } };
-      break;
-    }
-  }
-
-  return actionData;
-});
-
-export default function Tasks({
-  params: { workspaceId, projectId },
+export default function UserTasks({
+  params: { workspaceId },
   loaderData: { tasks },
 }) {
   const navigate = useNavigate();
   const [search, setSearch] = useState();
 
   useEffect(() => {
-    if (!search || search === "")
-      navigate(`/workspaces/${workspaceId}/projects/${projectId}/tasks`);
+    if (!search || search === "") navigate(`/workspaces/${workspaceId}/tasks`);
     else {
-      navigate(
-        `/workspaces/${workspaceId}/projects/${projectId}/tasks?search=${search}`
-      );
+      navigate(`/workspaces/${workspaceId}/tasks?search=${search}`);
     }
   }, [search]);
 
@@ -134,8 +60,8 @@ export default function Tasks({
           <CardHeader className="gap-3">
             <div className="flex justify-between items-center">
               <CardTitle className="flex items-center gap-3">
-                <Folders className="size-5" />
-                Tasks
+                <SquareCheck className="size-5" />
+                My Tasks
               </CardTitle>
               <div className="flex items-center gap-3">
                 <div className="relative">
@@ -153,13 +79,6 @@ export default function Tasks({
                     <Search size={16} aria-hidden="true" />
                   </Button>
                 </div>
-                <Button className="size-8" asChild>
-                  <Link
-                    to={`/workspaces/${workspaceId}/projects/${projectId}/tasks/new`}
-                  >
-                    <Plus />
-                  </Link>
-                </Button>
               </div>
             </div>
           </CardHeader>

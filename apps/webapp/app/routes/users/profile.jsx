@@ -1,13 +1,17 @@
 import { useEffect } from "react";
-import { useFetcher, Link, useNavigate } from "react-router";
+import { useFetcher, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { auth } from "@/lib/auth";
+import { getBase64Image } from "@/utils/image";
+import { useAuth } from "@/lib/contexts/auth";
+
+import { AvatarInput } from "@/components/avatar-input";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -16,17 +20,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import AvatarInput from "@/components/avatar-input";
-import { getBase64Image } from "@/utils/image";
-import { useAuth } from "@/lib/contexts/auth";
 
 export const loader = auth(function () {
   return {};

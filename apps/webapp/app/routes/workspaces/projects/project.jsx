@@ -182,7 +182,7 @@ export default function ({ params: { workspaceId, projectId } }) {
   );
 }
 
-export function TaskCard({ task: { title, description, status } }) {
+export function TaskCard({ task: { title, description, status, assignee } }) {
   return (
     <Card className="cursor-pointer">
       <CardHeader>
@@ -191,12 +191,20 @@ export function TaskCard({ task: { title, description, status } }) {
           {description}
         </CardDescription>{" "}
       </CardHeader>
-      <CardContent className="flex gap-2 items-center">
-        <span className="text-xs text-muted-foreground">{status.toLowerCase()}</span>
-        {/* <Avatar className="size-7 ring ring-card text-xs">
+      <CardContent className="flex gap-6 items-center justify-between">
+        <span className="text-xs text-muted-foreground">
+          {status
+            .split("_")
+            .map(
+              (word) =>
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+            )
+            .join(" ")}
+        </span>
+        <Avatar className="size-7 ring ring-card text-xs">
           <AvatarImage src={assignee.avatar} alt={assignee.name} />
           <AvatarFallback>{assignee.name[0].toUpperCase()}</AvatarFallback>
-        </Avatar> */}
+        </Avatar>
       </CardContent>
     </Card>
   );

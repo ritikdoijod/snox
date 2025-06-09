@@ -36,6 +36,8 @@ export default [
             ]),
           ]),
         ]),
+
+        route(":workspaceId/tasks", "./routes/workspaces/tasks/user-tasks.jsx"),
       ]),
     ]),
   ]),

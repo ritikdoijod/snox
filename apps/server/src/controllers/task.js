@@ -33,6 +33,22 @@ export const getTasks = asyncHandler(async function (c) {
         },
       },
     ],
+    assignee: [
+      {
+        $lookup: {
+          from: "users",
+          localField: "assignee",
+          foreignField: "_id",
+          as: "assignee",
+        },
+      },
+      {
+        $unwind: {
+          path: "$assignee",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ],
   };
 
   // aggregation pipeline
