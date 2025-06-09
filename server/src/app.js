@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { serveStatic } from "@hono/node-server/serve-static";
 
 // middlewares
 import { format } from "@/middlewares/format";
@@ -17,6 +18,13 @@ import taskRoutes from "@/routes/task";
 import commentRoutes from "@/routes/comment";
 
 const app = new Hono();
+app.use(
+  "/x/*",
+  serveStatic({
+    root: "./",
+    rewriteRequestPath: (path) => path.replace(/^\/x/, "/uploads"),
+  })
+);
 
 app.use(async (c, next) => {
   const start = Date.now();

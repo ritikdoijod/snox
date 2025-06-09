@@ -2,8 +2,6 @@ import { serve } from "@hono/node-server";
 import { config } from "@/configs/app";
 import { connectToDB } from "@/configs/db";
 import { logger } from "@/configs/logger";
-import "@/static";
-
 import { app } from "@/app";
 
 serve(
