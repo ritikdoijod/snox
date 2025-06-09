@@ -1,4 +1,4 @@
-# [Snox - Task Management App](http://localhost:5173)
+# [Snox - Task Management App](https://snox.onrender.com)
 
 ## Description
 Snox is a modern task management application designed to help users efficiently create, manage, and track their tasks. Built with a cutting-edge tech stack, it offers a responsive user interface and a robust backend to ensure secure and efficient task handling. Whether you're organizing personal to-dos or managing team projects, Snox provides the tools you need to stay organized and productive.
