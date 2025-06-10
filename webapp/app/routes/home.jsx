@@ -8,6 +8,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuth } from "@/lib/contexts/auth";
+import { RiGithubLine } from "react-icons/ri";
+import { ModeToggle } from "@/components/mode-toggle";
 
 const FEATURES = [
   {
@@ -40,7 +42,10 @@ export default function HomePage() {
   return (
     <main className="h-full px-8 flex flex-col">
       {/* Hero Section */}
-      <Card className="rounded-t-none py-16">
+      <Card className="rounded-t-none py-16 relative">
+        <div className="absolute right-6 top-6">
+          <ModeToggle />
+        </div>
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-extrabold">
             Welcome to <span className="text-primary">Snox</span>
@@ -69,7 +74,7 @@ export default function HomePage() {
       </Card>
 
       {/* Features Section */}
-      <section className="bg-muted flex-1 py-12 w-2xl mx-auto">
+      <section className="pt-12 w-2xl mx-auto">
         <h2 className="text-2xl font-semibold text-center mb-8">Why Snox?</h2>
         <div className="grid grid-cols-2 gap-4">
           {FEATURES.map((feature) => (
@@ -87,8 +92,19 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="mx-auto mt-18">
+        <Button>
+          <Link
+            to="https://github.com/ritikdoijod/snox"
+          >
+            <RiGithubLine />
+            View Source Code
+          </Link>
+        </Button>
+      </section>
+
       {/* Footer */}
-      <footer className="mx-auto py-12 text-xs text-muted-foreground">
+      <footer className="mx-auto mt-auto py-12 text-xs text-muted-foreground">
         &copy; {new Date().getFullYear()} Snox. Built for modern workspaces.
       </footer>
     </main>
