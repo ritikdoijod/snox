@@ -10,6 +10,7 @@
     "@hono/node-server": "^1.14.1",
     "@hono/zod-validator": "^0.5.0",
     "argon2": "^0.43.0",
+    "cloudinary": "^2.6.1",
     "hono": "^4.7.7",
     "lodash": "^4.17.21",
     "mongoose": "^8.14.0",

@@ -1,5 +1,3 @@
-import { config } from "@/configs/app";
-
 export function transform(object) {
   if (!object) return;
 
@@ -16,12 +14,6 @@ export function transform(object) {
       else if (key === "_id") {
         newObject.id = value;
         continue;
-      } else if (key === "avatar") {
-        if (isValidURL(value)) {
-          newObject.avatar = value;
-        } else {
-          newObject.avatar = config.STATIC_FILE_SERVER_URL + value;
-        }
       } else {
         newObject[key] = transform(value);
       }
@@ -30,13 +22,4 @@ export function transform(object) {
   }
 
   return object;
-}
-
-function isValidURL(string) {
-  try {
-    new URL(string);
-    return true;
-  } catch (e) {
-    return false;
-  }
 }
