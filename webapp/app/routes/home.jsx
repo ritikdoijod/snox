@@ -93,7 +93,7 @@ export default function HomePage() {
       </section>
 
       <section className="mx-auto mt-18">
-        <Button>
+        <Button asChild>
           <Link
             to="https://github.com/ritikdoijod/snox"
           >
