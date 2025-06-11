@@ -1,15 +1,22 @@
 import pino from "pino";
 
-const logger = pino({
+// export const logger = pino({
+//   transport: {
+//     target: "pino/file",
+//     options: {
+//       destination: "./logs/combined.log",
+//       append: true,
+//       mkdir: true,
+//     },
+//   },
+//   timestamp: pino.stdTimeFunctions.isoTime,
+// });
+
+export const logger = pino({
   transport: {
-    target: "pino/file",
+    target: "pino-pretty",
     options: {
-      destination: "./logs/combined.log",
-      append: true,
-      mkdir: true,
+      destination: 1,
     },
   },
-  timestamp: pino.stdTimeFunctions.isoTime,
 });
-
-export { logger };
