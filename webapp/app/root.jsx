@@ -14,6 +14,7 @@ import { fc } from "@/configs/fc";
 import { AuthProvider } from "@/lib/contexts/auth";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { useEffect } from "react";
 
 export const links = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
