@@ -25,40 +25,49 @@ To set up the project locally, follow these steps:
    cd snox
    ```
 
-3. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+3. **Server setup:**
 
-4. **Set up environment variables:**
-   - Create a `.env` file in the `apps/server/` directory with your MongoDB connection string and other secrets.
-
-      Example `.env` file:
-      ```
-      PORT=8000
-      NODE_ENV=development
-      AUTH_SECRET=
-      MONGO_URI=mongodb://localhost:27017/snox-dev
-      STATIC_FILE_SERVER_URL=http://localhost:3000/x/
-      GOOGLE_OAUTH_CLIENT_ID=
-      GOOGLE_OAUTH_CLIENT_SECRET=
-      GOOGLE_OAUTH_REDIRECT_URI=
-      ```
-   - Create a `.env` file in the `apps/webapp/` directory with backend connection string and other secrets.
-
-      Example `.env` file:
-      ```
-     VITE_SERVER_URL=http://localhost:8000
-      VITE_GOOGLE_CLIENT_ID=
-      VITE_GOOGLE_OAUTH_REDIRECT_URI=http://localhost:5173/auth/callback/google
+   1. **Navigate to the server directory:**
+      ```bash
+      cd server
       ```
 
-5. **Start project:**
+   2. **Install dependencies:**
+      ```bash
+      npm install
+      ```
+
+   3. **Set up environment variables:**
+      
+      Create a `.env` file. `.env.example` available for reference.
    
-     ```bash
-     npm run dev
-     ```
+   4. **Start project:**
+      
+      ```bash
+      npm run dev
+      ```
 
+4. **Webapp setup:**
+
+   1. **Navigate to the webapp directory:**
+      ```bash
+      cd webapp
+      ```
+
+   2. **Install dependencies:**
+      ```bash
+      npm install
+      ```
+
+   3. **Set up environment variables:**
+      
+      Create a `.env` file. `.env.example` available for reference.
+   
+   4. **Start project:**
+      
+      ```bash
+      npm run dev
+      ```
 ## Usage
 - Access the frontend at `http://localhost:5173` (assuming it runs on port 5173).
 - Use the application to:
